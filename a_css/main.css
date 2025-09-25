@@ -1,0 +1,77 @@
+@charset "utf-8";
+/* 背景と全体の設定 */
+body {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  position: relative;
+  z-index: 0;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url(../a_image/body.jpg) center center / cover no-repeat;
+  z-index: -2;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.2); /* ← 明るめに色を抑える */
+  z-index: -1;
+}
+
+/* 初期化 */
+h2,
+h3,
+p {
+  margin: 0px;
+  padding: 0px;
+}
+/* ヘッダー */
+header {
+  margin-bottom: 10px;
+  padding: 0px;
+  background-color: rgba(177, 210, 12, 0.5);
+}
+
+/* メイン */
+main {
+  margin: 0px;
+  padding: 0px;
+  background-color: rgba(135, 207, 235, 0.6);
+}
+
+section {
+  margin: 20px auto;
+  padding: 10px;
+}
+
+a:visited {
+  color: #474747;
+}
+
+button {
+  padding: 15px;
+  width: 80%;
+  min-width: 100px;
+  min-height: 60px;
+  font-size: larger;
+  font-weight: bold;
+  background-color: orange;
+}
+
+@media screen and (max-width: 450px) {
+  bottom {
+    font-size: auto;
+  }
+}

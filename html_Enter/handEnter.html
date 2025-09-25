@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../a_css/handEnter.css" />
+    <script src="../a_js/handEnter.js"></script>
+    <title>handEnter</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="../main.html">モード選択</a></li>
+          <li><a href="autoEnter.html">自動入力モード</a></li>
+          <li><a href="updateEnter.html">更新モード</a></li>
+        </ul>
+      </nav>
+
+      <h1>手動入力モード</h1>
+      <p>
+        この下のボタンを押して入力してください。<br />
+        車両番号は手入力,その他の項目はボタンをおしてください。<br />
+        入力が終わった際には送信ボタンを押してください。
+      </p>
+    </header>
+
+    <main>
+      <form name="handEnter" method="post">
+        <section id="enterCarNum">
+          <label for="carNum">
+            <h2>ゼッケン番号</h2>
+            <input type="text" id="carNum" min="2" max="3" required />
+          </label>
+        </section>
+
+        <section id="enterTime">
+          <h2>時間</h2>
+          <label for="inTime">ピットイン時間:</label>
+          <input type="time" id="inTime" /><br />
+
+          <label for="outTime">ピットアウト時間:</label>
+          <input type="time" id="outTime" /><br />
+
+          <label for="noneTime">NONE</label>
+          <input type="hidden" name="noneTime" id="noneTime" value="none" />
+        </section>
+
+        <section id="enterDriver">
+          <h2>交代したドライバー</h2>
+          <!-- <label for="inDriver">
+            inドライバー:
+            <select name="inDriver" id="inDriver" required>
+              <option value="driverA" selected>Aドラ</option>
+              <option value="driverB">Bドラ</option>
+              <option value="driverC">Cドラ</option>
+              <option value="driverD">Dドラ</option>
+              <option value="driverE">Eドラ</option>
+              <option value="driverF">Fドラ</option>
+              <option value="driverNone">NONE</option>
+            </select>
+            ≫
+          </label> -->
+
+          <label for="outDriver">outドライバー:</label>
+
+          <select name="outDriver" id="outDriver" required>
+            <option value="driverA" selected>Aドラ</option>
+            <option value="driverB">Bドラ</option>
+            <option value="driverC">Cドラ</option>
+            <option value="driverD">Dドラ</option>
+            <option value="driverE">Eドラ</option>
+            <option value="driverF">Fドラ</option>
+            <option value="driverNone">NONE</option>
+          </select>
+        </section>
+
+        <section id="otherTask">
+          <h2>作業内容</h2>
+          <input type="checkbox" name="task" id="tires" value="tire" />
+          <label for="tires">タイヤ交換</label>
+
+          <input type="checkbox" name="task" id="oils" value="oil" />
+          <label for="oils">給油</label>
+        </section>
+
+        <section>
+          <input type="submit" id="submitBnt" value="送信" disabled />
+        </section>
+      </form>
+    </main>
+  </body>
+</html>

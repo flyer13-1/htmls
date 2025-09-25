@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../a_css/autoEnter.css" />
+    <script src="../a_js/autoEnter.js"></script>
+    <title>autoEnter</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="../main.html">モード選択</a></li>
+          <li><a href="handEnter.html">手動入力モード</a></li>
+          <li><a href="updateEnter.html">更新モード</a></li>
+        </ul>
+      </nav>
+
+      <h1>自動入力モード</h1>
+      <p>
+        この下のボタンを押して入力してください。<br />
+        車両番号は手入力,その他の項目はボタンをおしてください。<br />
+        入力が終わった際には送信ボタンを押してください。<br /><br />
+
+        標準時の時刻とずれがないか確認してください。
+        <a href="https://time.is/ja/Tokyo" target="_blank">ここをクリック</a
+        ><br />
+        もしずれがある場合は下記の欄に入力してください。
+      </p>
+      <label for="offset">時計のずれ（秒）:</label>
+      <input type="number" id="offset" value="0" required />
+    </header>
+
+    <main>
+      <form id="myForm" method="post" action="">
+        <section id="enterCarNum">
+          <label for="carNum"><h2>ゼッケン番号</h2></label>
+          <input type="number" name="carNum" id="carNum" max="999" required />
+        </section>
+
+        <section id="Time">
+          <h2>時間</h2>
+          <button type="button" id="inTime">ピットイン</button>
+          <input type="hidden" name="clickedInTime" id="clickedInTime" />
+
+          <button type="button" id="outTime">ピットアウト</button>
+          <input type="hidden" name="clickedOutTime" id="clickedOutTime" />
+
+          <button type="button" id="noneTime">NONE</button>
+          <input type="hidden" name="clickedNoneTime" id="clickedNoneTime" />
+        </section>
+
+        <section id="Driver">
+          <h2>交代したドライバー</h2>
+          <input type="radio" name="driver" id="driverA" value="A" />
+          <label for="driverA">Aドラ</label>
+
+          <input type="radio" name="driver" id="driverB" value="B" />
+          <label for="driverB">Bドラ</label>
+
+          <input type="radio" name="driver" id="driverC" value="C" />
+          <label for="driverC">Cドラ</label>
+
+          <input type="radio" name="driver" id="driverD" value="D" />
+          <label for="driverD">Dドラ</label>
+
+          <input type="radio" name="driver" id="driverE" value="E" />
+          <label for="driverE">Eドラ</label>
+
+          <input type="radio" name="driver" id="driverF" value="F" />
+          <label for="driverF">Fドラ</label>
+
+          <input type="radio" name="driver" id="driverNone" value="none" />
+          <label for="driverNone">NONE</label>
+        </section>
+
+        <section id="otherTask">
+          <h2>作業内容</h2>
+          <input type="checkbox" name="task" id="tires" value="tire" />
+          <label for="tires">タイヤ交換</label>
+
+          <input type="checkbox" name="task" id="oils" value="oil" />
+          <label for="oils">給油</label>
+        </section>
+
+        <section>
+          <h2>備考欄</h2>
+          <input type="text" name="bikou" id="bikou" maxlength="200" />
+        </section>
+
+        <section>
+          <input type="submit" id="submit" value="送信" disabled />
+        </section>
+      </form>
+    </main>
+  </body>
+</html>
