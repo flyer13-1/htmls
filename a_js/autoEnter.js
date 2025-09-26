@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
   //ピットイン時間の動き
   inTimeBtn.addEventListener("click", () => {
     if (inClicked) return;
+    if(outClicked && noneClicked) return;
 
     const now = getCorrectedTime();
     clickedInInput.value = now.toISOString();
@@ -37,6 +38,8 @@ document.addEventListener("DOMContentLoaded", function () {
   //ピットアウト時間の動き
   outTimeBtn.addEventListener("click", () => {
     if (outClicked) return;
+    if(inClicked && noneClicked) return;
+    if(!inClicked) return;
 
     const now = getCorrectedTime();
     clickedOutInput.value = now.toISOString();
@@ -55,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
   //ピットアウトしない時時間の動き
   noneTimeBtn.addEventListener("click", () => {
     if (noneClicked) return;
+    if(inClicked && outClicked) return;
 
     const now = getCorrectedTime();
     clickedNoneInput.value = "none";
@@ -89,10 +93,8 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelector('input[type="radio"]:checked') !== null;
 
     // ピットイン/アウトチェック
-    const pitOk =
-      (inClicked && outClicked) ||
-      (inClicked && noneClicked) ||
-      (outClicked && noneClicked);
+    const pitCnt = [inClicked , outClicked , noneClicked].filter(v => v).length;
+    const pitOk = (pitCnt >= 2);
 
     // 送信ボタン制御
     submitBtn.disabled = !(inputsFilled && radioChecked && pitOk);
