@@ -1,6 +1,9 @@
 @charset "utf-8";
 /* 背景と全体の設定 */
 body {
+  /* width,heightは作成が終わったら消すこと */
+  width: 360px;
+  height: 640px;
   margin: 0;
   padding: 0;
   text-align: center;
@@ -32,7 +35,8 @@ body::after {
 
 /* 初期化 */
 h1,
-h3,
+h2,
+label,
 p {
   margin: 0px;
   padding: 0px;
@@ -41,77 +45,26 @@ p {
 header {
   background-color: rgba(177, 210, 12, 0.5);
   margin: 0;
-  padding-bottom: 15px;
-}
-
-/* パンくずリスト nav内のulを使う前提
-nav ul {
-  list-style-type: none;
-  text-align: left;
-  margin: 0;
   padding: 0;
-}
-
-nav li {
-  display: inline-block;
-}
-
-nav li::after {
-  content: "≫";
-  color: #999;
-}
-
-nav li:last-child::after {
-  content: none;
-} */
-
-/* ヘッダー内のナビ */
-nav {
-  width: 100%;
-  margin: 0px;
-  padding: 5px;
-}
-
-nav ul {
-  margin: 0px;
-  padding: 0px;
-  list-style-type: none;
-  display: flex;
-}
-nav a {
-  color: black;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-nav li:hover {
-  background-color: rgba(255, 183, 0, 0.8);
-}
-
-nav li {
-  width: 120px;
-  height: auto;
-  padding: 5px;
-  text-align: center;
-  background: rgb(124, 234, 254);
-  border: solid 1px brown;
-  transition: 0.2s ease;
-}
-
-nav a:visited {
-  color: purple;
+  font-size: 15px;
 }
 
 /* メイン */
 main {
   margin: 0px;
-  margin-bottom: 20px;
   padding: 0px;
   background-color: rgba(135, 207, 235, 0.6);
 }
 
 section {
-  padding: 10px;
+  padding: 5px;
+}
+
+/* 車両ボタン */
+#carNum button {
+  font-size: 20px;
+  width: 24%;
+  margin-bottom: 5px;
 }
 
 /* 時間ボタン */
@@ -120,7 +73,7 @@ button {
   font-size: 18px;
   background-color: orange;
   width: 45%;
-  height: 50px;
+  height: 30px;
 }
 
 /* ラジオボタン・チェックボタン */
@@ -134,8 +87,7 @@ button {
   display: inline-block;
   font-weight: bold;
   font-size: 18px;
-  padding: 10px 20px;
-  margin: 5px;
+  padding: 8px 8px;
   background-color: orange;
   border: 2px solid #333;
   border-radius: 8px;

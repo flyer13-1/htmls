@@ -9,22 +9,10 @@
   </head>
   <body>
     <header>
-      <nav>
-        <ul>
-          <li><a href="../main.html">モード選択</a></li>
-          <li><a href="handEnter.html">手動入力モード</a></li>
-          <li><a href="updateEnter.html">更新モード</a></li>
-        </ul>
-      </nav>
-
       <h1>自動入力モード</h1>
       <p>
-        この下のボタンを押して入力してください。<br />
-        車両番号は手入力,その他の項目はボタンをおしてください。<br />
-        入力が終わった際には送信ボタンを押してください。<br /><br />
-
-        標準時の時刻とずれがないか確認してください。
-        <a href="https://time.is/ja/Tokyo" target="_blank">ここをクリック</a
+        <a href="https://time.is/ja/Tokyo" target="_blank"
+          >標準時の時刻とずれがないか確認してください。</a
         ><br />
         もしずれがある場合は下記の欄に入力してください。
       </p>
@@ -34,13 +22,34 @@
 
     <main>
       <form id="myForm" method="post" action="">
-        <section id="enterCarNum">
-          <label for="carNum"><h2>ゼッケン番号</h2></label>
-          <input type="number" name="carNum" id="carNum" max="999" required />
+        <section id="carNum">
+          <button type="button" id="car1Checked">car1</button>
+          <input type="hidden" id="car1" name="car1" />
+
+          <button type="button" id="car2Checked">car2</button>
+          <input type="hidden" id="car2" name="car2" />
+
+          <button type="button" id="car3Checked">car3</button>
+          <input type="hidden" id="car3" name="car3" />
+
+          <button type="button" id="car4Checked">car4</button>
+          <input type="hidden" id="car4" name="car4" />
+
+          <button type="button" id="car5Checked">car5</button>
+          <input type="hidden" id="car5" name="car5" />
+
+          <button type="button" id="car6Checked">car6</button>
+          <input type="hidden" id="car6" name="car6" />
+
+          <button type="button" id="car7Checked">car7</button>
+          <input type="hidden" id="car7" name="car7" />
+
+          <button type="button" id="car8Checked">car8</button>
+          <input type="hidden" id="car8" name="car8" />
         </section>
 
         <section id="Time">
-          <h2>時間</h2>
+          <!-- <h2>時間</h2> -->
           <button type="button" id="inTime">ピットイン</button>
           <input type="hidden" name="clickedInTime" id="clickedInTime" />
 
@@ -52,7 +61,7 @@
         </section>
 
         <section id="Driver">
-          <h2>交代したドライバー</h2>
+          <!-- <h2>交代したドライバー</h2> -->
           <input type="radio" name="driver" id="driverA" value="A" />
           <label for="driverA">Aドラ</label>
 
@@ -76,7 +85,7 @@
         </section>
 
         <section id="otherTask">
-          <h2>作業内容</h2>
+          <!-- <h2>作業内容</h2> -->
           <input type="checkbox" name="task" id="tires" value="tire" />
           <label for="tires">タイヤ交換</label>
 
@@ -85,7 +94,7 @@
         </section>
 
         <section>
-          <h2>備考欄</h2>
+          備考欄
           <input type="text" name="bikou" id="bikou" maxlength="200" />
         </section>
 
