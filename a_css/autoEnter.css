@@ -1,9 +1,6 @@
 @charset "utf-8";
 /* 背景と全体の設定 */
 body {
-  /* width,heightは作成が終わったら消すこと */
-  width: 360px;
-  height: 640px;
   margin: 0;
   padding: 0;
   text-align: center;
