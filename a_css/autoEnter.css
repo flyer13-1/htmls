@@ -1,6 +1,8 @@
 @charset "utf-8";
 /* 背景と全体の設定 */
 body {
+  width: 360px;
+  height: 640px;
   margin: 0;
   padding: 0;
   text-align: center;
@@ -64,23 +66,28 @@ section {
   margin-bottom: 5px;
 }
 
+.carBtn.selected {
+  background-color: #9e9b9b;
+  color: rgb(255, 0, 204);
+}
+
 /* 時間ボタン */
 button {
+  width: 30%;
+  min-height: 30px;
   font-weight: bold;
   font-size: 18px;
   background-color: orange;
-  width: 45%;
-  height: 30px;
 }
 
 /* ラジオボタン・チェックボタン */
 #Driver input,
-#otherTask input {
+#task input {
   display: none; /* 元のラジオボタンは非表示 */
 }
 
 #Driver input + label,
-#otherTask input + label {
+#task input + label {
   display: inline-block;
   font-weight: bold;
   font-size: 18px;
@@ -92,7 +99,7 @@ button {
 }
 
 #Driver input:checked + label,
-#otherTask input:checked + label {
+#task input:checked + label {
   background-color: #9e9b9b;
   color: rgb(255, 0, 204);
 }

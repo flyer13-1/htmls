@@ -9,6 +9,7 @@
   </head>
   <body>
     <header>
+      <div id="toast"></div>
       <h1>自動入力モード</h1>
       <p>
         <a href="https://time.is/ja/Tokyo" target="_blank"
@@ -22,42 +23,15 @@
 
     <main>
       <form id="myForm" method="post" action="">
-        <section id="carNum">
-          <button type="button" id="car1Checked">car1</button>
-          <input type="hidden" id="car1" name="car1" />
-
-          <button type="button" id="car2Checked">car2</button>
-          <input type="hidden" id="car2" name="car2" />
-
-          <button type="button" id="car3Checked">car3</button>
-          <input type="hidden" id="car3" name="car3" />
-
-          <button type="button" id="car4Checked">car4</button>
-          <input type="hidden" id="car4" name="car4" />
-
-          <button type="button" id="car5Checked">car5</button>
-          <input type="hidden" id="car5" name="car5" />
-
-          <button type="button" id="car6Checked">car6</button>
-          <input type="hidden" id="car6" name="car6" />
-
-          <button type="button" id="car7Checked">car7</button>
-          <input type="hidden" id="car7" name="car7" />
-
-          <button type="button" id="car8Checked">car8</button>
-          <input type="hidden" id="car8" name="car8" />
-        </section>
+        <section id="carNum"></section>
 
         <section id="Time">
           <!-- <h2>時間</h2> -->
           <button type="button" id="inTime">ピットイン</button>
-          <input type="hidden" name="clickedInTime" id="clickedInTime" />
 
           <button type="button" id="outTime">ピットアウト</button>
-          <input type="hidden" name="clickedOutTime" id="clickedOutTime" />
 
           <button type="button" id="noneTime">NONE</button>
-          <input type="hidden" name="clickedNoneTime" id="clickedNoneTime" />
         </section>
 
         <section id="Driver">
@@ -84,22 +58,22 @@
           <label for="driverNone">NONE</label>
         </section>
 
-        <section id="otherTask">
+        <section id="task">
           <!-- <h2>作業内容</h2> -->
-          <input type="checkbox" name="task" id="tires" value="tire" />
+          <input type="checkbox" id="tires" value="tire" />
           <label for="tires">タイヤ交換</label>
 
-          <input type="checkbox" name="task" id="oils" value="oil" />
+          <input type="checkbox" id="oils" value="oil" />
           <label for="oils">給油</label>
         </section>
 
         <section>
           備考欄
-          <input type="text" name="bikou" id="bikou" maxlength="200" />
+          <input type="text" id="note" maxlength="200" />
         </section>
 
         <section>
-          <input type="submit" id="submit" value="送信" disabled />
+          <input type="submit" id="submit" value="送信" />
         </section>
       </form>
     </main>
