@@ -15,9 +15,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   //ほかの作業の入力処理
   const tires = document.getElementById("tires");
   const oils = document.getElementById("oils");
+  const note = document.getElementById("note");
 
   //formの処理
   const form = document.getElementById("myForm");
+
+  //選択時の色変更
+  function color(name) {
+    name.style.backgroundColor = "#0066CC";
+    name.style.color = "#fff";
+  }
 
   try {
     // サーバから車両番号リストを取得（例：JSONで["1","2","3",...]）
@@ -63,22 +70,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (carData[num].inTime === "none" || carData[num].outTime === "none") {
           const noneT = document.getElementById("noneTime");
           noneT.disabled = true;
-          noneT.style.backgroundColor = "#9e9b9b";
-          noneT.style.color = "rgb(255,0,204)";
           console.log("noneを有効化");
         }
         if (carData[num].inTime && carData[num].inTime !== "none") {
           const inT = document.getElementById("inTime");
           inT.disabled = true;
-          inT.style.backgroundColor = "#9e9b9b";
-          inT.style.color = "rgb(255,0,204)";
+          color(inT);
           console.log("pitinを有効化");
         }
         if (carData[num].outTime && carData[num].outTime !== "none") {
           const outT = document.getElementById("outTime");
           outT.disabled = true;
-          outT.style.backgroundColor = "#9e9b9b";
-          outT.style.color = "rgb(255,0,204)";
+          color(outT);
           console.log("pitoutを有効化");
         }
         // ドライバー選択時の処理
@@ -130,8 +133,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     carData[car].state.inClicked = true;
 
     // ボタン色を変更
-    inTimeBtn.style.backgroundColor = "#9e9b9b";
-    inTimeBtn.style.color = "rgb(255, 0, 204)";
+    color(inTimeBtn);
 
     console.log("押した時刻：", now.toLocaleString());
     inTimeBtn.disabled = true;
@@ -150,8 +152,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     carData[car].state.outClicked = true;
 
     // ボタン色を変更
-    outTimeBtn.style.backgroundColor = "#9e9b9b";
-    outTimeBtn.style.color = "rgb(255, 0, 204)";
+    color(outTimeBtn);
 
     console.log("押した時間；", now.toLocaleString());
     outTimeBtn.disabled = true;
@@ -176,8 +177,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // ボタン色を変更
-    noneTimeBtn.style.backgroundColor = "#9e9b9b";
-    noneTimeBtn.style.color = "rgb(255, 0, 204)";
+    color(noneTimeBtn);
 
     console.log("押した時刻：", now.toLocaleString());
     noneTimeBtn.disabled = true;
@@ -212,23 +212,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   //formの送信時の処理
+
+  // トースト表示用関数
+  function showToast(message, duration = 2000) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.style.display = "block";
+
+    setTimeout(() => {
+      toast.style.display = "none";
+    }, duration);
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault(); //標準のform送信を停止
 
     // 既存の hidden は削除
     document.querySelectorAll(".dynamic-hidden").forEach((el) => el.remove());
-    const send = {};
-
-    // トースト表示用関数
-    function showToast(message, duration = 2000) {
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.style.display = "block";
-
-      setTimeout(() => {
-        toast.style.display = "none";
-      }, duration);
-    }
+    const sendCarData = {};
 
     // 選択されている車両だけ挿入
     for (const carContainer in carData) {
@@ -241,13 +242,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         resultCar.oil ||
         resultCar.notes
       ) {
-        send[carContainer] = resultCar;
+        sendCarData[carContainer] = resultCar;
       }
     }
 
-    //手動でformを送信（ページ遷移しない）
-    const payload = JSON.stringify(carData);
+    // 未送信データを確認してデータを格納
+    const payload = JSON.stringify({
+      current: sendCarData,
+      unsent: JSON.parse(localStorage.getItem("unsentData") || "{}"),
+    });
+    console.log("データの格納完了");
 
+    //データを送信
     try {
       const response = await fetch("", {
         method: "POST",
@@ -260,10 +266,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       const result = await response.json();
       console.log("サーバからの応答:", result);
 
-      showToast("送信成功しました！");
+      showToast("送信成功");
+
+      // 送信成功ならローカルストレージの未送信データは削除
+      localStorage.removeItem("unsentData");
     } catch (err) {
       console.error("送信エラー:", err);
-      showToast("送信に失敗しました。");
+      alert("[重要]送信に失敗,データを保存。一度開発者に連絡を");
+
+      localStorage.setItem("unsentData", payload);
     }
   });
 });
