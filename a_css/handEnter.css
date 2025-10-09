@@ -32,99 +32,92 @@ body::after {
 
 /* 初期化 */
 h1,
-h3,
+h2,
+label,
 p {
   margin: 0px;
   padding: 0px;
 }
 /* ヘッダー */
 header {
-  background-color: rgba(177, 210, 12, 0.5);
-  margin: 0;
-  padding: 10px;
-}
-
-/* パンくずリスト nav内のulを使う前提
-nav ul {
-  list-style-type: none;
-  text-align: left;
   margin: 0;
   padding: 0;
-}
-
-nav li {
-  display: inline-block;
-}
-
-nav li::after {
-  content: "≫";
-  color: #999;
-}
-
-nav li:last-child::after {
-  content: none;
-} */
-
-/* ヘッダー内のナビ */
-nav {
-  width: 100%;
-  margin: 0px;
-  padding: 5px;
-}
-
-nav ul {
-  margin: 0px;
-  padding: 0px;
-  list-style-type: none;
-  display: flex;
-}
-nav a {
-  color: black;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-nav li:hover {
-  background-color: rgba(255, 183, 0, 0.8);
-}
-
-nav li {
-  width: 120px;
-  height: auto;
-  padding: 5px;
-  text-align: center;
-  background: rgb(124, 234, 254);
-  border: solid 1px brown;
-  transition: backgraund-color 0.2s ease;
-}
-
-nav a:visited {
-  color: purple;
+  font-size: 12px;
+  background-color: rgba(177, 210, 12, 0.5);
 }
 
 /* メイン */
 main {
   margin: 0px;
-  margin-bottom: 20px;
   padding: 0px;
-  background-color: rgba(135, 207, 235, 0.6);
-}
-
-section {
-  padding: 10px;
-}
-
-button {
-  font-weight: bold;
   font-size: 18px;
-  background-color: orange;
-  width: 45%;
-  height: 50px;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+/* ボタン化：全体設定 */
+section:not(#Time):not(#notes) {
+  margin: 5px;
+  padding: 5px;
+  font-size: 15px;
+  font-weight: bold;
+
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
 }
 
-#submitBnt {
-  width: 45%;
+/* ボタン化:詳細設定 */
+section:not(#Time):not(#notes) input {
+  display: none; /* 元のラジオボタンは非表示 */
 }
 
-@media screen and (max-width: 450px) {
+section:not(#Time):not(#notes) input + label {
+  flex: 1 1 calc(24% - 10px);
+  min-height: 20px;
+  font-weight: bold;
+
+  border: 2px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
 }
+
+/* ボタン化毎:色設定 */
+#carNum input + label {
+  background-color: #ff8c42;
+}
+
+#Driver input + label {
+  background-color: #ff6b6b;
+}
+
+#task input + label {
+  background-color: rgba(70, 70, 255, 0.5);
+}
+
+section:not(#Time):not(#notes) input:checked + label {
+  background-color: #0066cc;
+  color: #fff;
+}
+
+/* @media screen and (min-width: 400px) {
+  #carNum button,
+  #Time button {
+    font-size: 19px;
+    padding: 7px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  header {
+    font-size: 20px;
+  }
+
+  #carNum button,
+  #Time button,
+  #Driver input + label,
+  #task input + label {
+    font-size: 24px;
+    padding: 10px;
+  }
+} */
