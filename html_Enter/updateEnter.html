@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../a_css/updateEnter.css" />
+    <script src="../a_js/updateEnter.js"></script>
+    <title>updateEnter</title>
+  </head>
+  <body>
+    <header>
+      <h1>変更モード</h1>
+      <p>
+        変更する「id」、「ゼッケン番号」、「変更内容」をSHOWモードで確認してください。
+      </p>
+    </header>
+
+    <main>
+      <form id="myForm" method="post" action="">
+        <section id="selectId">
+          <label for="ids">idを指定：</label>
+          <input type="number" id="ids" maxlength="2" required />
+        </section>
+
+        <section id="carNum"></section>
+
+        <section id="Time">
+          <!-- <h2>時間</h2> -->
+          <button type="button" id="inTime">ピットイン</button>
+
+          <button type="button" id="outTime">ピットアウト</button>
+
+          <button type="button" id="noneTime">NONE</button>
+        </section>
+
+        <section id="Driver">
+          <!-- <h2>交代したドライバー</h2> -->
+          <input type="radio" name="driver" id="driverA" value="A" />
+          <label for="driverA">Aドラ</label>
+
+          <input type="radio" name="driver" id="driverB" value="B" />
+          <label for="driverB">Bドラ</label>
+
+          <input type="radio" name="driver" id="driverC" value="C" />
+          <label for="driverC">Cドラ</label>
+
+          <input type="radio" name="driver" id="driverD" value="D" />
+          <label for="driverD">Dドラ</label>
+
+          <input type="radio" name="driver" id="driverE" value="E" />
+          <label for="driverE">Eドラ</label>
+
+          <input type="radio" name="driver" id="driverF" value="F" />
+          <label for="driverF">Fドラ</label>
+
+          <input type="radio" name="driver" id="driverNone" value="none" />
+          <label for="driverNone">NONE</label>
+        </section>
+
+        <section id="task">
+          <!-- <h2>作業内容</h2> -->
+          <input type="checkbox" id="tires" value="tire" />
+          <label for="tires">タイヤ交換</label>
+
+          <input type="checkbox" id="oils" value="oil" />
+          <label for="oils">給油</label>
+        </section>
+
+        <section id="notes">
+          備考欄
+          <input type="text" id="note" maxlength="200" />
+        </section>
+
+        <section id="submits">
+          <input type="submit" id="submit" value="送信" />
+        </section>
+      </form>
+    </main>
+  </body>
+</html>
