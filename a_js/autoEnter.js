@@ -1,18 +1,17 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  //車両の処理
+  //    定数の宣言
+  //車両
   const carNumSection = document.getElementById("carNum");
   const carData = {};
 
-  //ピットの時間設定
+  //ピットの時間
   const inTimeBtn = document.getElementById("inTime");
   const outTimeBtn = document.getElementById("outTime");
   const noneTimeBtn = document.getElementById("noneTime");
   const offsetTime = document.getElementById("offset");
 
-  //ドライバーの入力処理
+  //ドライバーなどの作業
   const driver = document.getElementById("Driver");
-
-  //ほかの作業の入力処理
   const tires = document.getElementById("tires");
   const oils = document.getElementById("oils");
   const note = document.getElementById("note");
@@ -20,98 +19,180 @@ document.addEventListener("DOMContentLoaded", async () => {
   //formの処理
   const form = document.getElementById("myForm");
 
-  //選択時の色変更
+  //     共通関数の宣言
+  //車両のデータの取得
+  async function getCarData(cnt = 3) {
+    try {
+      // サーバから車両番号リストを取得（例：JSONで["1","2","3",...]）
+      // const response = await fetch(""); // 適宜URLを変更
+      // const carNumbers = await response.json();
+      return carNumbers;
+    } catch (err) {
+      if (cnt > 0) {
+        console.error("データ取得失敗", err);
+        return await getCarNumber(cnt - 1);
+      } else {
+        alert("データ取得失敗しました。管理者に一度報告してください。");
+        return null;
+      }
+    }
+  }
+
+  //色変更
   function color(name) {
     name.style.backgroundColor = "#0066CC";
     name.style.color = "#fff";
   }
 
-  try {
-    // サーバから車両番号リストを取得（例：JSONで["1","2","3",...]）
-    // const response = await fetch(""); // 適宜URLを変更
-    // const carNumbers = await response.json();
+  //時間ボタンの入力履歴を代入
+  function timeSet(does) {
+    does.disabled = true;
+    color(does);
+  }
 
-    //テスト用データ
-    const carNumbers = [5, 6, 15, 16, 0, 1, 20];
-
-    carNumbers.forEach((num) => {
-      // ボタンを作成
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = num;
-      btn.classList.add("carBtn");
-
-      // 作業内容を格納する箱を作成
-      carData[num] = {
-        inTime: null,
-        outTime: null,
-        driver: null,
-        tire: null,
-        oil: null,
-        notes: "",
-        state: { inClicked: false, outClicked: false, noneClicked: false },
-      };
-
-      // ボタンクリックで選択／解除表示（CSSクラス付け外し）
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".carBtn").forEach((btn) => {
-          btn.classList.remove("selected");
-        });
-        btn.classList.add("selected");
-
-        //時間選択
-        const time = document.querySelectorAll("#Time button[type ='button']");
-        time.forEach((e) => {
-          e.disabled = false; // 全て有効に戻す
-          e.style.backgroundColor = ""; // 元の色に戻す（任意）
-          e.style.color = "";
-        });
-
-        if (carData[num].inTime === "none" || carData[num].outTime === "none") {
-          const noneT = document.getElementById("noneTime");
-          noneT.disabled = true;
-          console.log("noneを有効化");
-        }
-        if (carData[num].inTime && carData[num].inTime !== "none") {
-          const inT = document.getElementById("inTime");
-          inT.disabled = true;
-          color(inT);
-          console.log("pitinを有効化");
-        }
-        if (carData[num].outTime && carData[num].outTime !== "none") {
-          const outT = document.getElementById("outTime");
-          outT.disabled = true;
-          color(outT);
-          console.log("pitoutを有効化");
-        }
-        // ドライバー選択時の処理
-        if (carData[num].driver) {
-          const driverRadio = document.querySelector(
-            `#Driver input[value="${carData[num].driver}"]`
-          );
-          if (driverRadio) driverRadio.checked = true; // true でチェック
-        } else {
-          document
-            .querySelectorAll("#Driver input")
-            .forEach((r) => (r.checked = false));
-        }
-
-        // 作業内容反映
-        document.getElementById("tires").checked = !!carData[num].tire;
-        document.getElementById("oils").checked = !!carData[num].oil;
-        note.value = carData[num].notes || "";
-      });
-
-      // ボタンをセクションに追加
-      carNumSection.appendChild(btn);
-      console.log("ボタン制作完了");
+  //時間ボタンの入力履歴を復元を実行
+  function timeReset(num) {
+    const time = document.querySelectorAll("#Time button[type ='button']");
+    time.forEach((e) => {
+      e.disabled = false; // 全て有効に戻す
+      e.style.backgroundColor = ""; // 元の色に戻す（任意）
+      e.style.color = "";
     });
 
-    console.log("車両オブジェクト初期化完了:", carData);
-  } catch (err) {
-    console.error("車両リスト取得エラー:", err);
-    alert("車両の情報を取得できませんでした");
+    if (carData[num].inTime === "none" || carData[num].outTime === "none") {
+      timeSet(noneTimeBtn);
+    }
+    if (carData[num].inTime && carData[num].inTime !== "none") {
+      timeSet(inTimeBtn);
+    }
+    if (carData[num].outTime && carData[num].outTime !== "none") {
+      timeSet(outTimeBtn);
+    }
   }
+
+  //ドライバーの入力履歴を復元
+  function driverReset(num) {
+    if (carData[num].driver) {
+      const driverRadio = document.querySelector(
+        `#Driver input[value="${carData[num].driver}"]`
+      );
+      if (driverRadio) driverRadio.checked = true; // true でチェック
+    } else {
+      document
+        .querySelectorAll("#Driver input")
+        .forEach((r) => (r.checked = false));
+    }
+  }
+
+  // トースト表示用関数
+  function showToast(message, duration = 2000) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.style.display = "block";
+
+    setTimeout(() => {
+      toast.style.display = "none";
+    }, duration);
+  }
+
+  // 選択されている車両だけ挿入
+  function findCarData() {
+    const sendCarData = {};
+    for (const carContainer in carData) {
+      const resultCar = carData[carContainer];
+      if (
+        resultCar.driver ||
+        resultCar.inTime ||
+        resultCar.outTime ||
+        resultCar.tire ||
+        resultCar.oil ||
+        resultCar.note
+      ) {
+        sendCarData[carContainer] = resultCar;
+      }
+    }
+    return sendCarData;
+  }
+
+  //データを送信
+  async function sendData(payload, cnt = 3) {
+    for (let i = 0; i < cnt; i++) {
+      try {
+        const response = await fetch("", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+        });
+
+        if (!response.ok) throw new Error("送信失敗");
+
+        const result = await response.json();
+
+        console.log("送信成功");
+        showToast("送信成功");
+        return result;
+      } catch (err) {
+        if (cnt > 0) {
+          console.error("送信エラー:", err);
+          return await sendData(payload, cnt - 1);
+        } else {
+          return null;
+        }
+      }
+    }
+  }
+
+  //       処理を実行
+  //車両データを取得
+  // const carNumbers = getCarData();
+
+  //テスト用データ
+  const carNumbers = [5, 6, 15, 16, 0, 1, 20];
+
+  carNumbers.forEach((num) => {
+    // ボタンを作成
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = num;
+    btn.classList.add("carBtn");
+
+    // 作業内容を格納する箱を作成
+    carData[num] = {
+      inTime: null,
+      outTime: null,
+      driver: null,
+      tire: null,
+      oil: null,
+      note: "",
+      state: { inClicked: false, outClicked: false, noneClicked: false },
+    };
+
+    // ボタンクリックで選択／解除表示（CSSクラス付け外し）
+    btn.addEventListener("click", () => {
+      // 車両ボタンの選択切り替え
+      document.querySelectorAll(".carBtn").forEach((btn) => {
+        btn.classList.remove("selected");
+      });
+      btn.classList.add("selected");
+
+      //時間選択の選択切り替え
+      timeReset(num);
+
+      // ドライバー選択時の処理
+      driverReset(num);
+
+      // 作業内容反映
+      document.getElementById("tires").checked = !!carData[num].tire;
+      document.getElementById("oils").checked = !!carData[num].oil;
+      note.value = carData[num].note || "";
+    });
+
+    // ボタンをセクションに追加
+    carNumSection.appendChild(btn);
+    console.log("ボタン制作完了");
+  });
+
+  console.log("車両オブジェクト初期化完了:", carData);
 
   // ここから先で carData[num] に各種作業情報を上書きしていく
 
@@ -183,68 +264,44 @@ document.addEventListener("DOMContentLoaded", async () => {
     noneTimeBtn.disabled = true;
   });
 
-  //ドライバーの入力処理
+  //ドライバーなどの作業入力処理
   driver.addEventListener("change", (e) => {
     const car = document.querySelector(".carBtn.selected").textContent;
     carData[car].driver = e.target.value;
   });
 
-  //ほかの作業の入力処理
   tires.addEventListener("change", (e) => {
     const car = document.querySelector(".carBtn.selected").textContent;
     if (carData[car].oil) {
       carData[car].oil = null;
+    } else {
+      carData[car].tire = e.target.value;
     }
-    carData[car].tire = e.target.value;
   });
 
   oils.addEventListener("change", (e) => {
     const car = document.querySelector(".carBtn.selected").textContent;
     if (carData[car].oil) {
       carData[car].oil = null;
+    } else {
+      carData[car].oil = e.target.value;
     }
-    carData[car].oil = e.target.value;
   });
 
   note.addEventListener("change", (e) => {
     const car = document.querySelector(".carBtn.selected").textContent;
-    carData[car].notes = e.target.value;
+    carData[car].note = e.target.value;
   });
 
   //formの送信時の処理
-
-  // トースト表示用関数
-  function showToast(message, duration = 2000) {
-    const toast = document.getElementById("toast");
-    toast.textContent = message;
-    toast.style.display = "block";
-
-    setTimeout(() => {
-      toast.style.display = "none";
-    }, duration);
-  }
-
   form.addEventListener("submit", async (e) => {
     e.preventDefault(); //標準のform送信を停止
 
     // 既存の hidden は削除
     document.querySelectorAll(".dynamic-hidden").forEach((el) => el.remove());
-    const sendCarData = {};
 
-    // 選択されている車両だけ挿入
-    for (const carContainer in carData) {
-      const resultCar = carData[carContainer];
-      if (
-        resultCar.driver ||
-        resultCar.inTime ||
-        resultCar.outTime ||
-        resultCar.tire ||
-        resultCar.oil ||
-        resultCar.notes
-      ) {
-        sendCarData[carContainer] = resultCar;
-      }
-    }
+    //送信データ用を格納
+    const sendCarData = findCarData();
 
     // 未送信データを確認してデータを格納
     const payload = JSON.stringify({
@@ -254,26 +311,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("データの格納完了");
 
     //データを送信
-    try {
-      const response = await fetch("", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: payload,
-      });
-
-      if (!response.ok) throw new Error("送信失敗");
-
-      const result = await response.json();
-      console.log("サーバからの応答:", result);
-
-      showToast("送信成功");
-
+    if (await sendData(payload)) {
       // 送信成功ならローカルストレージの未送信データは削除
       localStorage.removeItem("unsentData");
-    } catch (err) {
-      console.error("送信エラー:", err);
+    } else {
       alert("[重要]送信に失敗,データを保存。一度開発者に連絡を");
-
       localStorage.setItem("unsentData", payload);
     }
   });
