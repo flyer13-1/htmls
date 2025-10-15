@@ -132,6 +132,7 @@ section {
   header {
     font-size: 20px;
   }
+
   #carNum button,
   #Time button,
   #Driver input + label,
