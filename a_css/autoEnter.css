@@ -3,6 +3,8 @@
 body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  height: 100%;
   text-align: center;
   position: relative;
   z-index: 0;
@@ -69,15 +71,18 @@ section {
 /* 車両ボタン */
 #carNum button {
   flex: 1 1 calc(25% - 10px);
+  min-height: 50px;
   font-size: 15px;
   font-weight: bold;
   background-color: #ff8c42;
 }
 
 /* 時間ボタン */
-#Time button {
+#Time button,
+#Time p {
   flex: 1 1 calc(33% - 10px);
   font-size: 15px;
+  min-height: 40px;
   font-weight: bold;
   background-color: #ffd23f;
 }
@@ -91,7 +96,7 @@ section {
 #Driver input + label,
 #task input + label {
   flex: 1 1 calc(24% - 10px);
-  min-height: 20px;
+  min-height: 40px;
 
   font-weight: bold;
   border: 2px solid #333;
@@ -116,8 +121,13 @@ section {
 }
 
 /* 備考欄 */
-#notes {
+#notes,
+#submits {
   display: block;
+}
+
+#submit {
+  padding: 10px;
 }
 
 @media screen and (min-width: 400px) {

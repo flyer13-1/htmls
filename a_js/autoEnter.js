@@ -10,6 +10,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const noneTimeBtn = document.getElementById("noneTime");
   const offsetTime = document.getElementById("offset");
 
+  //時間の表示・書き換え
+  const shInTime = document.getElementById("inTimeMsg");
+  const shOutTime = document.getElementById("outTimeMsg");
+  const shNoneTime = document.getElementById("noneTimeMsg");
+
   //ドライバーなどの作業
   const driver = document.getElementById("Driver");
   const tires = document.getElementById("tires");
@@ -26,13 +31,36 @@ document.addEventListener("DOMContentLoaded", async () => {
       // サーバから車両番号リストを取得（例：JSONで["1","2","3",...]）
       // const response = await fetch(""); // 適宜URLを変更
       // const carNumbers = await response.json();
+
+      const carNumbers = [5, 6, 15, 16, 0, 1, 20];
       return carNumbers;
     } catch (err) {
       if (cnt > 0) {
         console.error("データ取得失敗", err);
         return await getCarNumber(cnt - 1);
       } else {
-        alert("データ取得失敗しました。管理者に一度報告してください。");
+        alert("車両情報の取得に失敗しました。管理者に一度報告してください。");
+        return null;
+      }
+    }
+  }
+
+  //ドライバーのデータの取得
+  async function getDriverData(cnt = 3) {
+    try {
+      // サーバから車両番号リストを取得（例：JSONで["1","2","3",...]）
+      // const response = await fetch(""); // 適宜URLを変更
+      // const Driver = await response.json();
+
+      return driverData;
+    } catch (err) {
+      if (cnt > 0) {
+        console.error("データ取得失敗", err);
+        return await getCarNumber(cnt - 1);
+      } else {
+        alert(
+          "ドライバー情報の取得失敗しました。管理者に一度報告してください。"
+        );
         return null;
       }
     }
@@ -59,19 +87,38 @@ document.addEventListener("DOMContentLoaded", async () => {
       e.style.color = "";
     });
 
+    const shTime = document.querySelectorAll("#Time p");
+    shTime.forEach((e) => {
+      e.textContent = "";
+    });
+
     if (carData[num].inTime === "none" || carData[num].outTime === "none") {
       timeSet(noneTimeBtn);
+      shNoneTime.textContent = "";
     }
     if (carData[num].inTime && carData[num].inTime !== "none") {
       timeSet(inTimeBtn);
+      shInTime.textContent = carData[num].inTime;
     }
     if (carData[num].outTime && carData[num].outTime !== "none") {
       timeSet(outTimeBtn);
+      shOutTime.textContent = carData[num].outTime;
     }
   }
 
   //ドライバーの入力履歴を復元
   function driverReset(num) {
+    const drivers = driverData[num];
+    const labels = document.querySelectorAll(
+      '#Driver label:not([for="driverNone"])'
+    );
+
+    labels.forEach((e, index) => {
+      if (drivers[index]) {
+        e.innerHTML = drivers[index];
+      }
+    });
+
     if (carData[num].driver) {
       const driverRadio = document.querySelector(
         `#Driver input[value="${carData[num].driver}"]`
@@ -149,6 +196,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   //テスト用データ
   const carNumbers = [5, 6, 15, 16, 0, 1, 20];
 
+  const driverData = {
+    5: ["A<br>せきりょうた", "B<br>かんざきあおい", "C<br>きみずかんた"],
+    6: ["A<br>かんじゃに", "B<br>ぶいしっくす", "C<br>すのーまん"],
+    15: ["A<br>koko", "B<br>kesha", "C<br>putbll"],
+    16: ["A<br>かず", "B<br>けんた", "C<br>かんた"],
+    0: ["A<br>noziri", "B<br>mirei", "C<br>JUJU"],
+    1: ["A<br>1gou", "B<br>2gou", "C<br>3gou"],
+    20: ["A<br>灯台", "B<br>強大", "C<br>寛大"],
+  };
+
   carNumbers.forEach((num) => {
     // ボタンを作成
     const btn = document.createElement("button");
@@ -210,10 +267,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     //時間を取得して情報を入力
     const now = getCorrectedTime();
+    shInTime.textContent = now.toTimeString();
     carData[car].inTime = now.toTimeString();
     carData[car].state.inClicked = true;
-
-    document.getElementById("inTimeMsg").textContent = now.toTimeString();
 
     // ボタン色を変更
     color(inTimeBtn);
@@ -231,7 +287,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (Object.values(carData[car].state).filter((v) => v).length >= 2) return;
 
     const now = getCorrectedTime();
-    carData[car].outTime = now.toISOString();
+    shOutTime.textContent = now.toTimeString();
+    carData[car].outTime = now.toTimeString();
     carData[car].state.outClicked = true;
 
     // ボタン色を変更
@@ -250,9 +307,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const now = getCorrectedTime();
 
     if (!carData[car].state.inClicked) {
+      shNoneTime.textContent = now.toTimeString();
       carData[car].inTime = "none";
       carData[car].state.noneClicked = true;
     } else if (carData[car].state.inClicked && !carData[car].state.outClicked) {
+      shNoneTime.textContent = now.toTimeString();
       carData[car].outTime = "none";
       carData[car].state.noneClicked = true;
     } else {

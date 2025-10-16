@@ -23,47 +23,66 @@
 
     <main>
       <form id="myForm" method="post" action="">
+        <h2>ゼッケン番号</h2>
         <section id="carNum"></section>
 
+        <h2>ピット時間</h2>
         <section id="Time">
-          <!-- <h2>時間</h2> -->
-          <button type="button" id="inTime">ピットイン</button>
+          <button type="button" id="inTime">イン</button>
 
-          <button type="button" id="outTime">ピットアウト</button>
+          <button type="button" id="outTime">アウト</button>
 
-          <button type="button" id="noneTime">NONE</button>
+          <button type="button" id="noneTime">ガレージ</button>
 
           <p id="inTimeMsg">ここに時間を表示</p>
           <p id="outTimeMsg">ここに時間を表示</p>
-          <p id="noneTimeMsg0/*9">ここに時間を表示</p>
+          <p id="noneTimeMsg">ここに時間を表示</p>
         </section>
 
+        <h2>交代したドライバー</h2>
         <section id="Driver">
-          <!-- <h2>交代したドライバー</h2> -->
           <input type="radio" name="driver" id="driverA" value="A" />
-          <label for="driverA">Aドラ</label>
+          <label for="driverA"
+            >A <br />
+            ドライバー名</label
+          >
 
           <input type="radio" name="driver" id="driverB" value="B" />
-          <label for="driverB">Bドラ</label>
+          <label for="driverB"
+            >B<br />
+            ドライバー名</label
+          >
 
           <input type="radio" name="driver" id="driverC" value="C" />
-          <label for="driverC">Cドラ</label>
+          <label for="driverC"
+            >C<br />
+            ドライバー名</label
+          >
 
           <input type="radio" name="driver" id="driverD" value="D" />
-          <label for="driverD">Dドラ</label>
+          <label for="driverD"
+            >D<br />
+            ドライバー名</label
+          >
 
           <input type="radio" name="driver" id="driverE" value="E" />
-          <label for="driverE">Eドラ</label>
+          <label for="driverE"
+            >E<br />
+            ドライバー名</label
+          >
 
           <input type="radio" name="driver" id="driverF" value="F" />
-          <label for="driverF">Fドラ</label>
+          <label for="driverF"
+            >F<br />
+            ドライバー名</label
+          >
 
           <input type="radio" name="driver" id="driverNone" value="none" />
-          <label for="driverNone">NONE</label>
+          <label for="driverNone">交代なし</label>
         </section>
 
+        <h2>作業内容</h2>
         <section id="task">
-          <!-- <h2>作業内容</h2> -->
           <input type="checkbox" id="tires" value="tire" />
           <label for="tires">タイヤ交換</label>
 
@@ -72,7 +91,7 @@
         </section>
 
         <section id="notes">
-          備考欄
+          <h2>備考欄</h2>
           <input type="text" id="note" maxlength="200" />
         </section>
 
