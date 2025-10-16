@@ -210,8 +210,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     //時間を取得して情報を入力
     const now = getCorrectedTime();
-    carData[car].inTime = now.toISOString();
+    carData[car].inTime = now.toTimeString();
     carData[car].state.inClicked = true;
+
+    document.getElementById("inTimeMsg").textContent = now.toTimeString();
 
     // ボタン色を変更
     color(inTimeBtn);

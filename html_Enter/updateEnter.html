@@ -10,66 +10,76 @@
   <body>
     <header>
       <h1>変更モード</h1>
-      <p>
-        変更する「id」、「ゼッケン番号」、「変更内容」をSHOWモードで確認してください。
-      </p>
     </header>
 
     <main>
+      <p>最初に変更したい車両を指定してください。</p>
+      <input type="number" id="carNum" max="999" />
+
+      <div id="showCarData"></div>
+
+      <p>次に変更内容を記入してください</p>
+
       <form id="myForm" method="post" action="">
-        <section id="selectId">
-          <label for="ids">idを指定：</label>
-          <input type="number" id="ids" maxlength="2" required />
+        <section id="selectMoves">
+          <select name="" id="">
+            <!-- １が記録変更　２がリタイア -->
+            <option value="">選択してください</option>
+            <option value="1">監視記録変更</option>
+            <option value="2">リタイア</option>
+          </select>
         </section>
 
-        <section id="carNum"></section>
+        <article id="retire"></article>
 
-        <section id="Time">
-          <!-- <h2>時間</h2> -->
-          <button type="button" id="inTime">ピットイン</button>
+        <article id="cheange">
+          <section id="Time">
+            <!-- <h2>時間</h2> -->
+            <label for="inTime">ピットイン</label>
+            <input type="time" id="inTime" />
 
-          <button type="button" id="outTime">ピットアウト</button>
+            <label for="outTime">ピットイン</label>
+            <input type="time" id="outTime" />
+          </section>
 
-          <button type="button" id="noneTime">NONE</button>
-        </section>
+          <section id="Driver">
+            <!-- <h2>交代したドライバー</h2> -->
+            <input type="radio" name="driver" id="driverA" value="A" />
+            <label for="driverA">Aドラ</label>
 
-        <section id="Driver">
-          <!-- <h2>交代したドライバー</h2> -->
-          <input type="radio" name="driver" id="driverA" value="A" />
-          <label for="driverA">Aドラ</label>
+            <input type="radio" name="driver" id="driverB" value="B" />
+            <label for="driverB">Bドラ</label>
 
-          <input type="radio" name="driver" id="driverB" value="B" />
-          <label for="driverB">Bドラ</label>
+            <input type="radio" name="driver" id="driverC" value="C" />
+            <label for="driverC">Cドラ</label>
 
-          <input type="radio" name="driver" id="driverC" value="C" />
-          <label for="driverC">Cドラ</label>
+            <input type="radio" name="driver" id="driverD" value="D" />
+            <label for="driverD">Dドラ</label>
 
-          <input type="radio" name="driver" id="driverD" value="D" />
-          <label for="driverD">Dドラ</label>
+            <input type="radio" name="driver" id="driverE" value="E" />
+            <label for="driverE">Eドラ</label>
 
-          <input type="radio" name="driver" id="driverE" value="E" />
-          <label for="driverE">Eドラ</label>
+            <input type="radio" name="driver" id="driverF" value="F" />
+            <label for="driverF">Fドラ</label>
 
-          <input type="radio" name="driver" id="driverF" value="F" />
-          <label for="driverF">Fドラ</label>
+            <input type="radio" name="driver" id="driverNone" value="none" />
+            <label for="driverNone">NONE</label>
+          </section>
 
-          <input type="radio" name="driver" id="driverNone" value="none" />
-          <label for="driverNone">NONE</label>
-        </section>
+          <section id="task">
+            <!-- <h2>作業内容</h2> -->
+            <input type="checkbox" id="tires" value="tire" />
+            <label for="tires">タイヤ交換</label>
 
-        <section id="task">
-          <!-- <h2>作業内容</h2> -->
-          <input type="checkbox" id="tires" value="tire" />
-          <label for="tires">タイヤ交換</label>
+            <input type="checkbox" id="oils" value="oil" />
+            <label for="oils">給油</label>
+          </section>
 
-          <input type="checkbox" id="oils" value="oil" />
-          <label for="oils">給油</label>
-        </section>
-
-        <section id="notes">
-          備考欄
-          <input type="text" id="note" maxlength="200" />
-        </section>
+          <section id="notes">
+            備考欄
+            <input type="text" id="note" maxlength="200" />
+          </section>
+        </article>
 
         <section id="submits">
           <input type="submit" id="submit" value="送信" />
