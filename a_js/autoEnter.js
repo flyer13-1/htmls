@@ -259,6 +259,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     return new Date(Date.now() + offsetSec * 1000);
   }
 
+  function formatTime(date) {
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${hours}:${minutes}:${seconds}`;
+  }
+
   //ピットイン時間の動き
   inTimeBtn.addEventListener("click", () => {
     const car = document.querySelector(".carBtn.selected").textContent;
@@ -267,8 +274,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     //時間を取得して情報を入力
     const now = getCorrectedTime();
-    shInTime.textContent = now.toTimeString();
-    carData[car].inTime = now.toTimeString();
+  const formattedTime = formatTime(now);
+  shInTime.textContent = formattedTime;
+  carData[car].inTime = formattedTime;
     carData[car].state.inClicked = true;
 
     // ボタン色を変更
@@ -287,8 +295,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (Object.values(carData[car].state).filter((v) => v).length >= 2) return;
 
     const now = getCorrectedTime();
-    shOutTime.textContent = now.toTimeString();
-    carData[car].outTime = now.toTimeString();
+  const formattedTime = formatTime(now);
+  shOutTime.textContent = formattedTime;
+  carData[car].outTime = formattedTime;
     carData[car].state.outClicked = true;
 
     // ボタン色を変更
@@ -307,11 +316,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const now = getCorrectedTime();
 
     if (!carData[car].state.inClicked) {
-      shNoneTime.textContent = now.toTimeString();
+      const formattedTime = formatTime(now);
+      shNoneTime.textContent = formattedTime;
       carData[car].inTime = "none";
       carData[car].state.noneClicked = true;
     } else if (carData[car].state.inClicked && !carData[car].state.outClicked) {
-      shNoneTime.textContent = now.toTimeString();
+      const formattedTime = formatTime(now);
+      shNoneTime.textContent = formattedTime;
       carData[car].outTime = "none";
       carData[car].state.noneClicked = true;
     } else {
