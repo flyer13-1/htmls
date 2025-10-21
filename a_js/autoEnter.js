@@ -87,22 +87,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       e.style.color = "";
     });
 
-    const shTime = document.querySelectorAll("#Time p");
+    const shTime = document.querySelectorAll("#Time input");
     shTime.forEach((e) => {
-      e.textContent = "";
+      e.value = "";
     });
 
-    if (carData[num].inTime === "none" || carData[num].outTime === "none") {
+    if (carData[num].inTime === "none") {
       timeSet(noneTimeBtn);
-      shNoneTime.textContent = "";
+      shNoneTime.value = carData[num].inTime;
+    } else if (carData[num].outTime === "none") {
+      timeSet(outTimeBtn);
+      shOutTime.value = carData[num].outTime;
     }
+
     if (carData[num].inTime && carData[num].inTime !== "none") {
       timeSet(inTimeBtn);
-      shInTime.textContent = carData[num].inTime;
+      shInTime.value = carData[num].inTime;
     }
     if (carData[num].outTime && carData[num].outTime !== "none") {
       timeSet(outTimeBtn);
-      shOutTime.textContent = carData[num].outTime;
+      shOutTime.value = carData[num].outTime;
     }
   }
 
@@ -274,9 +278,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     //時間を取得して情報を入力
     const now = getCorrectedTime();
-  const formattedTime = formatTime(now);
-  shInTime.textContent = formattedTime;
-  carData[car].inTime = formattedTime;
+    shInTime.value = formatTime(now);
+    carData[car].inTime = formatTime(now);
     carData[car].state.inClicked = true;
 
     // ボタン色を変更
@@ -295,9 +298,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (Object.values(carData[car].state).filter((v) => v).length >= 2) return;
 
     const now = getCorrectedTime();
-  const formattedTime = formatTime(now);
-  shOutTime.textContent = formattedTime;
-  carData[car].outTime = formattedTime;
+    shOutTime.value = formatTime(now);
+    carData[car].outTime = formatTime(now);
     carData[car].state.outClicked = true;
 
     // ボタン色を変更
@@ -316,13 +318,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const now = getCorrectedTime();
 
     if (!carData[car].state.inClicked) {
-      const formattedTime = formatTime(now);
-      shNoneTime.textContent = formattedTime;
+      shNoneTime.value = formatTime(now);
       carData[car].inTime = "none";
       carData[car].state.noneClicked = true;
     } else if (carData[car].state.inClicked && !carData[car].state.outClicked) {
-      const formattedTime = formatTime(now);
-      shNoneTime.textContent = formattedTime;
+      shNoneTime.value = formatTime(now);
       carData[car].outTime = "none";
       carData[car].state.noneClicked = true;
     } else {

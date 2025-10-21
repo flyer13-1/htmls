@@ -79,11 +79,12 @@ section {
 
 /* 時間ボタン */
 #Time button,
-#Time p {
-  flex: 1 1 calc(33% - 10px);
+#Time input {
+  flex: 1 1 calc(32% - 10px);
   font-size: 15px;
   min-height: 40px;
   font-weight: bold;
+  text-align: center;
   background-color: #ffd23f;
 }
 
@@ -135,6 +136,10 @@ section {
   #Time button {
     font-size: 19px;
     padding: 7px;
+  }
+
+  #Time input {
+    font-size: 20px;
   }
 }
 
