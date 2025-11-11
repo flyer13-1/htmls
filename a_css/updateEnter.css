@@ -1,0 +1,138 @@
+@charset "utf-8";
+/* 背景と全体の設定 */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 0;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url(../a_image/body.jpg) center center / cover no-repeat;
+  z-index: -2;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.2); /* ← 明るめに色を抑える */
+  z-index: -1;
+}
+
+/* 初期化 */
+h1,
+h2,
+label,
+p {
+  margin: 0px;
+  padding: 0px;
+}
+/* ヘッダー */
+header {
+  background-color: rgba(177, 210, 12, 0.5);
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+}
+
+/* メイン */
+main {
+  margin: 0px;
+  padding: 0px;
+  font-size: 18px;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+/* ボタン：全体設定 */
+section {
+  margin: 5px;
+  padding: 5px;
+
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+}
+/* ボタン：詳細設定 */
+
+/* ラジオボタン・チェックボタン */
+#Driver input,
+#task input {
+  display: none; /* 元のラジオボタンは非表示 */
+}
+
+#Driver input + label,
+#task input + label {
+  flex: 1 1 calc(24% - 10px);
+  min-height: 40px;
+
+  font-weight: bold;
+  border: 2px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* ボタンの色設定 */
+#Driver input + label {
+  background-color: #ff6b6b;
+}
+
+#task input + label {
+  background-color: rgba(70, 70, 255, 0.5);
+}
+
+#carNum .carBtn.selected,
+#Driver input:checked + label,
+#task input:checked + label {
+  background-color: #0066cc;
+  color: #fff;
+}
+
+/* 備考欄 */
+#notes,
+#submits {
+  display: block;
+}
+
+#submit {
+  padding: 10px;
+}
+
+@media screen and (min-width: 400px) {
+  #carNum button,
+  #Time button {
+    font-size: 19px;
+    padding: 7px;
+  }
+
+  #Time input {
+    font-size: 20px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  header {
+    font-size: 20px;
+  }
+  #carNum button,
+  #Time button,
+  #Driver input + label,
+  #task input + label {
+    font-size: 24px;
+    padding: 10px;
+  }
+}
