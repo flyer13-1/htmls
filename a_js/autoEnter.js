@@ -267,25 +267,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     const car = document.querySelector(".carBtn.selected").textContent;
     const state = carData[car].state;
     const pressedCount =
-      Object.values(carData[car].state).filter((v) => v).length >= 2;
+      Object.values(carData[car].state).filter((v) => v).length;
 
-    // 押されたボタンが既にtrueなら → 再選択許可（時間は変えない）
+    // 押されたボタンが既にtrueなら → 強調解除 + 時間をキャッシュに保存
     if (state.inClicked) {
-      // もし他のボタンが既に2回押されていたら、状態リセットして再選択できるようにする
       state.inClicked = false;
       inTimeBtn.style.backgroundColor = "";
       inTimeBtn.style.color = "";
-      cashTime[car] = carData[car].inTime;
+      cashTime[car] = { buttonType: "in", time: carData[car].inTime };
       return;
-    } else if (cashTime[car]) {
+    }
+
+    // キャッシュに時間があり、それがinボタンのものなら → キャッシュから復元
+    if (cashTime[car] && cashTime[car].buttonType === "in") {
       console.log("インに変更");
-      carData[car].inTime = cashTime[car];
-      shInTime.textContent = cashTime[car];
+      carData[car].inTime = cashTime[car].time;
+      shInTime.value = cashTime[car].time;
       state.inClicked = true;
       color(inTimeBtn);
       delete cashTime[car];
       return;
-    } else if (pressedCount) {
+    }
+
+    // 既に2つのボタンが押されている場合は新規入力不可
+    if (pressedCount >= 2) {
       return;
     }
 
@@ -306,28 +311,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     const car = document.querySelector(".carBtn.selected").textContent;
     const state = carData[car].state;
     const pressedCount =
-      Object.values(carData[car].state).filter((v) => v).length >= 2;
+      Object.values(carData[car].state).filter((v) => v).length;
 
     console.log("pitout");
 
-    // 押されたボタンが既にtrueなら → 再選択許可（時間は変えない）
+    // 押されたボタンが既にtrueなら → 強調解除 + 時間をキャッシュに保存
     if (state.outClicked) {
       console.log("state.outClicked");
-      // もし他のボタンが既に2回押されていたら、状態リセットして再選択できるようにする
       state.outClicked = false;
       outTimeBtn.style.backgroundColor = "";
       outTimeBtn.style.color = "";
-      cashTime[car] = carData[car].outTime;
+      cashTime[car] = { buttonType: "out", time: carData[car].outTime };
       return;
-    } else if (cashTime[car]) {
+    }
+
+    // キャッシュに時間があり、それがoutボタンのものなら → キャッシュから復元
+    if (cashTime[car] && cashTime[car].buttonType === "out") {
       console.log("アウトに変更");
-      carData[car].outTime = cashTime[car];
-      shOutTime.textContent = cashTime[car];
+      carData[car].outTime = cashTime[car].time;
+      shOutTime.value = cashTime[car].time;
       state.outClicked = true;
       color(outTimeBtn);
       delete cashTime[car];
       return;
-    } else if (pressedCount) {
+    }
+
+    // 既に2つのボタンが押されている場合は新規入力不可
+    if (pressedCount >= 2) {
       return;
     }
 
@@ -347,29 +357,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     const car = document.querySelector(".carBtn.selected").textContent;
     const state = carData[car].state;
     const pressedCount =
-      Object.values(carData[car].state).filter((v) => v).length >= 2;
+      Object.values(carData[car].state).filter((v) => v).length;
 
-    // 押されたボタンが既にtrueなら → 再選択許可（時間は変えない）
+    // 押されたボタンが既にtrueなら → 強調解除 + 時間をキャッシュに保存
     if (state.noneClicked) {
       console.log("state.noneClicked");
-      // もし他のボタンが既に2回押されていたら、状態リセットして再選択できるようにする
       state.noneClicked = false;
       noneTimeBtn.style.backgroundColor = "";
       noneTimeBtn.style.color = "";
+      // noneボタンの場合、inTimeかoutTimeのどちらに設定されているかを保存
+      const savedTime = carData[car].inTime === "none" ? carData[car].inTime : carData[car].outTime;
+      const targetType = carData[car].inTime === "none" ? "in" : "out";
+      cashTime[car] = { buttonType: "none", time: savedTime, targetType: targetType };
       return;
-    } else if (cashTime[car]) {
+    }
+
+    // キャッシュに時間があり、それがnoneボタンのものなら → キャッシュから復元
+    if (cashTime[car] && cashTime[car].buttonType === "none") {
       console.log("cashTime[car]");
-      if (!state.inClicked) {
+      if (cashTime[car].targetType === "in") {
         carData[car].inTime = "none";
-        state.noneClicked = true;
-        delete cashTime[car];
+        shNoneTime.value = cashTime[car].time;
       } else {
         carData[car].outTime = "none";
-        state.noneClicked = true;
-        color(noneTimeBtn);
+        shNoneTime.value = cashTime[car].time;
       }
+      state.noneClicked = true;
+      color(noneTimeBtn);
+      delete cashTime[car];
       return;
-    } else if (pressedCount) {
+    }
+
+    // 既に2つのボタンが押されている場合は新規入力不可
+    if (pressedCount >= 2) {
       return;
     }
 
@@ -379,16 +399,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       shNoneTime.value = now;
       carData[car].inTime = "none";
       carData[car].state.noneClicked = true;
+      // ボタン色を変更
+      color(noneTimeBtn);
     } else if (carData[car].state.inClicked && !carData[car].state.outClicked) {
       shNoneTime.value = now;
       carData[car].outTime = "none";
       carData[car].state.noneClicked = true;
+      // ボタン色を変更
+      color(noneTimeBtn);
     } else {
       alert("無効の入力です。再入力してください");
+      return;
     }
-
-    // ボタン色を変更
-    color(noneTimeBtn);
 
     console.log("押した時刻：", now);
   });
