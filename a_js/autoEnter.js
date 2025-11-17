@@ -85,12 +85,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       e.value = "";
     });
 
-    if (carData[num].inTime === "none") {
-      color(noneTimeBtn);
-      shNoneTime.value = carData[num].inTime;
-    } else if (carData[num].outTime === "none") {
-      color(noneTimeBtn);
-      shOutTime.value = carData[num].outTime;
+    if (carData[num].noneTime) {
+      if (carData[num].inTime === "none") {
+        color(noneTimeBtn);
+        shNoneTime.value = carData[num].inTime;
+      } else if (carData[num].outTime === "none") {
+        color(noneTimeBtn);
+        shOutTime.value = carData[num].outTime;
+      }
     }
 
     if (carData[num].inTime && carData[num].inTime !== "none") {
@@ -211,9 +213,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     btn.classList.add("carBtn");
 
     // 作業内容を格納する箱を作成
+    //Time系は時間を、stateは状態＋選択済みのボタンを表す
     carData[num] = {
       inTime: null,
       outTime: null,
+      noneTime: null,
       driver: null,
       tire: null,
       oil: null,
@@ -262,30 +266,35 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   let cashTime = {};
+
   //ピットイン時間の動き
   inTimeBtn.addEventListener("click", () => {
     const car = document.querySelector(".carBtn.selected").textContent;
     const state = carData[car].state;
-    const pressedCount =
-      Object.values(carData[car].state).filter((v) => v).length;
+    const pressedCount = Object.values(carData[car].state).filter(
+      (v) => v
+    ).length;
 
-    // 押されたボタンが既にtrueなら → 強調解除 + 時間をキャッシュに保存
+    // 押されたボタンが既にtrueなら → 再選択許可（時間は変えない）
     if (state.inClicked) {
+      // もし他のボタンが既に2回押されていたら、状態リセットして再選択できるようにする
       state.inClicked = false;
       inTimeBtn.style.backgroundColor = "";
       inTimeBtn.style.color = "";
-      cashTime[car] = { buttonType: "in", time: carData[car].inTime };
+      cashTime[car] = carData[car].inTime;
+      shInTime.value = "";
       return;
     }
 
-    // キャッシュに時間があり、それがinボタンのものなら → キャッシュから復元
-    if (cashTime[car] && cashTime[car].buttonType === "in") {
+    // キャッシュに時間がある → キャッシュから復元
+    if (cashTime[car]) {
       console.log("インに変更");
-      carData[car].inTime = cashTime[car].time;
-      shInTime.value = cashTime[car].time;
+      carData[car].inTime = cashTime[car];
+      shInTime.value = cashTime[car];
+
       state.inClicked = true;
       color(inTimeBtn);
-      delete cashTime[car];
+      console.log("キャッシュから復元:", cashTime[car]);
       return;
     }
 
@@ -310,29 +319,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   outTimeBtn.addEventListener("click", () => {
     const car = document.querySelector(".carBtn.selected").textContent;
     const state = carData[car].state;
-    const pressedCount =
-      Object.values(carData[car].state).filter((v) => v).length;
+    const pressedCount = Object.values(carData[car].state).filter(
+      (v) => v
+    ).length;
 
-    console.log("pitout");
-
-    // 押されたボタンが既にtrueなら → 強調解除 + 時間をキャッシュに保存
+    // 押されたボタンが既にtrueなら → 再選択許可（時間は変えない）
     if (state.outClicked) {
-      console.log("state.outClicked");
+      // もし他のボタンが既に2回押されていたら、状態リセットして再選択できるようにする
       state.outClicked = false;
       outTimeBtn.style.backgroundColor = "";
       outTimeBtn.style.color = "";
-      cashTime[car] = { buttonType: "out", time: carData[car].outTime };
+      cashTime[car] = carData[car].outTime;
+      shOutTime.value = "";
       return;
     }
 
     // キャッシュに時間があり、それがoutボタンのものなら → キャッシュから復元
-    if (cashTime[car] && cashTime[car].buttonType === "out") {
+    if (cashTime[car]) {
       console.log("アウトに変更");
-      carData[car].outTime = cashTime[car].time;
-      shOutTime.value = cashTime[car].time;
+      carData[car].outTime = cashTime[car];
+      shOutTime.value = cashTime[car];
+
       state.outClicked = true;
       color(outTimeBtn);
-      delete cashTime[car];
+      console.log("キャッシュから復元:", cashTime[car]);
       return;
     }
 
@@ -356,8 +366,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   noneTimeBtn.addEventListener("click", () => {
     const car = document.querySelector(".carBtn.selected").textContent;
     const state = carData[car].state;
-    const pressedCount =
-      Object.values(carData[car].state).filter((v) => v).length;
+    const pressedCount = Object.values(carData[car].state).filter(
+      (v) => v
+    ).length;
 
     // 押されたボタンが既にtrueなら → 強調解除 + 時間をキャッシュに保存
     if (state.noneClicked) {
@@ -365,26 +376,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       state.noneClicked = false;
       noneTimeBtn.style.backgroundColor = "";
       noneTimeBtn.style.color = "";
-      // noneボタンの場合、inTimeかoutTimeのどちらに設定されているかを保存
-      const savedTime = carData[car].inTime === "none" ? carData[car].inTime : carData[car].outTime;
-      const targetType = carData[car].inTime === "none" ? "in" : "out";
-      cashTime[car] = { buttonType: "none", time: savedTime, targetType: targetType };
+
+      cashTime[car] = carData[car].noneTime;
+      shNoneTime.value = "";
       return;
     }
 
-    // キャッシュに時間があり、それがnoneボタンのものなら → キャッシュから復元
-    if (cashTime[car] && cashTime[car].buttonType === "none") {
-      console.log("cashTime[car]");
-      if (cashTime[car].targetType === "in") {
-        carData[car].inTime = "none";
-        shNoneTime.value = cashTime[car].time;
-      } else {
-        carData[car].outTime = "none";
-        shNoneTime.value = cashTime[car].time;
-      }
+    // キャッシュに時間があり、それがoutボタンのものなら → キャッシュから復元
+    if (cashTime[car]) {
+      console.log("noneに変更");
+      carData[car].noneTime = cashTime[car];
+      shNoneTime.value = cashTime[car];
+
       state.noneClicked = true;
       color(noneTimeBtn);
-      delete cashTime[car];
+      console.log("キャッシュから復元:", cashTime[car]);
       return;
     }
 
@@ -395,23 +401,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const now = getCorrectedTime();
 
-    if (!carData[car].state.inClicked) {
-      shNoneTime.value = now;
-      carData[car].inTime = "none";
-      carData[car].state.noneClicked = true;
-      // ボタン色を変更
-      color(noneTimeBtn);
-    } else if (carData[car].state.inClicked && !carData[car].state.outClicked) {
-      shNoneTime.value = now;
-      carData[car].outTime = "none";
-      carData[car].state.noneClicked = true;
-      // ボタン色を変更
-      color(noneTimeBtn);
-    } else {
-      alert("無効の入力です。再入力してください");
-      return;
-    }
+    carData[car].noneTime = now;
+    shNoneTime.value = now;
+    carData[car].state.noneClicked = true;
 
+    // ボタン色を変更
+    color(noneTimeBtn);
     console.log("押した時刻：", now);
   });
 
@@ -465,6 +460,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (await sendData(payload)) {
       // 送信成功ならローカルストレージの未送信データは削除
       localStorage.removeItem("unsentData");
+      cashTime = {};
     } else {
       alert("[重要]送信に失敗,データを保存。一度開発者に連絡を");
       localStorage.setItem("unsentData", payload);
