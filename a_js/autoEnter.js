@@ -286,6 +286,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    // 既に2つのボタンが押されている場合は新規入力不可
+    if (pressedCount >= 2) {
+      return;
+    }
+
     // キャッシュに時間がある → キャッシュから復元
     if (cashTime[car]) {
       console.log("インに変更");
@@ -295,11 +300,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       state.inClicked = true;
       color(inTimeBtn);
       console.log("キャッシュから復元:", cashTime[car]);
-      return;
-    }
-
-    // 既に2つのボタンが押されている場合は新規入力不可
-    if (pressedCount >= 2) {
       return;
     }
 
@@ -334,6 +334,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    // 既に2つのボタンが押されている場合は新規入力不可
+    if (pressedCount >= 2) {
+      return;
+    }
+
     // キャッシュに時間があり、それがoutボタンのものなら → キャッシュから復元
     if (cashTime[car]) {
       console.log("アウトに変更");
@@ -343,11 +348,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       state.outClicked = true;
       color(outTimeBtn);
       console.log("キャッシュから復元:", cashTime[car]);
-      return;
-    }
-
-    // 既に2つのボタンが押されている場合は新規入力不可
-    if (pressedCount >= 2) {
       return;
     }
 
@@ -382,6 +382,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    // 既に2つのボタンが押されている場合は新規入力不可
+    if (pressedCount >= 2) {
+      return;
+    }
+
     // キャッシュに時間があり、それがoutボタンのものなら → キャッシュから復元
     if (cashTime[car]) {
       console.log("noneに変更");
@@ -391,11 +396,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       state.noneClicked = true;
       color(noneTimeBtn);
       console.log("キャッシュから復元:", cashTime[car]);
-      return;
-    }
-
-    // 既に2つのボタンが押されている場合は新規入力不可
-    if (pressedCount >= 2) {
       return;
     }
 
