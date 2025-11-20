@@ -1,0 +1,220 @@
+@charset "utf-8";
+/* 背景と全体の設定 */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 0;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url(../a_image/body.jpg) center center / cover no-repeat;
+  z-index: -2;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.2); /* ← 明るめに色を抑える */
+  z-index: -1;
+}
+
+/* 初期化 */
+h1,
+h2,
+label,
+p,
+ul,
+li {
+  margin: 0px;
+  padding: 0px;
+}
+/* ヘッダー */
+header {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  background-color: rgba(177, 210, 12, 0.5);
+}
+
+/* ナビ */
+nav {
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+}
+
+/* ボタン：全体設定 */
+ul {
+  margin: 5px;
+  padding: 0px;
+  list-style-type: none;
+
+  display: flex;
+  gap: 5px;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+/* li・button */
+li {
+  flex: 1;
+  min-height: 50px;
+}
+button {
+  width: 100%;
+  height: auto;
+  font-size: 15px;
+  font-weight: bold;
+  background: rgba(250, 80, 37);
+}
+
+/* メイン */
+main {
+  margin: 0px;
+  padding: 0px;
+  font-size: 18px;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+/* テーブル */
+:root {
+  --border: #cfcfcf;
+  --head-bg: #f3f6fb;
+  --row-alt: #fbfbfd;
+  --text: #222;
+  --accent: #2b6cb0;
+  --cell-padding: 10px 12px;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto; /* スマホで横スクロール可能にする */
+  -webkit-overflow-scrolling: touch;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* テーブル全体設定（格子にする） */
+.grid-table {
+  border-collapse: collapse; /* 格子線を端までつなげる */
+  width: 100%;
+  min-width: 900px; /* 列が多い場合に横スクロールを出すための最小幅 */
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto,
+    "Hiragino Kaku Gothic ProN", "Noto Sans JP", "メイリオ", sans-serif;
+  color: var(--text);
+  table-layout: fixed; /* 列幅の均等化（必要ならautoに） */
+}
+
+/* ヘッダー */
+.grid-table thead th {
+  position: sticky; /* スクロールしても上に固定 */
+  top: 0;
+  background: var(--head-bg);
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: var(--cell-padding);
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+/* 最後のヘッダー右線を消す（見た目） */
+.grid-table thead th:last-child {
+  border-right: none;
+}
+
+/* 本文セル */
+.grid-table tbody td {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: var(--cell-padding);
+  font-size: 14px;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 行の交互色（Excelっぽく）*/
+.grid-table tbody tr:nth-child(even) {
+  background: var(--row-alt);
+}
+
+/* 行ホバーでわかりやすく */
+.grid-table tbody tr:hover {
+  background: rgba(43, 108, 176, 0.06);
+}
+
+/* 最後の列の右線を消す */
+.grid-table tbody td:last-child {
+  border-right: none;
+}
+
+/* 小さい画面でセルの余白を増やす（タップしやすく） */
+@media (max-width: 480px) {
+  :root {
+    --cell-padding: 12px 14px;
+  }
+  .grid-table {
+    min-width: 800px;
+  }
+}
+
+/* もし最初の列を固定したければ（横スクロールでIDを常時表示） */
+.grid-table thead th:first-child,
+.grid-table tbody td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.7)
+  );
+  border-right: 1px solid var(--border);
+}
+
+/* 列幅の調整（必要に応じて） */
+.grid-table th:nth-child(1),
+.grid-table td:nth-child(1) {
+  width: 80px;
+} /* 管理ID */
+.grid-table th:nth-child(3),
+.grid-table td:nth-child(3) {
+  width: 80px;
+} /* ピット番号 */
+.grid-table th:nth-child(4),
+.grid-table td:nth-child(4) {
+  width: 90px;
+} /* ゼッケン */
+
+@media screen and (min-width: 400px) {
+  header button {
+    font-size: 20px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  header button {
+    font-size: 30px;
+  }
+}

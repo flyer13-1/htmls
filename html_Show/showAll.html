@@ -4,30 +4,38 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../a_css/showAll.css" />
-    <script src="../a_js/showAll.js"></script>
+    <script defer src="../a_js/showAll.js"></script>
     <title>showAll</title>
   </head>
   <body>
     <header>
-      <h1>全ての結果を見る</h1>
+      <h1>ピットイン状況を確認する</h1>
       <nav>
         <ul>
-          <li><button id="all">ピット順で見る</button></li>
-          <li><button id="class">クラス別で見る</button></li>
-          <li><button id="reset">更新する</button></li>
+          <li><button id="all">ピットイン順</button></li>
+          <li><button id="class">クラス別</button></li>
+          <li><button id="reset">画面を更新</button></li>
         </ul>
       </nav>
     </header>
 
-    <main>
-      <table>
+    <main class="table-wrap">
+      <table class="grid-table" aria-label="ピット情報">
         <thead>
-          <td>PitNo</td>
-          <td>Class</td>
-          <td>CarNo</td>
-          <td>Driver</td>
-          <td>InTime</td>
-          <td>OutTime</td>
+          <tr>
+            <th>管理ID</th>
+            <th>担当者</th>
+            <th>ピット番号</th>
+            <th>ゼッケン番号</th>
+            <th>クラス名</th>
+            <th>チーム名</th>
+            <th>リタイア</th>
+            <th>インドライバー</th>
+            <th>アウトドライバー</th>
+            <th>ピットイン</th>
+            <th>ピットアウト</th>
+            <th>GAP</th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
