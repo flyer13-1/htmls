@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>確認画面</title>
+  </head>
+  <body>
+    <header>
+      <h1>OfficialSupportSystem</h1>
+      <h2>確認画面</h2>
+    </header>
+
+    <main>
+      <article id="main">
+        <p>
+          サイトを利用する際に当日配布されたPassWordを入力してください
+
+          <label for="todayPass">当日配布されたPassWord:</label>
+          <input type="password" id="todayPass" name="todayPass" required />
+        </p>
+
+        <button id="conformBtn">プロフィール確認</button>
+      </article>
+
+      <article id="conformPage" style="display: none">
+        <form action="" method="post">
+          <label for="email">利用者ID(メールアドレス)</label>
+          <input type="email" id="email" name="email" disabled />
+
+          <label for="username">ニックネーム</label>
+          <input type="text" id="username" name="username" disabled />
+
+          <label for="circuit">所属サーキットを選択</label>
+          <select id="circuit" name="circuit" disabled>
+            <option value="">-- 選択してください --</option>
+            <option value="fuji">富士SpeedWay</option>
+            <option value="motegi">ツインリンクもてぎ</option>
+            <option value="sugo">スポーツランド菅生</option>
+            <option value="suzuka">鈴鹿</option>
+            <option value="okayama">岡山国際</option>
+            <option value="oita">オートポリス</option>
+            <option value="other">その他</option>
+            <option value="none">無所属</option>
+          </select>
+        </form>
+
+        <div id="nomal">
+          <button id="backBtn">戻る</button>
+          <button id="changeBtn">変更</button>
+        </div>
+
+        <div id="changed" style="display: none">
+          <button id="saveBtn">保存</button>
+          <button id="cancelBtn">キャンセル</button>
+        </div>
+      </article>
+    </main>
+  </body>
+</html>

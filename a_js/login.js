@@ -1,4 +1,3 @@
-
 //パスワードのチェック
 const passInput = document.getElementById("pass");
 const passError = document.getElementById("passError");

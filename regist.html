@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/regist.css" />
+    <script src="a_js/regist.js"></script>
+    <title>アカウント登録</title>
+  </head>
+  <body>
+    <header>
+      <h1>OfficialSupportSystem</h1>
+      <h2>アカウント登録ページ</h2>
+      <p>ユーザー名とパスワードを入力してください。</p>
+    </header>
+
+    <main>
+      <form method="post" id="myForm">
+        <label for="userId">利用者ID(メールアドレス)*：</label>
+        <input id="userId" name="userId" type="email" required /><br />
+
+        <label for="username">ニックネーム<br />（アプリ内で表示します）</label>
+        <input id="username" name="username" type="text" required /><br />
+
+        <label for="pass">PASSWORD*:</label>
+        <input
+          type="password"
+          id="pass"
+          name="pass"
+          minlength="6"
+          maxlength="30"
+          required
+        /><br />
+        <small id="passError"></small>
+
+        <label for="passConfirm">PASSWORD確認*:</label>
+        <input
+          type="password"
+          id="passConfirm"
+          name="passConfirm"
+          minlength="6"
+          maxlength="30"
+          required
+        /><br />
+        <small id="passConfirmError"></small>
+
+        <label for="circuit">所属サーキットを選択</label>
+        <select id="circuit" name="circuit">
+          <option value="">-- 選択してください --</option>
+          <option value="fuji">富士SpeedWay</option>
+          <option value="motegi">ツインリンクもてぎ</option>
+          <option value="sugo">スポーツランド菅生</option>
+          <option value="suzuka">鈴鹿</option>
+          <option value="okayama">岡山国際</option>
+          <option value="oita">オートポリス</option>
+          <option value="other">その他</option>
+          <option value="none">無所属</option>
+        </select>
+
+        <input type="submit" value="送信" id="submitBtn" disabled />
+      </form>
+    </main>
+  </body>
+</html>

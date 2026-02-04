@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>パスワード再設定</title>
+  </head>
+  <body>
+    <header>
+      <h1>OfficialSupportSystem</h1>
+      <h2>パスワード再設定ページ</h2>
+    </header>
+    <main>
+      <form method="post" id="resetForm">
+        <label for="userId">利用者ID(メールアドレス)*：</label>
+        <input id="userId" name="userId" type="email" required /><br />
+
+        <label for="newPass">新しいPASSWORD*:</label>
+        <input
+          type="password"
+          id="newPass"
+          name="newPass"
+          minlength="6"
+          maxlength="30"
+          required
+        /><br />
+        <small id="newPassError"></small>
+
+        <label for="newPassConfirm">新しいPASSWORD確認*:</label>
+        <input
+          type="password"
+          id="newPassConfirm"
+          name="newPassConfirm"
+          minlength="6"
+          maxlength="30"
+          required
+        /><br />
+        <small id="newPassConfirmError"></small>
+
+        <input type="submit" value="送信" id="submitBtn" disabled />
+      </form>
+    </main>
+  </body>
+</html>
