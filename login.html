@@ -3,34 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="a_css/login.css" />
+    <script defer src="a_js/passCheck.js"></script>
     <title>ログイン画面</title>
   </head>
   <body>
     <header>
       <h1>OfficialSupportSystem</h1>
       <h2>ログインページ</h2>
-      <p>ユーザー名とパスワードを入力してください。</p>
     </header>
 
     <main>
-      <form action="/login" method="post">
-        <label for="username">ユーザー名（メールアドレス）:</label>
-        <input
-          type="email"
-          id="username"
-          name="username"
-          required
-        /><br /><br />
+      <form method="post" id="form" action="/login">
+        <label for="username">ユーザー名:</label>
+        <input type="text" id="username" name="username" required /><br /><br />
 
         <label for="password">パスワード:</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          required
-        /><br /><br />
+        <input type="password" id="password" name="password" required />
 
-        <button type="submit">ログイン</button>
+        <small id="errMsg"></small>
+        <br />
+
+        <input type="submit" id="submit" value="ログイン" />
       </form>
 
       <p>アカウントをお持ちでない場合は<a href="regist.html">こちら</a></p>

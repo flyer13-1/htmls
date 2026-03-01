@@ -38,7 +38,7 @@ body::after {
 /* 初期化 */
 h1,
 h2,
-p,
+input,
 label,
 small {
   margin: 0px;
@@ -53,19 +53,15 @@ header {
 }
 
 /* メイン */
-main {
+section {
   margin-bottom: 10px;
-  padding: 20px;
   width: 100%;
   font-style: oblique;
+  font-size: larger;
   color: #111;
 }
 
-p {
-  font-size: larger;
-}
-
-/* スモール */
+/* 色設定 */
 a:visited {
   color: #444;
 }

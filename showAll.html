@@ -13,17 +13,23 @@
       <p>
         入力の際は画面の表記通りに書いてください。（エラーになる可能性があります）
       </p>
-      <button id="reset">画面を更新</button>
+
       <nav>
         <ul>
           <li><button id="all">ピットイン順</button></li>
+
           <li>
-            <label for="class">クラス別</label
-            ><input type="text" id="class" name="class" />
+            <label for="class">クラス別</label>
+            <select id="class">
+              <option value="">すべて</option>
+            </select>
           </li>
           <li>
             <label for="car">ゼッケン番号</label
             ><input type="number" id="car" name="car" />
+          </li>
+          <li>
+            <button id="reset">画面を更新</button>
           </li>
         </ul>
       </nav>
