@@ -1,0 +1,83 @@
+@charset "utf-8";
+/* 背景と全体の設定 */
+body {
+  margin: 0;
+  padding: 0;
+
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  text-align: center;
+  position: relative;
+  z-index: 0;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url(../a_image/body.jpg) center center / cover no-repeat;
+  z-index: -2;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.65);
+  z-index: -1;
+}
+
+/* 初期化 */
+h1,
+h2,
+p,
+input,
+label,
+small {
+  margin: 0px;
+  padding: 0px;
+}
+/* ヘッダー */
+header {
+  margin: 20px;
+  flex: 0 0 20%;
+  width: 100%;
+  font-size: 20px;
+}
+
+/* メイン */
+main form {
+  margin-bottom: 20px;
+}
+
+#conform p {
+  padding: 10px;
+}
+
+section {
+  margin-bottom: 10px;
+  width: 100%;
+  font-style: oblique;
+  font-size: larger;
+  color: #111;
+}
+
+/* 色設定 */
+a:visited {
+  color: #444;
+}
+
+/* スマホ対応 */
+@media screen and (max-width: 450px) {
+  body {
+    font-size: 14px;
+  }
+}

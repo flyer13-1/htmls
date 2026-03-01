@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="a_css/regist.css" />
+    <script defer src="a_js/passCheck.js"></script>
+    <script defer src="a_js/passConfirmChecl.js"></script>
     <title>パスワード再設定</title>
   </head>
   <body>
@@ -12,30 +15,41 @@
     </header>
     <main>
       <form method="post" id="resetForm">
-        <label for="userId">利用者ID(メールアドレス)*：</label>
-        <input id="userId" name="userId" type="email" required /><br />
+        <section>
+          <label for="userId">利用者ID*：</label>
+          <input id="userId" name="userId" type="text" required />
+        </section>
 
-        <label for="newPass">新しいPASSWORD*:</label>
-        <input
-          type="password"
-          id="newPass"
-          name="newPass"
-          minlength="6"
-          maxlength="30"
-          required
-        /><br />
-        <small id="newPassError"></small>
+        <section>
+          <label for="num">会員番号</label>
+          <input id="num" name="num" type="text" required />
+        </section>
 
-        <label for="newPassConfirm">新しいPASSWORD確認*:</label>
-        <input
-          type="password"
-          id="newPassConfirm"
-          name="newPassConfirm"
-          minlength="6"
-          maxlength="30"
-          required
-        /><br />
-        <small id="newPassConfirmError"></small>
+        <section>
+          <label for="password">新しいPASSWORD*:</label>
+          <input
+            type="password"
+            id="password"
+            name="newPass"
+            minlength="6"
+            maxlength="30"
+            required
+          /><br />
+          <small id="errMsg"></small>
+        </section>
+
+        <section>
+          <label for="passConfirm">新しいPASSWORD確認*:</label>
+          <input
+            type="password"
+            id="passConfirm"
+            name="newPassConfirm"
+            minlength="6"
+            maxlength="30"
+            required
+          /><br />
+          <small id="passConfError"></small>
+        </section>
 
         <input type="submit" value="送信" id="submitBtn" disabled />
       </form>

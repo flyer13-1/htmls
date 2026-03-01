@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="a_css/conform.css" />
+    <script defer src="a_js/conform.js"></script>
     <title>確認画面</title>
   </head>
   <body>
@@ -13,47 +15,61 @@
 
     <main>
       <article id="main">
-        <p>
-          サイトを利用する際に当日配布されたPassWordを入力してください
+        <p>大会IDとPassWordを入力してください</p>
 
-          <label for="todayPass">当日配布されたPassWord:</label>
-          <input type="password" id="todayPass" name="todayPass" required />
-        </p>
+        <form id="form" method="post" action="">
+          <section>
+            <label for="todayId">当日配布された大会ID:</label>
+            <input type="text" id="todayId" name="todayId" required />
+          </section>
 
-        <button id="conformBtn">プロフィール確認</button>
-      </article>
+          <section>
+            <label for="todayPass">当日配布されたPassWord:</label>
+            <input type="password" id="todayPass" name="todayPass" required />
+          </section>
 
-      <article id="conformPage" style="display: none">
-        <form action="" method="post">
-          <label for="email">利用者ID(メールアドレス)</label>
-          <input type="email" id="email" name="email" disabled />
-
-          <label for="username">ニックネーム</label>
-          <input type="text" id="username" name="username" disabled />
-
-          <label for="circuit">所属サーキットを選択</label>
-          <select id="circuit" name="circuit" disabled>
-            <option value="">-- 選択してください --</option>
-            <option value="fuji">富士SpeedWay</option>
-            <option value="motegi">ツインリンクもてぎ</option>
-            <option value="sugo">スポーツランド菅生</option>
-            <option value="suzuka">鈴鹿</option>
-            <option value="okayama">岡山国際</option>
-            <option value="oita">オートポリス</option>
-            <option value="other">その他</option>
-            <option value="none">無所属</option>
-          </select>
+          <input type="submit" id="submit" value="送信" />
         </form>
 
-        <div id="nomal">
-          <button id="backBtn">戻る</button>
-          <button id="changeBtn">変更</button>
-        </div>
+        <button id="conformBtn" onclick="prof()">プロフィール確認</button>
+      </article>
 
-        <div id="changed" style="display: none">
-          <button id="saveBtn">保存</button>
-          <button id="cancelBtn">キャンセル</button>
-        </div>
+      <article id="conform" style="display: none">
+        <h2>プロフィール</h2>
+        <p id="textUser">利用者ID:</p>
+        <p id="textNum">会員番号:</p>
+        <p id="textCir">所属サーキット:</p>
+
+        <button id="backBtn" onclick="back()">戻る</button>
+        <button id="changeBtn" onclick="change()">変更</button>
+      </article>
+
+      <article id="changed" style="display: none">
+        <form action="" method="post">
+          <section>
+            <label for="userId">利用者ID</label>
+            <input type="text" id="userId" name="userId" />
+          </section>
+
+          <section>
+            <label for="circuit">所属サーキットを選択</label>
+            <select id="circuit" name="circuit">
+              <option value="">-- 選択してください --</option>
+              <option value="fuji">富士SpeedWay</option>
+              <option value="motegi">ツインリンクもてぎ</option>
+              <option value="sugo">スポーツランド菅生</option>
+              <option value="suzuka">鈴鹿</option>
+              <option value="okayama">岡山国際</option>
+              <option value="oita">オートポリス</option>
+              <option value="other">その他</option>
+              <option value="none">無所属</option>
+            </select>
+          </section>
+
+          <input type="submit" id="changeSubmit" value="保存" />
+        </form>
+
+        <button id="cancelBtn" onclick="cancel()">キャンセル</button>
       </article>
     </main>
   </body>
