@@ -3,34 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../a_css/showAll.css" />
-    <script defer src="../a_js/showAll.js"></script>
+    <link rel="stylesheet" href="a_css/showAll.css" />
+    <script defer src="a_js/showAll.js"></script>
     <title>showAll</title>
   </head>
   <body>
     <header>
-      <h1>ピットイン状況を確認する</h1>
+      <h1>ピット情報を確認</h1>
       <p>
-        入力の際は画面の表記通りに書いてください。（エラーになる可能性があります）
+        入力の際は画面の表記通りに書いてください
       </p>
 
       <nav>
-        <ul>
+        <!-- 操作系 -->
+        <ul id="action">
           <li><button id="all">ピットイン順</button></li>
+          <li><button id="reset">更新</button></li>
+        </ul>
 
+        <!-- フィルター系 -->
+        <ul id="filter">
           <li>
-            <label for="class">クラス別</label>
-            <select id="class">
-              <option value="">すべて</option>
-            </select>
+            <input
+              type="number"
+              id="car"
+              name="car"
+              placeholder="ゼッケン番号"
+            />
           </li>
-          <li>
-            <label for="car">ゼッケン番号</label
-            ><input type="number" id="car" name="car" />
-          </li>
-          <li>
-            <button id="reset">画面を更新</button>
-          </li>
+          <!--クラス用のボタンを作成-->
         </ul>
       </nav>
     </header>
@@ -50,7 +51,7 @@
             <th>アウトドライバー</th>
             <th>ピットイン</th>
             <th>ピットアウト</th>
-            <th>GAP</th>
+            <th>ピットGAP</th>
           </tr>
         </thead>
         <tbody></tbody>

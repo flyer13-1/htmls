@@ -6,30 +6,9 @@ body {
   width: 100%;
   height: 100%;
   text-align: center;
-  position: relative;
-  z-index: 0;
-}
 
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url(../a_image/body.jpg) center center / cover no-repeat;
-  z-index: -2;
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.2); /* ← 明るめに色を抑える */
-  z-index: -1;
+  background: #1f1f1f;
+  color: #ffffff;
 }
 
 /* 初期化 */
@@ -45,42 +24,48 @@ li {
 /* ヘッダー */
 header {
   margin: 0;
-  padding: 0;
-  font-size: 12px;
-  background-color: rgba(177, 210, 12, 0.5);
+  padding-bottom: 10px;
+  font-size: 14px;
+  background: rgb(94, 94, 94);
 }
 
 /* ナビ */
 nav {
-  margin: 0px;
-  padding: 0px;
   overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
 }
 
-/* ボタン：全体設定 */
-ul {
-  margin: 5px;
+/* ul設定 */
+nav ul {
+  margin: 0px;
   padding: 0px;
-  list-style-type: none;
 
   display: flex;
   gap: 5px;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: stretch;
+  list-style: none;
 }
 
 /* li・button */
-li {
-  flex: 1;
-  min-height: 50px;
+nav li {
+  height: 48px;
 }
-button {
+nav button {
   width: 100%;
-  height: auto;
-  font-size: 15px;
+  height: 48px;
+  font-size: 14px;
   font-weight: bold;
-  background: rgba(250, 80, 37);
+
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+nav input {
+  height: 48px;
 }
 
 /* メイン */
@@ -91,40 +76,59 @@ main {
   background-color: rgba(255, 255, 255, 0.6);
 }
 
-/* テーブル */
+/* =========================
+   ダークテーマ テーブルUI
+   ========================= */
+
+/* ===== 変数 ===== */
 :root {
-  --border: #cfcfcf;
-  --head-bg: #f3f6fb;
-  --row-alt: #fbfbfd;
-  --text: #222;
+  --border: #3a3a3a;
+  --head-bg: #111111;
+  --row-base: #222222;
+  --row-alt: #2a2a2a;
+  --text: #ffffff;
   --accent: #2b6cb0;
   --cell-padding: 10px 12px;
 }
 
+/* ===== ページ全体 ===== */
+body {
+  background: #1f1f1f;
+  color: var(--text);
+  margin: 0;
+}
+
+/* ===== テーブル外枠 ===== */
 .table-wrap {
   width: 100%;
-  overflow-x: auto; /* スマホで横スクロール可能にする */
+  overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  background: white;
+  background: var(--row-base);
   border: 1px solid var(--border);
   border-radius: 6px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-/* テーブル全体設定（格子にする） */
+/* ===== テーブル本体 ===== */
 .grid-table {
-  border-collapse: collapse; /* 格子線を端までつなげる */
+  border-collapse: collapse;
   width: 100%;
-  min-width: 900px; /* 列が多い場合に横スクロールを出すための最小幅 */
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto,
-    "Hiragino Kaku Gothic ProN", "Noto Sans JP", "メイリオ", sans-serif;
+  min-width: 900px;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Hiragino Kaku Gothic ProN",
+    "Noto Sans JP",
+    "メイリオ",
+    sans-serif;
   color: var(--text);
-  table-layout: fixed; /* 列幅の均等化（必要ならautoに） */
+  table-layout: fixed;
 }
 
-/* ヘッダー */
+/* ===== ヘッダー ===== */
 .grid-table thead th {
-  position: sticky; /* スクロールしても上に固定 */
+  position: sticky;
   top: 0;
   background: var(--head-bg);
   border-bottom: 1px solid var(--border);
@@ -133,16 +137,16 @@ main {
   text-align: left;
   font-weight: 600;
   font-size: 13px;
+  color: #dddddd;
   z-index: 2;
   white-space: nowrap;
 }
 
-/* 最後のヘッダー右線を消す（見た目） */
 .grid-table thead th:last-child {
   border-right: none;
 }
 
-/* 本文セル */
+/* ===== 本文セル ===== */
 .grid-table tbody td {
   border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -154,32 +158,25 @@ main {
   text-overflow: ellipsis;
 }
 
-/* 行の交互色（Excelっぽく）*/
-.grid-table tbody tr:nth-child(even) {
-  background: var(--row-alt);
-}
-
-/* 行ホバーでわかりやすく */
-.grid-table tbody tr:hover {
-  background: rgba(43, 108, 176, 0.06);
-}
-
-/* 最後の列の右線を消す */
 .grid-table tbody td:last-child {
   border-right: none;
 }
 
-/* 小さい画面でセルの余白を増やす（タップしやすく） */
-@media (max-width: 480px) {
-  :root {
-    --cell-padding: 12px 14px;
-  }
-  .grid-table {
-    min-width: 800px;
-  }
+/* ===== 行カラー ===== */
+.grid-table tbody tr {
+  background: var(--row-base);
 }
 
-/* もし最初の列を固定したければ（横スクロールでIDを常時表示） */
+.grid-table tbody tr:nth-child(even) {
+  background: var(--row-alt);
+}
+
+/* ===== ホバー ===== */
+.grid-table tbody tr:hover {
+  background: rgba(43, 108, 176, 0.15);
+}
+
+/* ===== 先頭列固定 ===== */
 .grid-table thead th:first-child,
 .grid-table tbody td:first-child {
   position: sticky;
@@ -187,25 +184,38 @@ main {
   z-index: 3;
   background: linear-gradient(
     to right,
-    rgba(255, 255, 255, 0.9),
-    rgba(255, 255, 255, 0.7)
+    rgba(34, 34, 34, 0.95),
+    rgba(34, 34, 34, 0.85)
   );
   border-right: 1px solid var(--border);
 }
 
-/* 列幅の調整（必要に応じて） */
+/* ===== 列幅指定（必要に応じて） ===== */
 .grid-table th:nth-child(1),
 .grid-table td:nth-child(1) {
   width: 80px;
-} /* 管理ID */
+}
+
 .grid-table th:nth-child(3),
 .grid-table td:nth-child(3) {
   width: 80px;
-} /* ピット番号 */
+}
+
 .grid-table th:nth-child(4),
 .grid-table td:nth-child(4) {
   width: 90px;
-} /* ゼッケン */
+}
+
+/* ===== モバイル対応 ===== */
+@media (max-width: 480px) {
+  :root {
+    --cell-padding: 12px 14px;
+  }
+
+  .grid-table {
+    min-width: 800px;
+  }
+}
 
 @media screen and (min-width: 400px) {
   header button {

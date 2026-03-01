@@ -26,14 +26,15 @@ body::after {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.2); /* ← 明るめに色を抑える */
+  background-color: rgba(255, 255, 255, 0.65); /* ← 明るめに色を抑える */
   z-index: -1;
 }
 
 /* 初期化 */
 h2,
 h3,
-p {
+p,
+button {
   margin: 0px;
   padding: 0px;
 }
@@ -41,14 +42,14 @@ p {
 header {
   margin-bottom: 10px;
   padding: 0px;
-  background-color: rgba(177, 210, 12, 0.5);
+  font-size: 18px;
 }
 
 /* メイン */
 main {
   margin: 0px;
   padding: 0px;
-  background-color: rgba(135, 207, 235, 0.6);
+  font-style: oblique;
 }
 
 section {
@@ -56,8 +57,14 @@ section {
   padding: 10px;
 }
 
+/* リンク*/
+a {
+  color: black;
+  text-decoration: none; /* 下線を消す */
+}
+
 a:visited {
-  color: #474747;
+  color: purple;
 }
 
 button {
@@ -67,7 +74,7 @@ button {
   min-height: 60px;
   font-size: larger;
   font-weight: bold;
-  background-color: orange;
+  background-color: #ffa600; /* ソフトオレンジの色を指定 */
 }
 
 @media screen and (max-width: 450px) {
