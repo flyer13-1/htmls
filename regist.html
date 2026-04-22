@@ -3,9 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="a_css/regist.css" />
+    <link rel="stylesheet" href="a_css/formPage.css" />
     <script defer src="a_js/passCheck.js"></script>
     <script defer src="a_js/passConfirmCheck.js"></script>
+    <script defer src="a_js/regist.js"></script>
     <title>アカウント登録</title>
   </head>
   <body>
@@ -15,55 +16,72 @@
     </header>
 
     <main>
-      <form method="post" id="form">
-        <section>
-          <label for="userId">利用者ID*：</label>
-          <input type="text" id="userId" name="userId" required /><br />
-        </section>
+      <article id="formarea">
+        <form method="post" id="form">
+          <section>
+            <label for="username">担当者名:</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              minlength="4"
+              maxlength="20"
+              pattern="[ぁ-んァ-ヶヲ-ン\u4E00-\u9FFF\u3400-\u4DBFー・]+"
+              title="ひらがな・カタカナ・漢字で入力してください（4文字〜20文字以内）"
+            />
+          </section>
 
-        <section>
-          <label for="password">PASSWORD*:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            minlength="6"
-            required
-          /><br />
-          <small id="errMsg"></small>
-        </section>
+          <section>
+            <label for="password">パスワード:</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              minlength="6"
+              maxlength="20"
+              required
+            />
+            <br />
+            <small id="errMsg"></small>
+          </section>
 
-        <section>
-          <label for="passConfirm">PASSWORD確認*:</label>
-          <input
-            type="password"
-            id="passConfirm"
-            name="passConfirm"
-            minlength="6"
-            required
-          /><br />
-          <small id="passConfError"></small>
-        </section>
+          <section>
+            <label for="passConfirm">確認用パスワード*:</label>
+            <input
+              type="password"
+              id="passConfirm"
+              minlength="6"
+              maxlength="20"
+              required
+            /><br />
+            <small id="passConfError"></small>
+          </section>
 
-        <section>
-          <label for="circuit">メインサーキットを選択</label>
-          <select id="circuit" name="circuit">
-            <!-- １：富士　2：茂木　3：菅生　4:鈴鹿　5:岡山国際　6:その他　7:無所属 -->
-            <option value="">-- 選択してください --</option>
-            <option value="1">富士SpeedWay</option>
-            <option value="2">ツインリンクもてぎ</option>
-            <option value="3">スポーツランド菅生</option>
-            <option value="4">鈴鹿</option>
-            <option value="5">岡山国際</option>
-            <option value="6">その他</option>
-            <option value="7">無所属</option>
-          </select>
-        </section>
+          <section>
+            <label for="circuit">メインサーキットを選択</label>
+            <select id="circuit" name="circuit">
+              <!-- １：富士　2：茂木　3：菅生　4:鈴鹿　5:岡山国際　6:その他　7:無所属 -->
+              <option value="">-- 選択してください --</option>
+              <option value="1">富士SpeedWay</option>
+              <option value="2">ツインリンクもてぎ</option>
+              <option value="3">スポーツランド菅生</option>
+              <option value="4">鈴鹿</option>
+              <option value="5">岡山国際</option>
+              <option value="6">その他</option>
+              <option value="7">無所属</option>
+            </select>
+          </section>
 
-        <section>
-          <input type="submit" value="アカウント登録" id="submit" disabled />
-        </section>
-      </form>
+          <section>
+            <input type="submit" value="アカウント登録" id="submit" disabled />
+          </section>
+        </form>
+      </article>
+
+      <article id="msgarea">
+        <p>アカウント登録に成功！</p>
+      </article>
     </main>
   </body>
 </html>

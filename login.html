@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="a_css/login.css" />
+    <link rel="stylesheet" href="a_css/formPage.css" />
     <script defer src="a_js/passCheck.js"></script>
+    <script defer src="a_js/login.js"></script>
     <title>ログイン画面</title>
   </head>
   <body>
@@ -14,21 +15,48 @@
     </header>
 
     <main>
-      <form method="post" id="form" action="/login">
-        <label for="username">ユーザー名:</label>
-        <input type="text" id="username" name="username" required /><br /><br />
+      <article id="formarea">
+        <form method="post" id="form" action="/login">
+          <section>
+            <label for="username">担当者名:</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              minlength="4"
+              maxlength="20"
+              pattern="[ぁ-んァ-ヶヲ-ン\u4E00-\u9FFF\u3400-\u4DBFー・]+"
+              title="ひらがな・カタカナ・漢字で入力してください（4文字〜20文字以内）"
+            />
+          </section>
 
-        <label for="password">パスワード:</label>
-        <input type="password" id="password" name="password" required />
+          <section>
+            <label for="password">パスワード:</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              minlength="6"
+              maxlength="20"
+              required
+            />
+            <br />
+            <small id="errMsg"></small>
+          </section>
 
-        <small id="errMsg"></small>
-        <br />
+          <section>
+            <input type="submit" id="submit" value="ログイン" />
+          </section>
+        </form>
 
-        <input type="submit" id="submit" value="ログイン" />
-      </form>
+        <p>アカウントをお持ちでない場合は<a href="regist.html">こちら</a></p>
+        <p>パスワードを忘れた場合は <a href="forgetPass.html">こちら</a></p>
+      </article>
 
-      <p>アカウントをお持ちでない場合は<a href="regist.html">こちら</a></p>
-      <p>パスワードを忘れた場合は <a href="forgetPass.html">こちら</a></p>
+      <article id="msgarea">
+        <p>ログインに成功！</p>
+      </article>
     </main>
   </body>
 </html>

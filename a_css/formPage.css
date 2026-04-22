@@ -1,4 +1,6 @@
 @charset "utf-8";
+/* 各種FORMのスタイル　login, regist, forgetPass */
+
 /* 背景と全体の設定 */
 body {
   margin: 0;
@@ -38,7 +40,7 @@ body::after {
 /* 初期化 */
 h1,
 h2,
-input,
+p,
 label,
 small {
   margin: 0px;
@@ -53,15 +55,29 @@ header {
 }
 
 /* メイン */
-section {
-  margin-bottom: 10px;
+main {
+  padding: 20px;
   width: 100%;
+
   font-style: oblique;
-  font-size: larger;
   color: #111;
 }
 
-/* 色設定 */
+section {
+  margin: 20px auto;
+  font-size: larger;
+}
+
+p {
+  font-size: large;
+}
+
+#msgarea {
+  display: none;
+  color: green;
+}
+
+/* スモール */
 a:visited {
   color: #444;
 }

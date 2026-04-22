@@ -1,4 +1,6 @@
-const passInput = document.getElementById("pass");
+//確認用パスワードのチェック
+//宣言
+const passInput = document.getElementById("password");
 const passConfirmInput = document.getElementById("passConfirm");
 const passConfError = document.getElementById("passConfError");
 

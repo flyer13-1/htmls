@@ -3,9 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="a_css/regist.css" />
+    <link rel="stylesheet" href="a_css/formPage.css" />
     <script defer src="a_js/passCheck.js"></script>
     <script defer src="a_js/passConfirmChecl.js"></script>
+    <script defer src="a_js/forgetPass.js"></script>
     <title>パスワード再設定</title>
   </head>
   <body>
@@ -13,46 +14,70 @@
       <h1>OfficialSupportSystem</h1>
       <h2>パスワード再設定ページ</h2>
     </header>
+
     <main>
-      <form method="post" id="resetForm">
-        <section>
-          <label for="userId">利用者ID*：</label>
-          <input id="userId" name="userId" type="text" required />
-        </section>
+      <article id="formarea">
+        <form method="post" id="form">
+          <section>
+            <label for="username">担当者名:</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              minlength="4"
+              maxlength="20"
+              pattern="[ぁ-んァ-ヶヲ-ン\u4E00-\u9FFF\u3400-\u4DBFー・]+"
+              title="ひらがな・カタカナ・漢字で入力してください（4文字〜20文字以内）"
+            />
+          </section>
 
-        <section>
-          <label for="num">会員番号</label>
-          <input id="num" name="num" type="text" required />
-        </section>
+          <section>
+            <label for="password">パスワード:</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              minlength="6"
+              maxlength="20"
+              required
+            />
+            <br />
+            <small id="errMsg"></small>
+          </section>
 
-        <section>
-          <label for="password">新しいPASSWORD*:</label>
-          <input
-            type="password"
-            id="password"
-            name="newPass"
-            minlength="6"
-            maxlength="30"
-            required
-          /><br />
-          <small id="errMsg"></small>
-        </section>
+          <section>
+            <label for="newPassword">新しいパスワード*:</label>
+            <input
+              type="password"
+              id="newPassword"
+              name="newPassword"
+              minlength="6"
+              maxlength="30"
+              required
+            /><br />
+            <small id="newPassErrMsg"></small>
+          </section>
 
-        <section>
-          <label for="passConfirm">新しいPASSWORD確認*:</label>
-          <input
-            type="password"
-            id="passConfirm"
-            name="newPassConfirm"
-            minlength="6"
-            maxlength="30"
-            required
-          /><br />
-          <small id="passConfError"></small>
-        </section>
+          <section>
+            <label for="passConfirm">新しいパスワード確認*:</label>
+            <input
+              type="password"
+              id="passConfirm"
+              minlength="6"
+              maxlength="30"
+              required
+            /><br />
+            <small id="passConfError"></small>
+          </section>
 
-        <input type="submit" value="送信" id="submitBtn" disabled />
-      </form>
+          <input type="submit" value="送信" id="submitBtn" disabled />
+        </form>
+      </article>
+
+      <article id="msgarea">
+        <p>パスワード再設定に成功！</p>
+      </article>
     </main>
   </body>
 </html>

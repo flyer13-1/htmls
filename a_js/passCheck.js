@@ -1,6 +1,9 @@
-//パスワードのチェック
+//各パスワードのリアルタイムチェック
+//宣言
 const passInput = document.getElementById("password");
 const passError = document.getElementById("errMsg");
+const newPassInput = document.getElementById("newPassword");
+const newPassError = document.getElementById("newPassErrMsg");
 const submitBtn = document.getElementById("submit");
 const form = document.getElementById("form");
 
@@ -46,18 +49,28 @@ passInput.addEventListener("input", () => {
   }
 });
 
-// 送信時チェック
-form.addEventListener("submit", (event) => {
-  const pwd = passInput.value;
+// 入力中のリアルタイムチェック
+newPassInput.addEventListener("input", () => {
+  const pwd = newPassInput.value;
   const result = isPasswordStrong(pwd);
 
   if (!result.valid) {
-    event.preventDefault(); // 送信キャンセル
-    alert(
-      "パスワードが条件を満たしていません。8文字以上、小文字・大文字・数字を含めてください。",
-    );
-    passInput.focus();
+    let errorMsg = "次を含めてください: ";
+    if (!result.isLongEnough) errorMsg += "6文字以上 ";
+    if (!result.hasLowercase) errorMsg += "小文字 ";
+    if (!result.hasUppercase) errorMsg += "大文字 ";
+    if (!result.hasNumber) errorMsg += "数字 ";
+
+    newPassError.textContent = errorMsg.trim();
+    newPassError.style.color = "red";
+    newPassInput.style.borderColor = "red";
+
+    submitBtn.disabled = true; // 条件満たさなければ送信ボタン無効化
+  } else {
+    newPassError.textContent = "OK!";
+    newPassError.style.color = "green";
+    newPassInput.style.borderColor = "green";
+
+    submitBtn.disabled = false; // 条件満たせば送信ボタン有効化
   }
 });
-
-//
