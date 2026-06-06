@@ -1,7 +1,7 @@
 //宣言
 const usernameInput = document.getElementById("username");
 const circuitInput = document.getElementById("circuit");
-const passInput = document.getElementById("password");
+const passInputResult = document.getElementById("password");
 const form = document.getElementById("form");
 
 function sucsessMsg() {
@@ -29,7 +29,7 @@ form.addEventListener("submit", async (event) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: usernameInput.value,
-        password: passInput.value,
+        password: passInputResult.value,
         circuit: circuitInput.value,
       }),
     },
