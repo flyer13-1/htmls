@@ -3,42 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="a_css/main.css" />
-
-    <title>メイン画面</title>
+    <link rel="stylesheet" href="a_css/formPage.css" />
+    <script defer src="a_js/passCheck.js"></script>
+    <script defer src="a_js/login.js"></script>
+    <title>ログイン画面</title>
   </head>
   <body>
     <header>
-      <h2>モード選択</h2>
-      <p>どのモードに移行しますか?</p>
+      <h1>OfficialSupportSystem</h1>
+      <h2>ログインページ</h2>
     </header>
 
     <main>
-      <article>
-        <section id="enter">
-          <h3>入力モード</h3>
-          <button>
-            <a href="html_Enter/autoEnter.html"> 自動入力モード </a>
-          </button>
-          <button>
-            <a href="html_Enter/handEnter.html">手入力モード</a>
-          </button>
-          <button>
-            <a href="html_Enter/updateEnter.html">更新モード</a>
-          </button>
-        </section>
+      <article id="formarea">
+        <form method="post" id="form">
+          <section>
+            <label for="username">担当者名:</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              minlength="4"
+              maxlength="20"
+              pattern="[ぁ-んァ-ヶヲ-ン\u4E00-\u9FFF\u3400-\u4DBFー・]+"
+              title="ひらがな・カタカナ・漢字で入力してください（4文字〜20文字以内）"
+            />
+          </section>
 
-        <section id="show">
-          <h3>見るモード</h3>
-          <button><a href="html_Show/showAll.html">全ての結果を見る</a></button>
-        </section>
+          <section>
+            <label for="password">パスワード:</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              minlength="6"
+              maxlength="20"
+              required
+            />
+            <br />
+            <small id="errMsg"></small>
+          </section>
 
-        <section id="delete">
-          <h3>出力モード</h3>
-          <button>
-            <a href="html_Delete/deleteCar.html">結果を出力</a>
-          </button>
-        </section>
+          <section>
+            <input type="submit" id="submit" value="ログイン" />
+          </section>
+        </form>
+
+        <p>アカウントをお持ちでない場合は<a href="regist.html">こちら</a></p>
+        <p>パスワードを忘れた場合は <a href="forgetPass.html">こちら</a></p>
+      </article>
+
+      <article id="msgarea">
+        <p>ログインに成功！</p>
       </article>
     </main>
   </body>
