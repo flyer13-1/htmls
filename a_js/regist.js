@@ -1,8 +1,8 @@
 //宣言
 const usernameInput = document.getElementById("username");
 const circuitInput = document.getElementById("circuit");
-const passInputResult = document.getElementById("password");
-const form = document.getElementById("form");
+const passInputRegist = document.getElementById("password");
+const formRegist = document.getElementById("form");
 
 function sucsessMsg() {
   const formArea = document.getElementById("formarea");
@@ -13,12 +13,12 @@ function sucsessMsg() {
   setTimeout(() => {
     msg.style.display = "none";
     formArea.style.display = "block";
-    window.location.href = "/login";
+    window.location.href = "./login.html";
   }, 2000);
 }
 
 // 送信時チェック
-form.addEventListener("submit", async (event) => {
+formRegist.addEventListener("submit", async (event) => {
   event.preventDefault(); // デフォルト送信をキャンセル
 
   // JSONで送信
@@ -29,7 +29,7 @@ form.addEventListener("submit", async (event) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: usernameInput.value,
-        password: passInputResult.value,
+        password: passInputRegist.value,
         circuit: circuitInput.value,
       }),
     },

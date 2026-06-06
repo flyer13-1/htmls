@@ -1,12 +1,12 @@
 //確認用パスワードのチェック
 //宣言
-const passInput = document.getElementById("password");
+const passInputConf = document.getElementById("password");
 const passConfirmInput = document.getElementById("passConfirm");
 const passConfError = document.getElementById("passConfError");
 
 //パスワード確認のリアルタイムチェック
 passConfirmInput.addEventListener("input", () => {
-  if (passConfirmInput.value !== passInput.value) {
+  if (passConfirmInput.value !== passInputConf.value) {
     passConfError.textContent = "パスワードが一致しません";
     passConfError.style.color = "red";
     passConfirmInput.style.borderColor = "red";

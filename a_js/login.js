@@ -1,7 +1,7 @@
 //宣言
 const usernameInput = document.getElementById("username");
-const passInput = document.getElementById("password");
-const form = document.getElementById("form");
+const passInputLogin = document.getElementById("password");
+const formLogin = document.getElementById("form");
 
 function sucsessMsg() {
   const formArea = document.getElementById("formarea");
@@ -12,12 +12,12 @@ function sucsessMsg() {
   setTimeout(() => {
     msg.style.display = "none";
     formArea.style.display = "block";
-    window.location.href = "/user/me";
+    window.location.href = "./conform.html";
   }, 2000);
 }
 
 // 送信時チェック
-form.addEventListener("submit", async (event) => {
+formLogin.addEventListener("submit", async (event) => {
   event.preventDefault(); // デフォルト送信をキャンセル
 
   // JSONで送信
@@ -28,7 +28,7 @@ form.addEventListener("submit", async (event) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: usernameInput.value,
-        password: passInput.value,
+        password: passInputLogin.value,
       }),
     },
   );
@@ -51,5 +51,3 @@ form.addEventListener("submit", async (event) => {
     alert(data.msg || "error: 500 Internal Server Error");
   }
 });
-
-//

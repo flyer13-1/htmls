@@ -1,9 +1,9 @@
 //宣言
 const usernameInput = document.getElementById("username");
-const passInput = document.getElementById("password");
+const passInputForget = document.getElementById("password");
 const newPassInput = document.getElementById("newPassword");
 const newPassError = document.getElementById("newPassErrMsg");
-const form = document.getElementById("form");
+const formForget = document.getElementById("form");
 
 function sucsessMsg() {
   const formArea = document.getElementById("formarea");
@@ -14,7 +14,7 @@ function sucsessMsg() {
   setTimeout(() => {
     msg.style.display = "none";
     formArea.style.display = "block";
-    window.location.href = "/login";
+    window.location.href = "./login.html";
   }, 2000);
 }
 
@@ -61,7 +61,7 @@ newPassInput.addEventListener("input", () => {
 });
 
 // 送信時チェック
-form.addEventListener("submit", async (event) => {
+formForget.addEventListener("submit", async (event) => {
   event.preventDefault(); // デフォルト送信をキャンセル
 
   // JSONで送信
@@ -72,7 +72,7 @@ form.addEventListener("submit", async (event) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: usernameInput.value,
-        password: passInput.value,
+        password: passInputForget.value,
         newpassword: newPassInput.value,
       }),
     },
