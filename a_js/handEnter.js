@@ -5,13 +5,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function getCarNumber(cnt = 3) {
     try {
       // サーバから車両番号リストを取得（例：JSONで["1","2","3",...]）
-      // const response = await fetch(""); // 適宜URLを変更
-      // const carNumbers = await response.json();
-      return carNumbers;
+      const response = await fetch(
+        "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/init",
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        if (data.msg === "") {
+          if (data.raceId) {
+            sessionStorage.setItem("raceId", data.raceId);
+          }
+          return data.carNum || [];
+        } else {
+          alert(data.msg);
+          return null;
+        }
+      } else if (response.status === 400) {
+        alert(data.msg || "error: 400 Bad Request");
+      } else if (response.status === 500) {
+        alert(data.msg || "error: 500 Internal Server Error");
+      }
+      return null;
     } catch (err) {
       if (cnt > 0) {
         console.error("データ取得失敗", err);
-        getCarNumber(cnt - 1);
+        return await getCarNumber(cnt - 1);
       } else {
         alert("データ取得失敗しました。管理者に一度報告してください。");
         return null;
@@ -19,11 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // const carNumbers = await getCarNumber();
-  // if(!carNumber)return;
-
-  //テスト用データ
-  const carNumbers = [5, 6, 15, 16, 0, 1, 20];
+  let carNumbers = await getCarNumber();
 
   carNumbers.forEach((num) => {
     //ラベルを作成

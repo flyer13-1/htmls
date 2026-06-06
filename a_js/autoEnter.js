@@ -29,10 +29,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function getCarData(cnt = 3) {
     try {
       // サーバから車両番号リストを取得（例：JSONで["1","2","3",...]）
-      // const response = await fetch(""); // 適宜URLを変更
-      // const carNumbers = await response.json();
+      const response = await fetch(
+        "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/init",
+      )     .then((response) => {
+        if (response.ok) {
+          if (data.msg === "") {
+                const responseData = await response.json();
+                sessionStorage.setItem("raceId", responseData.raceId);
+          } else {
+            // エラーメッセージ表示
+            alert(data.msg);
+          }
+        } else if (response.status === 400) {
+          alert(data.msg || "error: 400 Bad Request");
+        } else if (response.status === 500) {
+          alert(data.msg || "error: 500 Internal Server Error");
+        }
+      });
+      const result = await response.json();
+      const carNumbers = result.carNum;
 
-      const carNumbers = [5, 6, 15, 16, 0, 1, 20];
+      // const carNumbers = [5, 6, 15, 16, 0, 1, 20];
       return carNumbers;
     } catch (err) {
       if (cnt > 0) {
@@ -49,9 +66,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function getDriverData(cnt = 3) {
     try {
       // サーバから車両番号リストを取得（例：JSONで["1","2","3",...]）
-      // const response = await fetch(""); // 適宜URLを変更
-      // const Driver = await response.json();
-
+      const response = await fetch(
+        "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/init",
+      )     .then((response) => {
+        if (response.ok) {
+          if (data.msg === "") {
+                const responseData = await response.json();
+                sessionStorage.setItem("raceId", responseData.raceId);
+          } else {
+            // エラーメッセージ表示
+            alert(data.msg);
+          }
+        } else if (response.status === 400) {
+          alert(data.msg || "error: 400 Bad Request");
+        } else if (response.status === 500) {
+          alert(data.msg || "error: 500 Internal Server Error");
+        }
+      });
+      const result = await response.json();
+      const driverData = result.driverData;
       return driverData;
     } catch (err) {
       if (cnt > 0) {
@@ -59,7 +92,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return await getCarNumber(cnt - 1);
       } else {
         alert(
-          "ドライバー情報の取得失敗しました。管理者に一度報告してください。"
+          "ドライバー情報の取得失敗しました。管理者に一度報告してください。",
         );
         return null;
       }
@@ -109,7 +142,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function driverReset(num) {
     const drivers = driverData[num];
     const labels = document.querySelectorAll(
-      '#Driver label:not([for="driverNone"])'
+      '#Driver label:not([for="driverNone"])',
     );
 
     labels.forEach((e, index) => {
@@ -120,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (carData[num].driver) {
       const driverRadio = document.querySelector(
-        `#Driver input[value="${carData[num].driver}"]`
+        `#Driver input[value="${carData[num].driver}"]`,
       );
       if (driverRadio) driverRadio.checked = true; // true でチェック
     } else {
@@ -161,16 +194,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   //データを送信
-  async function sendData(payload, cnt = 3) {
+  async function sendData(current, unsent, cnt = 3) {
     for (let i = 0; i < cnt; i++) {
       try {
-        const response = await fetch("", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: payload,
-        });
+        const token = sessionStorage.getItem("token");
+        const raceId = sessionStorage.getItem("raceId");
 
-        if (!response.ok) throw new Error("送信失敗");
+        const response = await fetch(
+          "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/auto",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ current, unsent, raceId }),
+          },
+        )     .then((response) => {
+        if (response.ok) {
+          if (data.msg === "") {
+
+          } else {
+            // エラーメッセージ表示
+            throw new Error("送信失敗");
+            alert(data.msg);
+          }
+        } else if (response.status === 400) {
+          alert(data.msg || "error: 400 Bad Request");
+        } else if (response.status === 500) {
+          alert(data.msg || "error: 500 Internal Server Error");
+        }
+      });
 
         const result = await response.json();
 
@@ -180,7 +231,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } catch (err) {
         if (cnt > 0) {
           console.error("送信エラー:", err);
-          return await sendData(payload, cnt - 1);
+          return await sendData(current, unsent, cnt - 1);
         } else {
           return null;
         }
@@ -193,17 +244,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   // const carNumbers = getCarData();
 
   //テスト用データ
-  const carNumbers = [5, 6, 15, 16, 0, 1, 20];
+  // const carNumbers = [5, 6, 15, 16, 0, 1, 20];
 
-  const driverData = {
-    5: ["A<br>せきりょうた", "B<br>かんざきあおい", "C<br>きみずかんた"],
-    6: ["A<br>かんじゃに", "B<br>ぶいしっくす", "C<br>すのーまん"],
-    15: ["A<br>koko", "B<br>kesha", "C<br>putbll"],
-    16: ["A<br>かず", "B<br>けんた", "C<br>かんた"],
-    0: ["A<br>noziri", "B<br>mirei", "C<br>JUJU"],
-    1: ["A<br>1gou", "B<br>2gou", "C<br>3gou"],
-    20: ["A<br>灯台", "B<br>強大", "C<br>寛大"],
-  };
+  // const driverData = {
+  //   5: ["A<br>せきりょうた", "B<br>かんざきあおい", "C<br>きみずかんた"],
+  //   6: ["A<br>かんじゃに", "B<br>ぶいしっくす", "C<br>すのーまん"],
+  //   15: ["A<br>koko", "B<br>kesha", "C<br>putbll"],
+  //   16: ["A<br>かず", "B<br>けんた", "C<br>かんた"],
+  //   0: ["A<br>noziri", "B<br>mirei", "C<br>JUJU"],
+  //   1: ["A<br>1gou", "B<br>2gou", "C<br>3gou"],
+  //   20: ["A<br>灯台", "B<br>強大", "C<br>寛大"],
+  // };
 
   carNumbers.forEach((num) => {
     // ボタンを作成
@@ -272,7 +323,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const car = document.querySelector(".carBtn.selected").textContent;
     const state = carData[car].state;
     const pressedCount = Object.values(carData[car].state).filter(
-      (v) => v
+      (v) => v,
     ).length;
 
     // 押されたボタンが既にtrueなら → 再選択許可（時間は変えない）
@@ -320,7 +371,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const car = document.querySelector(".carBtn.selected").textContent;
     const state = carData[car].state;
     const pressedCount = Object.values(carData[car].state).filter(
-      (v) => v
+      (v) => v,
     ).length;
 
     // 押されたボタンが既にtrueなら → 再選択許可（時間は変えない）
@@ -367,7 +418,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const car = document.querySelector(".carBtn.selected").textContent;
     const state = carData[car].state;
     const pressedCount = Object.values(carData[car].state).filter(
-      (v) => v
+      (v) => v,
     ).length;
 
     // 押されたボタンが既にtrueなら → 強調解除 + 時間をキャッシュに保存
@@ -449,15 +500,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     //送信データ用を格納
     const sendCarData = findCarData();
 
-    // 未送信データを確認してデータを格納
-    const payload = JSON.stringify({
-      current: sendCarData,
-      unsent: JSON.parse(localStorage.getItem("unsentData") || "{}"),
-    });
+    // 未送信データを確認
+    const unsent = JSON.parse(localStorage.getItem("unsentData") || "{}");
     console.log("データの格納完了");
 
     //データを送信
-    if (await sendData(payload)) {
+    if (await sendData(sendCarData, unsent)) {
       // 送信成功ならローカルストレージの未送信データは削除
       localStorage.removeItem("unsentData");
       cashTime = {};

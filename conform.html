@@ -15,17 +15,11 @@
 
     <main>
       <article id="main">
-        <p>大会IDとPassWordを入力してください</p>
-
-        <form id="form" method="post" action="">
+        <p>大会IDを入力してください</p>
+        <form id="form" method="post" onsubmit="init()">
           <section>
             <label for="todayId">当日配布された大会ID:</label>
             <input type="text" id="todayId" name="todayId" required />
-          </section>
-
-          <section>
-            <label for="todayPass">当日配布されたPassWord:</label>
-            <input type="password" id="todayPass" name="todayPass" required />
           </section>
 
           <input type="submit" id="submit" value="送信" />
@@ -36,8 +30,7 @@
 
       <article id="conform" style="display: none">
         <h2>プロフィール</h2>
-        <p id="textUser">利用者ID:</p>
-        <p id="textNum">会員番号:</p>
+        <p id="textUser">担当者名:</p>
         <p id="textCir">所属サーキット:</p>
 
         <button id="backBtn" onclick="back()">戻る</button>
@@ -45,9 +38,9 @@
       </article>
 
       <article id="changed" style="display: none">
-        <form action="" method="post">
+        <form method="post">
           <section>
-            <label for="userId">利用者ID</label>
+            <label for="userId">担当者名</label>
             <input type="text" id="userId" name="userId" />
           </section>
 

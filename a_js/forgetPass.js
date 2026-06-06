@@ -22,30 +22,31 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault(); // デフォルト送信をキャンセル
 
   // JSONで送信
-  const res = await fetch("/user/password", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username: usernameInput.value,
-      password: passInput.value,
-      newpassword: newPassInput.value,
-    }),
-  }).then((res) => {
-    if (res.ok) {
-      // 200系
-      res.json().then((data) => {
-        if (data.msg === "") {
-          // ページ遷移
-          sucsessMsg();
-        } else {
-          // エラーメッセージ表示
-          alert(data.msg);
-        }
-      });
-    } else if (res.status === 400) {
-      alert("error: 400 Bad Request");
-    } else if (res.status === 500) {
-      alert("error: 500 Internal Server Error");
+  const response = await fetch(
+    "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/user/password",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: usernameInput.value,
+        password: passInput.value,
+        newpassword: newPassInput.value,
+      }),
+    },
+  );
+  const data = await response.json();
+
+  if (response.ok) {
+    if (data.msg === "") {
+      // ページ遷移
+      sucsessMsg();
+    } else {
+      // エラーメッセージ表示
+      alert(data.msg);
     }
-  });
+  } else if (response.status === 400) {
+    alert(data.msg || "error: 400 Bad Request");
+  } else if (response.status === 500) {
+    alert(data.msg || "error: 500 Internal Server Error");
+  }
 });
