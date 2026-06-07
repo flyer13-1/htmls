@@ -101,13 +101,3 @@ function back() {
   main.style.display = "block";
   conform.style.display = "none";
 }
-
-function change() {
-  conform.style.display = "none";
-  changed.style.display = "block";
-}
-
-function cancel() {
-  changed.style.display = "none";
-  prof();
-}

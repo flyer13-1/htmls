@@ -34,35 +34,6 @@
         <p id="textCir">所属サーキット:</p>
 
         <button id="backBtn" onclick="back()">戻る</button>
-        <button id="changeBtn" onclick="change()">変更</button>
-      </article>
-
-      <article id="changed" style="display: none">
-        <form method="post">
-          <section>
-            <label for="userId">担当者名</label>
-            <input type="text" id="userId" name="userId" />
-          </section>
-
-          <section>
-            <label for="circuit">所属サーキットを選択</label>
-            <select id="circuit" name="circuit">
-              <option value="">-- 選択してください --</option>
-              <option value="fuji">富士SpeedWay</option>
-              <option value="motegi">ツインリンクもてぎ</option>
-              <option value="sugo">スポーツランド菅生</option>
-              <option value="suzuka">鈴鹿</option>
-              <option value="okayama">岡山国際</option>
-              <option value="oita">オートポリス</option>
-              <option value="other">その他</option>
-              <option value="none">無所属</option>
-            </select>
-          </section>
-
-          <input type="submit" id="changeSubmit" value="保存" />
-        </form>
-
-        <button id="cancelBtn" onclick="cancel()">キャンセル</button>
       </article>
     </main>
   </body>

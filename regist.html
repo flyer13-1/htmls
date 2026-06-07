@@ -19,7 +19,7 @@
       <article id="formarea">
         <form method="post" id="form">
           <section>
-            <label for="username">担当者名:</label>
+            <label for="username">担当者名*:</label>
             <input
               type="text"
               id="username"
@@ -33,7 +33,7 @@
           </section>
 
           <section>
-            <label for="password">パスワード:</label>
+            <label for="password">パスワード*:</label>
             <input
               type="password"
               id="password"
@@ -59,8 +59,8 @@
           </section>
 
           <section>
-            <label for="circuit">メインサーキットを選択</label>
-            <select id="circuit" name="circuit">
+            <label for="circuit">メインサーキットを選択*</label>
+            <select id="circuit" name="circuit" required>
               <!-- １：富士　2：茂木　3：菅生　4:鈴鹿　5:岡山国際　6:その他　7:無所属 -->
               <option value="">-- 選択してください --</option>
               <option value="1">富士SpeedWay</option>
