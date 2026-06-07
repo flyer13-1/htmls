@@ -3,6 +3,17 @@ const main = document.getElementById("main");
 const conform = document.getElementById("conform");
 
 const API = "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev";
+// サーキット番号に対応するサーキット名の配列（1始まりのため index 0 は null）
+const circuits = [
+  null,
+  "富士",
+  "茂木",
+  "菅生",
+  "鈴鹿",
+  "岡山国際",
+  "その他",
+  "無所属",
+];
 
 // 大会ID照会フォームの初期化
 function init() {
@@ -10,6 +21,7 @@ function init() {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    // 大会IDとトークンを取得
     const todayId = document.getElementById("todayId").value;
     const token = sessionStorage.getItem("token"); // ログイン時に保存したトークン
 
@@ -60,7 +72,7 @@ async function prof() {
     if (response.ok) {
       // プロフィール情報を画面に表示
       textUser.textContent = "利用者ID: " + data.username;
-      textCir.textContent = "所属サーキット: " + data.circuit;
+      textCir.textContent = "所属サーキット: " + circuits[data.circuit];
 
       main.style.display = "none";
       conform.style.display = "block";

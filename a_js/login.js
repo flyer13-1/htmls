@@ -1,6 +1,5 @@
 //宣言
-const usernameInput = document.getElementById("username");
-const passInputLogin = document.getElementById("password");
+
 const formLogin = document.getElementById("form");
 
 function sucsessMsg() {
@@ -19,6 +18,10 @@ function sucsessMsg() {
 // 送信時チェック
 formLogin.addEventListener("submit", async (event) => {
   event.preventDefault(); // デフォルト送信をキャンセル
+
+  //要素のdom要素
+  const usernameInput = document.getElementById("username");
+  const passInputLogin = document.getElementById("password");
 
   // JSONで送信
   const response = await fetch(
