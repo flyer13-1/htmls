@@ -92,3 +92,5 @@ function back() {
   main.style.display = "block";
   conform.style.display = "none";
 }
+
+init(); // ページ読み込み時に初期化関数を呼び出す
