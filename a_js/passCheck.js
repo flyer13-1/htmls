@@ -1,12 +1,3 @@
-//各パスワードのリアルタイムチェック
-//宣言
-const passInput = document.getElementById("password");
-const passError = document.getElementById("errMsg");
-
-const submitBtn = document.getElementById("submit");
-const form = document.getElementById("form");
-
-// パスワードの強度チェック関数
 function isPasswordStrong(pwd) {
   const hasLowercase = /[a-z]/.test(pwd);
   const hasUppercase = /[A-Z]/.test(pwd);
@@ -22,28 +13,39 @@ function isPasswordStrong(pwd) {
   };
 }
 
-// 入力中のリアルタイムチェック
-passInput.addEventListener("input", () => {
-  const pwd = passInput.value;
-  const result = isPasswordStrong(pwd);
+const submitBtn = document.getElementById("submit");
+const passValidity = new Map(); // 各inputの合否を記録するMap
 
-  if (!result.valid) {
-    let errorMsg = "次を含めてください: ";
-    if (!result.isLongEnough) errorMsg += "6文字以上 ";
-    if (!result.hasLowercase) errorMsg += "小文字 ";
-    if (!result.hasUppercase) errorMsg += "大文字 ";
-    if (!result.hasNumber) errorMsg += "数字 ";
+document.querySelectorAll("[data-passcheck]").forEach((input) => {
+  // data-passcheckを持つ全inputをループ（1つでも2つでも動く）
 
-    passError.textContent = errorMsg.trim();
-    passError.style.color = "red";
-    passInput.style.borderColor = "red";
+  passValidity.set(input.id, false); // 初期値としてfalse（未入力）を登録
 
-    submitBtn.disabled = true; // 条件満たさなければ送信ボタン無効化
-  } else {
-    passError.textContent = "OK!";
-    passError.style.color = "green";
-    passInput.style.borderColor = "green";
+  // data-errmsg="errMsg" の値（ID文字列）を使ってエラー表示先の要素を取得
+  // → smallが別の場所に移動してもIDが同じなら壊れない
+  const errEl = document.getElementById(input.dataset.errmsg);
 
-    submitBtn.disabled = false; // 条件満たせば送信ボタン有効化
-  }
+  input.addEventListener("input", () => {
+    const result = isPasswordStrong(input.value);
+    passValidity.set(input.id, result.valid); // このinputの合否をMapに更新
+
+    if (!result.valid) {
+      let msg = "次を含めてください: ";
+      if (!result.isLongEnough) msg += "6文字以上 ";
+      if (!result.hasLowercase)  msg += "小文字 ";
+      if (!result.hasUppercase)  msg += "大文字 ";
+      if (!result.hasNumber)     msg += "数字 ";
+      errEl.textContent = msg.trim();
+      errEl.style.color = "red";
+      input.style.borderColor = "red";
+    } else {
+      errEl.textContent = "OK!";
+      errEl.style.color = "green";
+      input.style.borderColor = "green";
+    }
+
+    // Mapの全エントリがtrueの時だけ送信ボタンを有効化
+    // → 1つでも未通過があれば無効のまま
+    submitBtn.disabled = ![...passValidity.values()].every(Boolean);
+  });
 });

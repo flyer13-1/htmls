@@ -1,20 +1,16 @@
-//確認用パスワードのチェック
-//宣言
-const passInputConf = document.getElementById("password");
-const passConfirmInput = document.getElementById("passConfirm");
-const passConfError = document.getElementById("passConfError");
+// submitBtn は passCheck.js で宣言済み
+document.querySelectorAll("[data-confirms]").forEach((input) => {
+  // data-confirms="targetId" の値で比較対象のパスワード欄を取得
+  const target = document.getElementById(input.dataset.confirms);
 
-//パスワード確認のリアルタイムチェック
-passConfirmInput.addEventListener("input", () => {
-  if (passConfirmInput.value !== passInputConf.value) {
-    passConfError.textContent = "パスワードが一致しません";
-    passConfError.style.color = "red";
-    passConfirmInput.style.borderColor = "red";
-    submitBtn.disabled = true; // 不一致なら送信ボタン無効化
-  } else {
-    passConfError.textContent = "OK!";
-    passConfError.style.color = "green";
-    passConfirmInput.style.borderColor = "green";
-    submitBtn.disabled = false; // 一致すれば送信ボタン有効化
-  }
+  // data-errmsg="errMsgId" の値でエラー表示先の要素を取得
+  const errEl = document.getElementById(input.dataset.errmsg);
+
+  input.addEventListener("input", () => {
+    const ok = input.value !== "" && input.value === target.value;
+    errEl.textContent       = ok ? "OK!" : "パスワードが一致しません";
+    errEl.style.color       = ok ? "green" : "red";
+    input.style.borderColor = ok ? "green" : "red";
+    if (!ok) submitBtn.disabled = true;
+  });
 });

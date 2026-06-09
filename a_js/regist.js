@@ -2,8 +2,8 @@
 const formRegist = document.getElementById("form");
 
 function sucsessMsg() {
-  const formArea = document.getElementById("formarea");
-  const msg = document.getElementById("msgarea");
+  const formArea = document.getElementById("formArea");
+  const msg = document.getElementById("msgArea");
   formArea.style.display = "none";
   msg.style.display = "block";
 
@@ -18,12 +18,9 @@ function sucsessMsg() {
 formRegist.addEventListener("submit", async (event) => {
   event.preventDefault(); // デフォルト送信をキャンセル
 
-  //要素のdom要素
   const usernameInput = document.getElementById("username");
   const circuitInput = document.getElementById("circuit");
   const passInputRegist = document.getElementById("password");
-
-  console.log(usernameInput.value, circuitInput.value, passInputRegist.value);
 
   // JSONで送信
   const response = await fetch(
@@ -39,7 +36,6 @@ formRegist.addEventListener("submit", async (event) => {
     },
   );
   const data = await response.json();
-  console.log(data); // ← 追加
 
   if (response.ok) {
     if (data.msg === "") {

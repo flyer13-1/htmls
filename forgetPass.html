@@ -27,7 +27,7 @@
               required
               minlength="4"
               maxlength="20"
-              pattern="[ぁ-んァ-ヶヲ-ン\u4E00-\u9FFF\u3400-\u4DBFー・]+"
+              pattern="[ぁ-んァ-ヶヲ-ン一-鿿㐀-䶿ー・]+"
               title="ひらがな・カタカナ・漢字で入力してください（4文字〜20文字以内）"
             />
           </section>
@@ -41,6 +41,8 @@
               minlength="6"
               maxlength="20"
               required
+              data-passcheck
+              data-errmsg="errMsg"
             />
             <br />
             <small id="errMsg"></small>
@@ -55,6 +57,8 @@
               minlength="6"
               maxlength="30"
               required
+              data-passcheck
+              data-errmsg="newPassErrMsg"
             /><br />
             <small id="newPassErrMsg"></small>
           </section>
@@ -67,11 +71,13 @@
               minlength="6"
               maxlength="30"
               required
+              data-confirms="newPassword"
+              data-errmsg="passConfError"
             /><br />
             <small id="passConfError"></small>
           </section>
 
-          <input type="submit" value="送信" id="submitBtn" disabled />
+          <input type="submit" value="送信" id="submit" disabled />
         </form>
       </article>
 
