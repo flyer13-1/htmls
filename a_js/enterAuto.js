@@ -1,218 +1,179 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  //    定数の宣言
-  //車両
-  const carNumSection = document.getElementById("carNum");
-  const carData = {};
+// DOM宣言
+const carNumSection = document.getElementById("carNum"); // 車両欄
+const carData = {}; // 車両データ
 
-  //ピットの時間
-  const inTimeBtn = document.getElementById("inTime");
-  const outTimeBtn = document.getElementById("outTime");
-  const noneTimeBtn = document.getElementById("noneTime");
-  const offsetTime = document.getElementById("offset");
+const inTimeBtn = document.getElementById("inTime"); // イン
+const outTimeBtn = document.getElementById("outTime"); // アウト
+const noneTimeBtn = document.getElementById("noneTime"); // なし
+const offsetTime = document.getElementById("offset"); // 補正値
 
-  //時間の表示・書き換え
-  const shInTime = document.getElementById("inTimeMsg");
-  const shOutTime = document.getElementById("outTimeMsg");
-  const shNoneTime = document.getElementById("noneTimeMsg");
+const shInTime = document.getElementById("inTimeMsg"); // イン表示
+const shOutTime = document.getElementById("outTimeMsg"); // アウト表示
+const shNoneTime = document.getElementById("noneTimeMsg"); // なし表示
 
-  //ドライバーなどの作業
-  const driver = document.getElementById("Driver");
-  const tires = document.getElementById("tires");
-  const oils = document.getElementById("oils");
-  const note = document.getElementById("note");
+const driver = document.getElementById("Driver"); // ドライバー
+const tires = document.getElementById("tires"); // タイヤ
+const oils = document.getElementById("oils"); // オイル
+const note = document.getElementById("note"); // メモ
 
-  //formの処理
-  const form = document.getElementById("myForm");
+const form = document.getElementById("myForm"); // フォーム
 
-  //     共通関数の宣言
-  //車両のデータの取得
-  async function getCarData(cnt = 3) {
-    try {
-      // サーバから車両番号リストを取得（例：JSONで["1","2","3",...]）
-      const response = await fetch(
-        "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/init",
-      )     .then((response) => {
-        if (response.ok) {
-          if (data.msg === "") {
-                const responseData = await response.json();
-                sessionStorage.setItem("raceId", responseData.raceId);
-          } else {
-            // エラーメッセージ表示
-            alert(data.msg);
-          }
-        } else if (response.status === 400) {
-          alert(data.msg || "error: 400 Bad Request");
-        } else if (response.status === 500) {
-          alert(data.msg || "error: 500 Internal Server Error");
-        }
-      });
-      const result = await response.json();
-      const carNumbers = result.carNum;
+let cashTime = {}; // 時間キャッシュ
 
-      // const carNumbers = [5, 6, 15, 16, 0, 1, 20];
-      return carNumbers;
-    } catch (err) {
-      if (cnt > 0) {
-        console.error("データ取得失敗", err);
-        return await getCarNumber(cnt - 1);
+// 関数
+async function getInitData(cnt = 3) {
+  const token = sessionStorage.getItem("token");
+  const raceId = sessionStorage.getItem("raceId");
+
+  if (!token || !raceId) {
+    alert("認証情報が不足しています。再度ログインしてください。");
+    window.location.href = "./login.html";
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${API}/user/me`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      if (data.msg === "") {
+        return { carNumbers: data.carNum, driverData: data.driverData };
       } else {
-        alert("車両情報の取得に失敗しました。管理者に一度報告してください。");
+        alert(data.msg);
         return null;
       }
+    } else if (response.status === 400) {
+      alert(data.msg || "error: 400 Bad Request");
+    } else if (response.status === 500) {
+      alert(data.msg || "error: 500 Internal Server Error");
+    }
+    return null;
+  } catch (err) {
+    if (cnt > 0) {
+      console.error("データ取得失敗", err);
+      return await getInitData(cnt - 1);
+    } else {
+      alert("初期データの取得に失敗しました。管理者に一度報告してください。");
+      return null;
     }
   }
+}
 
-  //ドライバーのデータの取得
-  async function getDriverData(cnt = 3) {
-    try {
-      // サーバから車両番号リストを取得（例：JSONで["1","2","3",...]）
-      const response = await fetch(
-        "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/init",
-      )     .then((response) => {
-        if (response.ok) {
-          if (data.msg === "") {
-                const responseData = await response.json();
-                sessionStorage.setItem("raceId", responseData.raceId);
-          } else {
-            // エラーメッセージ表示
-            alert(data.msg);
-          }
-        } else if (response.status === 400) {
-          alert(data.msg || "error: 400 Bad Request");
-        } else if (response.status === 500) {
-          alert(data.msg || "error: 500 Internal Server Error");
-        }
-      });
-      const result = await response.json();
-      const driverData = result.driverData;
-      return driverData;
-    } catch (err) {
-      if (cnt > 0) {
-        console.error("データ取得失敗", err);
-        return await getCarNumber(cnt - 1);
-      } else {
-        alert(
-          "ドライバー情報の取得失敗しました。管理者に一度報告してください。",
-        );
-        return null;
-      }
-    }
-  }
+function color(name) {
+  name.style.backgroundColor = "#0066CC";
+  name.style.color = "#fff";
+}
 
-  //色変更
-  function color(name) {
-    name.style.backgroundColor = "#0066CC";
-    name.style.color = "#fff";
-  }
+function timeReset(num) {
+  const time = document.querySelectorAll("#Time button[type ='button']");
+  time.forEach((e) => {
+    e.style.backgroundColor = "";
+    e.style.color = "";
+  });
 
-  //時間ボタンの入力履歴を復元を実行
-  function timeReset(num) {
-    const time = document.querySelectorAll("#Time button[type ='button']");
-    time.forEach((e) => {
-      e.style.backgroundColor = ""; // 元の色に戻す（任意）
-      e.style.color = "";
-    });
+  const shTime = document.querySelectorAll("#Time input");
+  shTime.forEach((e) => {
+    e.value = "";
+  });
 
-    const shTime = document.querySelectorAll("#Time input");
-    shTime.forEach((e) => {
-      e.value = "";
-    });
-
-    if (carData[num].noneTime) {
-      if (carData[num].inTime === "none") {
-        color(noneTimeBtn);
-        shNoneTime.value = carData[num].inTime;
-      } else if (carData[num].outTime === "none") {
-        color(noneTimeBtn);
-        shOutTime.value = carData[num].outTime;
-      }
-    }
-
-    if (carData[num].inTime && carData[num].inTime !== "none") {
-      color(inTimeBtn);
-      shInTime.value = carData[num].inTime;
-    }
-    if (carData[num].outTime && carData[num].outTime !== "none") {
-      color(outTimeBtn);
+  if (carData[num].noneTime) {
+    if (carData[num].inTime === "none") {
+      color(noneTimeBtn);
+      shNoneTime.value = carData[num].inTime;
+    } else if (carData[num].outTime === "none") {
+      color(noneTimeBtn);
       shOutTime.value = carData[num].outTime;
     }
   }
 
-  //ドライバーの入力履歴を復元
-  function driverReset(num) {
-    const drivers = driverData[num];
-    const labels = document.querySelectorAll(
-      '#Driver label:not([for="driverNone"])',
+  if (carData[num].inTime && carData[num].inTime !== "none") {
+    color(inTimeBtn);
+    shInTime.value = carData[num].inTime;
+  }
+  if (carData[num].outTime && carData[num].outTime !== "none") {
+    color(outTimeBtn);
+    shOutTime.value = carData[num].outTime;
+  }
+}
+
+function driverReset(num) {
+  const drivers = driverData[num];
+  const labels = document.querySelectorAll(
+    '#Driver label:not([for="driverNone"])',
+  );
+
+  labels.forEach((e, index) => {
+    if (drivers[index]) {
+      e.innerHTML = drivers[index];
+    }
+  });
+
+  if (carData[num].driver) {
+    const driverRadio = document.querySelector(
+      `#Driver input[value="${carData[num].driver}"]`,
     );
+    if (driverRadio) driverRadio.checked = true;
+  } else {
+    document
+      .querySelectorAll("#Driver input")
+      .forEach((r) => (r.checked = false));
+  }
+}
 
-    labels.forEach((e, index) => {
-      if (drivers[index]) {
-        e.innerHTML = drivers[index];
-      }
-    });
+function showToast(message, duration = 2000) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.style.display = "block";
 
-    if (carData[num].driver) {
-      const driverRadio = document.querySelector(
-        `#Driver input[value="${carData[num].driver}"]`,
-      );
-      if (driverRadio) driverRadio.checked = true; // true でチェック
-    } else {
-      document
-        .querySelectorAll("#Driver input")
-        .forEach((r) => (r.checked = false));
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, duration);
+}
+
+function findCarData() {
+  const sendCarData = {};
+  for (const carContainer in carData) {
+    const resultCar = carData[carContainer];
+    if (
+      resultCar.driver ||
+      resultCar.inTime ||
+      resultCar.outTime ||
+      resultCar.tire ||
+      resultCar.oil ||
+      resultCar.note
+    ) {
+      sendCarData[carContainer] = resultCar;
     }
   }
+  return sendCarData;
+}
 
-  // トースト表示用関数
-  function showToast(message, duration = 2000) {
-    const toast = document.getElementById("toast");
-    toast.textContent = message;
-    toast.style.display = "block";
+async function sendData(current, unsent, cnt = 3) {
+  for (let i = 0; i < cnt; i++) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const raceId = sessionStorage.getItem("raceId");
 
-    setTimeout(() => {
-      toast.style.display = "none";
-    }, duration);
-  }
-
-  // 選択されている車両だけ挿入
-  function findCarData() {
-    const sendCarData = {};
-    for (const carContainer in carData) {
-      const resultCar = carData[carContainer];
-      if (
-        resultCar.driver ||
-        resultCar.inTime ||
-        resultCar.outTime ||
-        resultCar.tire ||
-        resultCar.oil ||
-        resultCar.note
-      ) {
-        sendCarData[carContainer] = resultCar;
-      }
-    }
-    return sendCarData;
-  }
-
-  //データを送信
-  async function sendData(current, unsent, cnt = 3) {
-    for (let i = 0; i < cnt; i++) {
-      try {
-        const token = sessionStorage.getItem("token");
-        const raceId = sessionStorage.getItem("raceId");
-
-        const response = await fetch(
-          "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/auto",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-            body: JSON.stringify({ current, unsent, raceId }),
+      const response = await fetch(
+        "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/auto",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-        )     .then((response) => {
+          body: JSON.stringify({ current, unsent, raceId }),
+        },
+      ).then((response) => {
         if (response.ok) {
           if (data.msg === "") {
-
           } else {
-            // エラーメッセージ表示
             throw new Error("送信失敗");
             alert(data.msg);
           }
@@ -223,295 +184,240 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
 
-        const result = await response.json();
+      const result = await response.json();
 
-        console.log("送信成功");
-        showToast("送信成功");
-        return result;
-      } catch (err) {
-        if (cnt > 0) {
-          console.error("送信エラー:", err);
-          return await sendData(current, unsent, cnt - 1);
-        } else {
-          return null;
-        }
+      console.log("送信成功");
+      showToast("送信成功");
+      return result;
+    } catch (err) {
+      if (cnt > 0) {
+        console.error("送信エラー:", err);
+        return await sendData(current, unsent, cnt - 1);
+      } else {
+        return null;
       }
     }
   }
+}
 
-  //       処理を実行
-  //車両データを取得
-  // const carNumbers = getCarData();
+function getCorrectedTime() {
+  const offsetSec = parseFloat(offsetTime.value) || 0;
+  const time = new Date(Date.now() + offsetSec * 1000);
 
-  //テスト用データ
-  // const carNumbers = [5, 6, 15, 16, 0, 1, 20];
+  const hours = String(time.getHours()).padStart(2, "0");
+  const minutes = String(time.getMinutes()).padStart(2, "0");
+  const seconds = String(time.getSeconds()).padStart(2, "0");
+  return `${hours}:${minutes}:${seconds}`;
+}
 
-  // const driverData = {
-  //   5: ["A<br>せきりょうた", "B<br>かんざきあおい", "C<br>きみずかんた"],
-  //   6: ["A<br>かんじゃに", "B<br>ぶいしっくす", "C<br>すのーまん"],
-  //   15: ["A<br>koko", "B<br>kesha", "C<br>putbll"],
-  //   16: ["A<br>かず", "B<br>けんた", "C<br>かんた"],
-  //   0: ["A<br>noziri", "B<br>mirei", "C<br>JUJU"],
-  //   1: ["A<br>1gou", "B<br>2gou", "C<br>3gou"],
-  //   20: ["A<br>灯台", "B<br>強大", "C<br>寛大"],
-  // };
+// 実行コード
+(async () => {
+  const { carNumbers, driverData } = await getInitData();
+  if (!carNumbers || !driverData) return;
 
   carNumbers.forEach((num) => {
-    // ボタンを作成
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.textContent = num;
-    btn.classList.add("carBtn");
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = num;
+  btn.classList.add("carBtn");
 
-    // 作業内容を格納する箱を作成
-    //Time系は時間を、stateは状態＋選択済みのボタンを表す
-    carData[num] = {
-      inTime: null,
-      outTime: null,
-      noneTime: null,
-      driver: null,
-      tire: null,
-      oil: null,
-      note: "",
-      state: { inClicked: false, outClicked: false, noneClicked: false },
-    };
+  carData[num] = {
+    inTime: null,
+    outTime: null,
+    noneTime: null,
+    driver: null,
+    tire: null,
+    oil: null,
+    note: "",
+    state: { inClicked: false, outClicked: false, noneClicked: false },
+  };
 
-    // ボタンクリックで選択／解除表示（CSSクラス付け外し）
-    btn.addEventListener("click", () => {
-      // 車両ボタンの選択切り替え
-      document.querySelectorAll(".carBtn").forEach((btn) => {
-        btn.classList.remove("selected");
-      });
-      btn.classList.add("selected");
-
-      //時間選択の選択切り替え
-      timeReset(num);
-
-      // ドライバー選択時の処理
-      driverReset(num);
-
-      // 作業内容反映
-      document.getElementById("tires").checked = !!carData[num].tire;
-      document.getElementById("oils").checked = !!carData[num].oil;
-      note.value = carData[num].note || "";
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".carBtn").forEach((btn) => {
+      btn.classList.remove("selected");
     });
+    btn.classList.add("selected");
 
-    // ボタンをセクションに追加
-    carNumSection.appendChild(btn);
-    console.log("ボタン制作完了");
+    timeReset(num);
+    driverReset(num);
+
+    document.getElementById("tires").checked = !!carData[num].tire;
+    document.getElementById("oils").checked = !!carData[num].oil;
+    note.value = carData[num].note || "";
   });
 
-  console.log("車両オブジェクト初期化完了:", carData);
+  carNumSection.appendChild(btn);
+  console.log("ボタン制作完了");
+});
 
-  // ここから先で carData[num] に各種作業情報を上書きしていく
+console.log("車両オブジェクト初期化完了:", carData);
 
-  //ピットの時間の処理
-  function getCorrectedTime() {
-    const offsetSec = parseFloat(offsetTime.value) || 0;
-    const time = new Date(Date.now() + offsetSec * 1000);
+inTimeBtn.addEventListener("click", () => {
+  const car = document.querySelector(".carBtn.selected").textContent;
+  const state = carData[car].state;
+  const pressedCount = Object.values(carData[car].state).filter(
+    (v) => v,
+  ).length;
 
-    const hours = String(time.getHours()).padStart(2, "0");
-    const minutes = String(time.getMinutes()).padStart(2, "0");
-    const seconds = String(time.getSeconds()).padStart(2, "0");
-    return `${hours}:${minutes}:${seconds}`;
+  if (state.inClicked) {
+    state.inClicked = false;
+    inTimeBtn.style.backgroundColor = "";
+    inTimeBtn.style.color = "";
+    cashTime[car] = carData[car].inTime;
+    shInTime.value = "";
+    return;
   }
 
-  let cashTime = {};
+  if (pressedCount >= 2) {
+    return;
+  }
 
-  //ピットイン時間の動き
-  inTimeBtn.addEventListener("click", () => {
-    const car = document.querySelector(".carBtn.selected").textContent;
-    const state = carData[car].state;
-    const pressedCount = Object.values(carData[car].state).filter(
-      (v) => v,
-    ).length;
+  if (cashTime[car]) {
+    console.log("インに変更");
+    carData[car].inTime = cashTime[car];
+    shInTime.value = cashTime[car];
 
-    // 押されたボタンが既にtrueなら → 再選択許可（時間は変えない）
-    if (state.inClicked) {
-      // もし他のボタンが既に2回押されていたら、状態リセットして再選択できるようにする
-      state.inClicked = false;
-      inTimeBtn.style.backgroundColor = "";
-      inTimeBtn.style.color = "";
-      cashTime[car] = carData[car].inTime;
-      shInTime.value = "";
-      return;
-    }
-
-    // 既に2つのボタンが押されている場合は新規入力不可
-    if (pressedCount >= 2) {
-      return;
-    }
-
-    // キャッシュに時間がある → キャッシュから復元
-    if (cashTime[car]) {
-      console.log("インに変更");
-      carData[car].inTime = cashTime[car];
-      shInTime.value = cashTime[car];
-
-      state.inClicked = true;
-      color(inTimeBtn);
-      console.log("キャッシュから復元:", cashTime[car]);
-      return;
-    }
-
-    //時間を取得して情報を入力
-    const now = getCorrectedTime();
-    shInTime.value = now;
-    carData[car].inTime = now;
-    carData[car].state.inClicked = true;
-
-    // ボタン色を変更
+    state.inClicked = true;
     color(inTimeBtn);
+    console.log("キャッシュから復元:", cashTime[car]);
+    return;
+  }
 
-    console.log("押した時刻：", now);
-  });
+  const now = getCorrectedTime();
+  shInTime.value = now;
+  carData[car].inTime = now;
+  carData[car].state.inClicked = true;
 
-  //ピットアウト時間の動き
-  outTimeBtn.addEventListener("click", () => {
-    const car = document.querySelector(".carBtn.selected").textContent;
-    const state = carData[car].state;
-    const pressedCount = Object.values(carData[car].state).filter(
-      (v) => v,
-    ).length;
-
-    // 押されたボタンが既にtrueなら → 再選択許可（時間は変えない）
-    if (state.outClicked) {
-      // もし他のボタンが既に2回押されていたら、状態リセットして再選択できるようにする
-      state.outClicked = false;
-      outTimeBtn.style.backgroundColor = "";
-      outTimeBtn.style.color = "";
-      cashTime[car] = carData[car].outTime;
-      shOutTime.value = "";
-      return;
-    }
-
-    // 既に2つのボタンが押されている場合は新規入力不可
-    if (pressedCount >= 2) {
-      return;
-    }
-
-    // キャッシュに時間があり、それがoutボタンのものなら → キャッシュから復元
-    if (cashTime[car]) {
-      console.log("アウトに変更");
-      carData[car].outTime = cashTime[car];
-      shOutTime.value = cashTime[car];
-
-      state.outClicked = true;
-      color(outTimeBtn);
-      console.log("キャッシュから復元:", cashTime[car]);
-      return;
-    }
-
-    const now = getCorrectedTime();
-    shOutTime.value = now;
-    carData[car].outTime = now;
-    carData[car].state.outClicked = true;
-
-    // ボタン色を変更
-    color(outTimeBtn);
-
-    console.log("押した時間；", now);
-  });
-
-  //ピットアウトしない時
-  noneTimeBtn.addEventListener("click", () => {
-    const car = document.querySelector(".carBtn.selected").textContent;
-    const state = carData[car].state;
-    const pressedCount = Object.values(carData[car].state).filter(
-      (v) => v,
-    ).length;
-
-    // 押されたボタンが既にtrueなら → 強調解除 + 時間をキャッシュに保存
-    if (state.noneClicked) {
-      console.log("state.noneClicked");
-      state.noneClicked = false;
-      noneTimeBtn.style.backgroundColor = "";
-      noneTimeBtn.style.color = "";
-
-      cashTime[car] = carData[car].noneTime;
-      shNoneTime.value = "";
-      return;
-    }
-
-    // 既に2つのボタンが押されている場合は新規入力不可
-    if (pressedCount >= 2) {
-      return;
-    }
-
-    // キャッシュに時間があり、それがoutボタンのものなら → キャッシュから復元
-    if (cashTime[car]) {
-      console.log("noneに変更");
-      carData[car].noneTime = cashTime[car];
-      shNoneTime.value = cashTime[car];
-
-      state.noneClicked = true;
-      color(noneTimeBtn);
-      console.log("キャッシュから復元:", cashTime[car]);
-      return;
-    }
-
-    const now = getCorrectedTime();
-
-    carData[car].noneTime = now;
-    shNoneTime.value = now;
-    carData[car].state.noneClicked = true;
-
-    // ボタン色を変更
-    color(noneTimeBtn);
-    console.log("押した時刻：", now);
-  });
-
-  //ドライバーなどの作業入力処理
-  driver.addEventListener("change", (e) => {
-    const car = document.querySelector(".carBtn.selected").textContent;
-    carData[car].driver = e.target.value;
-  });
-
-  tires.addEventListener("change", (e) => {
-    const car = document.querySelector(".carBtn.selected").textContent;
-    if (carData[car].oil) {
-      carData[car].oil = null;
-    } else {
-      carData[car].tire = e.target.value;
-    }
-  });
-
-  oils.addEventListener("change", (e) => {
-    const car = document.querySelector(".carBtn.selected").textContent;
-    if (carData[car].oil) {
-      carData[car].oil = null;
-    } else {
-      carData[car].oil = e.target.value;
-    }
-  });
-
-  note.addEventListener("change", (e) => {
-    const car = document.querySelector(".carBtn.selected").textContent;
-    carData[car].note = e.target.value;
-  });
-
-  //formの送信時の処理
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault(); //標準のform送信を停止
-
-    // 既存の hidden は削除
-    document.querySelectorAll(".dynamic-hidden").forEach((el) => el.remove());
-
-    //送信データ用を格納
-    const sendCarData = findCarData();
-
-    // 未送信データを確認
-    const unsent = JSON.parse(localStorage.getItem("unsentData") || "{}");
-    console.log("データの格納完了");
-
-    //データを送信
-    if (await sendData(sendCarData, unsent)) {
-      // 送信成功ならローカルストレージの未送信データは削除
-      localStorage.removeItem("unsentData");
-      cashTime = {};
-    } else {
-      alert("[重要]送信に失敗,データを保存。一度開発者に連絡を");
-      localStorage.setItem("unsentData", payload);
-    }
-  });
+  color(inTimeBtn);
+  console.log("押した時刻：", now);
 });
+
+outTimeBtn.addEventListener("click", () => {
+  const car = document.querySelector(".carBtn.selected").textContent;
+  const state = carData[car].state;
+  const pressedCount = Object.values(carData[car].state).filter(
+    (v) => v,
+  ).length;
+
+  if (state.outClicked) {
+    state.outClicked = false;
+    outTimeBtn.style.backgroundColor = "";
+    outTimeBtn.style.color = "";
+    cashTime[car] = carData[car].outTime;
+    shOutTime.value = "";
+    return;
+  }
+
+  if (pressedCount >= 2) {
+    return;
+  }
+
+  if (cashTime[car]) {
+    console.log("アウトに変更");
+    carData[car].outTime = cashTime[car];
+    shOutTime.value = cashTime[car];
+
+    state.outClicked = true;
+    color(outTimeBtn);
+    console.log("キャッシュから復元:", cashTime[car]);
+    return;
+  }
+
+  const now = getCorrectedTime();
+  shOutTime.value = now;
+  carData[car].outTime = now;
+  carData[car].state.outClicked = true;
+
+  color(outTimeBtn);
+  console.log("押した時間；", now);
+});
+
+noneTimeBtn.addEventListener("click", () => {
+  const car = document.querySelector(".carBtn.selected").textContent;
+  const state = carData[car].state;
+  const pressedCount = Object.values(carData[car].state).filter(
+    (v) => v,
+  ).length;
+
+  if (state.noneClicked) {
+    console.log("state.noneClicked");
+    state.noneClicked = false;
+    noneTimeBtn.style.backgroundColor = "";
+    noneTimeBtn.style.color = "";
+
+    cashTime[car] = carData[car].noneTime;
+    shNoneTime.value = "";
+    return;
+  }
+
+  if (pressedCount >= 2) {
+    return;
+  }
+
+  if (cashTime[car]) {
+    console.log("noneに変更");
+    carData[car].noneTime = cashTime[car];
+    shNoneTime.value = cashTime[car];
+
+    state.noneClicked = true;
+    color(noneTimeBtn);
+    console.log("キャッシュから復元:", cashTime[car]);
+    return;
+  }
+
+  const now = getCorrectedTime();
+  carData[car].noneTime = now;
+  shNoneTime.value = now;
+  carData[car].state.noneClicked = true;
+
+  color(noneTimeBtn);
+  console.log("押した時刻：", now);
+});
+
+driver.addEventListener("change", (e) => {
+  const car = document.querySelector(".carBtn.selected").textContent;
+  carData[car].driver = e.target.value;
+});
+
+tires.addEventListener("change", (e) => {
+  const car = document.querySelector(".carBtn.selected").textContent;
+  if (carData[car].oil) {
+    carData[car].oil = null;
+  } else {
+    carData[car].tire = e.target.value;
+  }
+});
+
+oils.addEventListener("change", (e) => {
+  const car = document.querySelector(".carBtn.selected").textContent;
+  if (carData[car].oil) {
+    carData[car].oil = null;
+  } else {
+    carData[car].oil = e.target.value;
+  }
+});
+
+note.addEventListener("change", (e) => {
+  const car = document.querySelector(".carBtn.selected").textContent;
+  carData[car].note = e.target.value;
+});
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  document.querySelectorAll(".dynamic-hidden").forEach((el) => el.remove());
+
+  const sendCarData = findCarData();
+
+  const unsent = JSON.parse(localStorage.getItem("unsentData") || "{}");
+  console.log("データの格納完了");
+
+  if (await sendData(sendCarData, unsent)) {
+    localStorage.removeItem("unsentData");
+    cashTime = {};
+  } else {
+    alert("[重要]送信に失敗,データを保存。一度開発者に連絡を");
+    localStorage.setItem("unsentData", payload);
+  }
+});
+})();
