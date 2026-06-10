@@ -1,142 +1,46 @@
+// DOM宣言
+const resetButton = document.getElementById("reset"); // 更新
+
+// グローバル変数
+let entries = [];
+
+// 定数
 const BASE_URL =
   "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev";
 const ENDPOINT = "/entries/show";
 
-const allButton = document.getElementById("all");
-const resetButton = document.getElementById("reset");
-const carFilterInput = document.getElementById("car");
-const filterList = document.getElementById("filter");
-const tableBody = document.querySelector("tbody");
-
-let entries = [];
-let currentClassFilter = "";
-let currentCarFilter = "";
-
-function formatBoolean(value) {
-  return value ? "はい" : "いいえ";
-}
-
-function formatDatetime(value) {
-  return value === null || value === undefined ? "-" : value;
-}
-
-function formatGap(value) {
-  if (value === null || value === undefined) return "-";
-  return `${value} 秒`;
-}
-
-function createClassButtons(classNames) {
-  const existingButtons = Array.from(
-    filterList.querySelectorAll("button[data-class]"),
-  );
-  existingButtons.forEach((button) => button.remove());
-
-  classNames.forEach((className) => {
-    const li = document.createElement("li");
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = className;
-    button.dataset.class = className;
-
-    button.addEventListener("click", () => {
-      if (currentClassFilter === className) {
-        currentClassFilter = "";
-        button.classList.remove("active");
-      } else {
-        currentClassFilter = className;
-        filterList
-          .querySelectorAll("button[data-class]")
-          .forEach((btn) => btn.classList.remove("active"));
-        button.classList.add("active");
-      }
-      renderTable();
-    });
-
-    li.appendChild(button);
-    filterList.appendChild(li);
-  });
-}
-
-function filterAndSortEntries() {
-  let filtered = Array.from(entries);
-
-  if (currentCarFilter) {
-    const carNumber = Number(currentCarFilter);
-    if (!Number.isNaN(carNumber)) {
-      filtered = filtered.filter((entry) => entry.carNum === carNumber);
-    }
-  }
-
-  if (currentClassFilter) {
-    filtered = filtered.filter(
-      (entry) => entry.className === currentClassFilter,
-    );
-  }
-
-  filtered.sort((a, b) => {
-    if (a.pitNum !== b.pitNum) return a.pitNum - b.pitNum;
-    if (a.inTime === b.inTime) return a.managerId - b.managerId;
-    if (a.inTime === null) return 1;
-    if (b.inTime === null) return -1;
-    return a.inTime.localeCompare(b.inTime);
-  });
-
-  return filtered;
-}
-
-function renderTable() {
-  const rows = filterAndSortEntries();
-  tableBody.innerHTML = "";
-
-  if (rows.length === 0) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 12;
-    td.textContent = "該当するデータがありません。";
-    td.style.textAlign = "center";
-    tr.appendChild(td);
-    tableBody.appendChild(tr);
-    return;
-  }
-
-  rows.forEach((entry) => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${entry.managerId}</td>
-      <td>${entry.manager}</td>
-      <td>${entry.pitNum}</td>
-      <td>${entry.carNum}</td>
-      <td>${entry.className}</td>
-      <td>${entry.teamName}</td>
-      <td>${formatBoolean(entry.retire)}</td>
-      <td>${entry.inDriver || "-"}</td>
-      <td>${entry.outDriver || "-"}</td>
-      <td>${formatDatetime(entry.inTime)}</td>
-      <td>${formatDatetime(entry.outTime)}</td>
-      <td>${formatGap(entry.pitGap)}</td>
-    `;
-
-    tableBody.appendChild(tr);
-  });
-}
-
-function showError(message) {
-  alert(message);
-}
-
+// 関数
 async function loadEntries() {
   try {
-    const response = await fetch(`${BASE_URL}${ENDPOINT}`);
-    const data = await response.json();
+    const token = localStorage.getItem("token");
+    const raceId = localStorage.getItem("raceId");
 
-    if (!response.ok) {
-      showError(data.msg || `エラー: ${response.status}`);
+    if (!token || !raceId) {
+      alert("ユーザー情報が見つかりません。再度ログインしてください。");
+      window.location.href = "./login.html";
       return;
     }
 
-    if (data.msg && data.msg !== "") {
-      showError(data.msg);
+    const response = await fetch(`${BASE_URL}${ENDPOINT}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      if (data.msg !== "") {
+        // エラーメッセージ表示
+        alert(data.msg);
+        return;
+      }
+    } else if (response.status === 400) {
+      alert(data.msg || "error: 400 Bad Request");
+      return;
+    } else if (response.status === 500) {
+      alert(data.msg || "error: 500 Internal Server Error");
       return;
     }
 
@@ -171,32 +75,18 @@ async function loadEntries() {
     renderTable();
   } catch (err) {
     console.error(err);
-    showError(
+    alert(
       "データの取得に失敗しました。サーバーまたはネットワークを確認してください。",
     );
   }
 }
 
-allButton.addEventListener("click", () => {
-  currentClassFilter = "";
-  currentCarFilter = "";
-  carFilterInput.value = "";
-  filterList
-    .querySelectorAll("button[data-class]")
-    .forEach((btn) => btn.classList.remove("active"));
-  renderTable();
-});
-
+// 実行コード
 resetButton.addEventListener("click", async () => {
   currentClassFilter = "";
   currentCarFilter = "";
   carFilterInput.value = "";
   await loadEntries();
-});
-
-carFilterInput.addEventListener("input", (event) => {
-  currentCarFilter = event.target.value.trim();
-  renderTable();
 });
 
 loadEntries();
