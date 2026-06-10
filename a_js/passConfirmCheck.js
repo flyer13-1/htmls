@@ -11,6 +11,6 @@ document.querySelectorAll("[data-confirms]").forEach((input) => {
     errEl.textContent       = ok ? "OK!" : "パスワードが一致しません";
     errEl.style.color       = ok ? "green" : "red";
     input.style.borderColor = ok ? "green" : "red";
-    if (!ok) submitBtn.disabled = true;
+    submitBtn.disabled = !ok || ![...passValidity.values()].every(Boolean);
   });
 });
