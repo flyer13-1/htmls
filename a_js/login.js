@@ -12,7 +12,7 @@ function sucsessMsg() {
     msg.style.display = "none";
     formArea.style.display = "block";
     window.location.href = "./conform.html";
-  }, 2000);
+  }, 1000);
 }
 
 // 送信時チェック

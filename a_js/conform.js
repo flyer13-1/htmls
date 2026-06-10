@@ -1,6 +1,11 @@
 // DOM宣言
 const main = document.getElementById("main");
+const success = document.getElementById("success");
 const conform = document.getElementById("conform");
+
+const form = document.getElementById("form");
+const conformBtn = document.getElementById("conformBtn");
+const backBtn = document.getElementById("backBtn");
 
 const API = "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev";
 // サーキット番号に対応するサーキット名の配列（1始まりのため index 0 は null）
@@ -15,42 +20,51 @@ const circuits = [
   "無所属",
 ];
 
-// 大会ID照会フォームの初期化
-function init() {
-  const form = document.getElementById("form");
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
+function sucsessMsg() {
+  main.style.display = "none";
+  conform.style.display = "none";
+  success.style.display = "block";
 
-    // 大会IDとトークンを取得
-    const todayId = document.getElementById("todayId").value;
-    const token = sessionStorage.getItem("token"); // ログイン時に保存したトークン
+  setTimeout(() => {
+    success.style.display = "none";
+    main.style.display = "block";
+    window.location.href = "./main.html";
+  }, 1000);
+}
 
-    try {
-      const response = await fetch(`${API}/user/me`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ todayId }),
-      });
+// 大会ID照会フォームの送信処理
+async function send(event) {
+  event.preventDefault();
 
-      const data = await response.json();
+  // 大会IDとトークンを取得
+  const todayId = document.getElementById("todayId").value;
+  const token = sessionStorage.getItem("token"); // ログイン時に保存したトークン
 
-      if (response.ok) {
-        // 大会IDが一致したらraceIdをセッションに保存してメイン画面へ
-        sessionStorage.setItem("raceId", data.raceId);
-        window.location.href = "./main.html";
-      } else if (response.status === 400) {
-        alert(data.msg || "error: 400 Bad Request");
-      } else if (response.status === 500) {
-        alert(data.msg || "error: 500 Internal Server Error");
-      }
-    } catch (error) {
-      console.error("送信エラー:", error);
-      alert("送信失敗しました。管理者に一度報告してください。");
+  try {
+    const response = await fetch(`${API}/user/me`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ todayId }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // 大会IDが一致したらraceIdをセッションに保存してメイン画面へ
+      sessionStorage.setItem("raceId", data.raceId);
+      sucsessMsg();
+    } else if (response.status === 400) {
+      alert(data.msg || "error: 400 Bad Request");
+    } else if (response.status === 500) {
+      alert(data.msg || "error: 500 Internal Server Error");
     }
-  });
+  } catch (error) {
+    console.error("送信エラー:", error);
+    alert("送信失敗しました。管理者に一度報告してください。");
+  }
 }
 
 // プロフィール取得（GETリクエスト）
@@ -93,4 +107,6 @@ function back() {
   conform.style.display = "none";
 }
 
-init(); // ページ読み込み時に初期化関数を呼び出す
+form.addEventListener("submit", send);
+conformBtn.addEventListener("click", prof);
+backBtn.addEventListener("click", back);

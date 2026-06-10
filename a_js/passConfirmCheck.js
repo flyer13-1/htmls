@@ -8,8 +8,8 @@ document.querySelectorAll("[data-confirms]").forEach((input) => {
 
   input.addEventListener("input", () => {
     const ok = input.value !== "" && input.value === target.value;
-    errEl.textContent       = ok ? "OK!" : "パスワードが一致しません";
-    errEl.style.color       = ok ? "green" : "red";
+    errEl.textContent = ok ? "OK!" : "パスワードが一致しません";
+    errEl.style.color = ok ? "green" : "red";
     input.style.borderColor = ok ? "green" : "red";
     submitBtn.disabled = !ok || ![...passValidity.values()].every(Boolean);
   });
