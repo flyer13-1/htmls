@@ -14,7 +14,7 @@ function requireAuth(needRaceId = false) {
 
   if (!token || (needRaceId && !raceId)) {
     alert("認証情報が不足しています。再度ログインしてください。");
-    window.location.href = "./login.html";
+    window.location.href = "./index.html";
     return null;
   }
   return { token, raceId };

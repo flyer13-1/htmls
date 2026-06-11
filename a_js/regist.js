@@ -10,7 +10,7 @@ function sucsessMsg() {
   setTimeout(() => {
     msg.style.display = "none";
     formArea.style.display = "block";
-    window.location.href = "./login.html";
+    window.location.href = "./index.html";
   }, 1000);
 }
 

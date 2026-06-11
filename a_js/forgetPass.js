@@ -5,15 +5,15 @@ const newPassInput = document.getElementById("newPassword");
 const formForget = document.getElementById("form");
 
 function sucsessMsg() {
-  const formArea = document.getElementById("formarea");
-  const msg = document.getElementById("msgarea");
+  const formArea = document.getElementById("formArea");
+  const msg = document.getElementById("msgArea");
   formArea.style.display = "none";
   msg.style.display = "block";
 
   setTimeout(() => {
     msg.style.display = "none";
     formArea.style.display = "block";
-    window.location.href = "./login.html";
+    window.location.href = "./index.html";
   }, 1000);
 }
 
