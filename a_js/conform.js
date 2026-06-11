@@ -40,6 +40,7 @@ async function send(event) {
   if (!auth) return;
 
   const todayId = document.getElementById("todayId").value;
+  console.log("[conform POST] token:", auth.token, "todayId:", todayId); // 診断用（後で削除）
 
   try {
     const response = await fetch(`${API}/user/me`, {
@@ -52,6 +53,7 @@ async function send(event) {
     });
 
     const data = await response.json();
+    console.log("[conform POST] status:", response.status, "data:", data); // 診断用（後で削除）
     if (handleApiError(response, data)) return;
 
     // 大会ID照合成功：Lambda が返した raceId を保存してメイン画面へ
@@ -67,6 +69,7 @@ async function send(event) {
 async function prof() {
   const auth = requireAuth();
   if (!auth) return;
+  console.log("[conform GET] token:", auth.token); // 診断用（後で削除）
 
   const textUser = document.getElementById("textUser");
   const textCir = document.getElementById("textCir");
@@ -80,6 +83,7 @@ async function prof() {
     });
 
     const data = await response.json();
+    console.log("[conform GET] status:", response.status, "data:", data); // 診断用（後で削除）
     if (handleApiError(response, data)) return;
 
     // プロフィール情報を画面に表示

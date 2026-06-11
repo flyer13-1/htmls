@@ -33,12 +33,10 @@ formLogin.addEventListener("submit", async (event) => {
     }),
   });
   const data = await response.json();
-  console.log("[login] status:", response.status, "data:", data); // 診断用（後で削除）
 
   if (handleApiError(response, data)) return;
 
   // 正常終了：トークンを保存してページ遷移
   sessionStorage.setItem("token", data.token);
-  console.log("[login] saved token:", sessionStorage.getItem("token")); // 診断用（後で削除）
   sucsessMsg();
 });
