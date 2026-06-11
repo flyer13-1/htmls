@@ -4,45 +4,25 @@ const resetButton = document.getElementById("reset"); // 更新
 // グローバル変数
 let entries = [];
 
-// 定数
-const BASE_URL =
-  "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev";
-const ENDPOINT = "/entries/show";
-
 // 関数
-async function loadEntries(id = 0) {
+async function loadEntries() {
+  const auth = requireAuth(true); // token + raceId が必須
+  if (!auth) return;
+
   try {
-    const token = sessionStorage.getItem("token");
-    const raceId = sessionStorage.getItem("raceId");
-
-    if (!token || !raceId) {
-      alert("ユーザー情報が見つかりません。再度ログインしてください。");
-      window.location.href = "./login.html";
-      return;
-    }
-
-    const response = await fetch(`${BASE_URL}${ENDPOINT}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const response = await fetch(
+      `${API}/entries/show?race_id=${encodeURIComponent(auth.raceId)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.token}`,
+        },
       },
-    });
+    );
     const data = await response.json();
 
-    if (response.ok) {
-      if (data.msg !== "") {
-        // エラーメッセージ表示
-        alert(data.msg);
-        return;
-      }
-    } else if (response.status === 400) {
-      alert(data.msg || "error: 400 Bad Request");
-      return;
-    } else if (response.status === 500) {
-      alert(data.msg || "error: 500 Internal Server Error");
-      return;
-    }
+    if (handleApiError(response, data)) return;
 
     entries = Object.keys(data)
       .filter((key) => key !== "msg")

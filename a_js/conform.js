@@ -7,10 +7,7 @@ const form = document.getElementById("form");
 const conformBtn = document.getElementById("conformBtn");
 const backBtn = document.getElementById("backBtn");
 
-const API = "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev";
-// 開発中は 1ユーザ1レース運用のため raceId を固定値とする。
-// TODO: 複数レース対応時はバックエンドが検証済みトークンから raceId を解決する方式に変更する。
-const RACE_ID = "1";
+// API は common.js で宣言済み。
 // サーキット番号に対応するサーキット名の配列（1始まりのため index 0 は null）
 const circuits = [
   null,
@@ -39,38 +36,27 @@ function sucsessMsg() {
 async function send(event) {
   event.preventDefault();
 
-  // 大会IDとトークンを取得
-  const todayId = document.getElementById("todayId").value;
-  const token = sessionStorage.getItem("token"); // ログイン時に保存したトークン
+  const auth = requireAuth(); // token を取得（無ければログイン画面へ）
+  if (!auth) return;
 
-  if (!token) {
-    alert("認証情報が不足しています。再度ログインしてください。");
-    window.location.href = "./login.html";
-    return null;
-  }
+  const todayId = document.getElementById("todayId").value;
 
   try {
     const response = await fetch(`${API}/user/me`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${auth.token}`,
       },
       body: JSON.stringify({ todayId }),
     });
 
     const data = await response.json();
+    if (handleApiError(response, data)) return;
 
-    if (response.ok) {
-      // 大会IDの検証はサーバ側（POST /user/me）が todayId で実施する。
-      // raceId はレスポンスに含まれないため、開発中は固定値を保存する。
-      sessionStorage.setItem("raceId", RACE_ID);
-      sucsessMsg();
-    } else if (response.status === 400) {
-      alert(data.msg || "error: 400 Bad Request");
-    } else if (response.status === 500) {
-      alert(data.msg || "error: 500 Internal Server Error");
-    }
+    // 大会ID照合成功：Lambda が返した raceId を保存してメイン画面へ
+    sessionStorage.setItem("raceId", data.raceId);
+    sucsessMsg();
   } catch (error) {
     console.error("送信エラー:", error);
     alert("送信失敗しました。管理者に一度報告してください。");
@@ -79,32 +65,29 @@ async function send(event) {
 
 // プロフィール取得（GETリクエスト）
 async function prof() {
+  const auth = requireAuth();
+  if (!auth) return;
+
   const textUser = document.getElementById("textUser");
   const textCir = document.getElementById("textCir");
-  const token = sessionStorage.getItem("token"); // 認証トークン
 
   try {
     const response = await fetch(`${API}/user/me`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${auth.token}`,
       },
     });
 
     const data = await response.json();
+    if (handleApiError(response, data)) return;
 
-    if (response.ok) {
-      // プロフィール情報を画面に表示
-      textUser.textContent = "利用者ID: " + data.username;
-      textCir.textContent = "所属サーキット: " + circuits[data.circuit];
+    // プロフィール情報を画面に表示
+    textUser.textContent = "利用者ID: " + data.username;
+    textCir.textContent = "所属サーキット: " + circuits[data.circuit];
 
-      main.style.display = "none";
-      conform.style.display = "block";
-    } else if (response.status === 400) {
-      alert(data.msg || "error: 400 Bad Request");
-    } else if (response.status === 500) {
-      alert(data.msg || "error: 500 Internal Server Error");
-    }
+    main.style.display = "none";
+    conform.style.display = "block";
   } catch (error) {
     console.error("プロフィール取得エラー:", error);
     alert("プロフィールの取得に失敗しました。管理者に一度報告してください。");
