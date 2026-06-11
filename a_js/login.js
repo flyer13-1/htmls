@@ -3,8 +3,8 @@
 const formLogin = document.getElementById("form");
 
 function sucsessMsg() {
-  const formArea = document.getElementById("formarea");
-  const msg = document.getElementById("msgarea");
+  const formArea = document.getElementById("formArea");
+  const msg = document.getElementById("msgArea");
   formArea.style.display = "none";
   msg.style.display = "block";
 

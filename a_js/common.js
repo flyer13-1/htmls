@@ -35,7 +35,7 @@ function handleApiError(response, data) {
     alert(data.msg || "error: 400 Bad Request");
   } else if (response.status === 401) {
     alert(data.msg || "セッションが切れました。再度ログインしてください。");
-    window.location.href = "./login.html";
+    window.location.href = "./index.html";
   } else if (response.status === 500) {
     alert(data.msg || "error: 500 Internal Server Error");
   } else {
