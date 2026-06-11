@@ -8,6 +8,9 @@ const conformBtn = document.getElementById("conformBtn");
 const backBtn = document.getElementById("backBtn");
 
 const API = "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev";
+// 開発中は 1ユーザ1レース運用のため raceId を固定値とする。
+// TODO: 複数レース対応時はバックエンドが検証済みトークンから raceId を解決する方式に変更する。
+const RACE_ID = "1";
 // サーキット番号に対応するサーキット名の配列（1始まりのため index 0 は null）
 const circuits = [
   null,
@@ -40,6 +43,12 @@ async function send(event) {
   const todayId = document.getElementById("todayId").value;
   const token = sessionStorage.getItem("token"); // ログイン時に保存したトークン
 
+  if (!token) {
+    alert("認証情報が不足しています。再度ログインしてください。");
+    window.location.href = "./login.html";
+    return null;
+  }
+
   try {
     const response = await fetch(`${API}/user/me`, {
       method: "POST",
@@ -53,8 +62,9 @@ async function send(event) {
     const data = await response.json();
 
     if (response.ok) {
-      // 大会IDが一致したらraceIdをセッションに保存してメイン画面へ
-      sessionStorage.setItem("raceId", data.raceId);
+      // 大会IDの検証はサーバ側（POST /user/me）が todayId で実施する。
+      // raceId はレスポンスに含まれないため、開発中は固定値を保存する。
+      sessionStorage.setItem("raceId", RACE_ID);
       sucsessMsg();
     } else if (response.status === 400) {
       alert(data.msg || "error: 400 Bad Request");

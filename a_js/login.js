@@ -24,33 +24,19 @@ formLogin.addEventListener("submit", async (event) => {
   const passInputLogin = document.getElementById("password");
 
   // JSONで送信
-  const response = await fetch(
-    "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/login",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: usernameInput.value,
-        password: passInputLogin.value,
-      }),
-    },
-  );
+  const response = await fetch(`${API}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: usernameInput.value,
+      password: passInputLogin.value,
+    }),
+  });
   const data = await response.json();
 
-  if (response.ok) {
-    if (data.msg === "") {
-      // 保存
-      sessionStorage.setItem("token", data.token);
+  if (handleApiError(response, data)) return;
 
-      // ページ遷移
-      sucsessMsg();
-    } else {
-      // エラーメッセージ表示
-      alert(data.msg);
-    }
-  } else if (response.status === 400) {
-    alert(data.msg || "error: 400 Bad Request");
-  } else if (response.status === 500) {
-    alert(data.msg || "error: 500 Internal Server Error");
-  }
+  // 正常終了：トークンを保存してページ遷移
+  sessionStorage.setItem("token", data.token);
+  sucsessMsg();
 });

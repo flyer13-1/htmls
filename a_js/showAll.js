@@ -10,10 +10,10 @@ const BASE_URL =
 const ENDPOINT = "/entries/show";
 
 // 関数
-async function loadEntries() {
+async function loadEntries(id = 0) {
   try {
-    const token = localStorage.getItem("token");
-    const raceId = localStorage.getItem("raceId");
+    const token = sessionStorage.getItem("token");
+    const raceId = sessionStorage.getItem("raceId");
 
     if (!token || !raceId) {
       alert("ユーザー情報が見つかりません。再度ログインしてください。");

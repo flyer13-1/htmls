@@ -22,31 +22,19 @@ formForget.addEventListener("submit", async (event) => {
   event.preventDefault(); // デフォルト送信をキャンセル
 
   // JSONで送信
-  const response = await fetch(
-    "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/user/password",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: usernameInput.value,
-        password: passInputForget.value,
-        newpassword: newPassInput.value,
-      }),
-    },
-  );
+  const response = await fetch(`${API}/user/password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: usernameInput.value,
+      password: passInputForget.value,
+      newpassword: newPassInput.value,
+    }),
+  });
   const data = await response.json();
 
-  if (response.ok) {
-    if (data.msg === "") {
-      // ページ遷移
-      sucsessMsg();
-    } else {
-      // エラーメッセージ表示
-      alert(data.msg);
-    }
-  } else if (response.status === 400) {
-    alert(data.msg || "error: 400 Bad Request");
-  } else if (response.status === 500) {
-    alert(data.msg || "error: 500 Internal Server Error");
-  }
+  if (handleApiError(response, data)) return;
+
+  // 正常終了：ページ遷移
+  sucsessMsg();
 });

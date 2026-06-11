@@ -32,18 +32,21 @@ async function getInitData(cnt = 3) {
   }
 
   try {
-    const response = await fetch(`${API}/user/me`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const response = await fetch(
+      "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/init",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
     const data = await response.json();
 
     if (response.ok) {
       if (data.msg === "") {
-        return { carNumbers: data.carNum, driverData: data.driverData };
+        return { carNumbers: data.carNum, driverData: data.driver };
       } else {
         alert(data.msg);
         return null;
