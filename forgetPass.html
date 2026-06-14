@@ -28,7 +28,7 @@
               required
               minlength="4"
               maxlength="20"
-              pattern="[ぁ-んァ-ヶヲ-ン一-鿿㐀-䶿ー・]+"
+              pattern="[ぁ-んァ-ヶー一-鿿㐀-䶿]+"
               title="ひらがな・カタカナ・漢字で入力してください（4文字〜20文字以内）"
             />
           </section>
@@ -56,7 +56,7 @@
               id="newPassword"
               name="newPassword"
               minlength="6"
-              maxlength="30"
+              maxlength="20"
               required
               data-passcheck
               data-errmsg="newPassErrMsg"
@@ -70,7 +70,7 @@
               type="password"
               id="passConfirm"
               minlength="6"
-              maxlength="30"
+              maxlength="20"
               required
               data-confirms="newPassword"
               data-errmsg="passConfError"
