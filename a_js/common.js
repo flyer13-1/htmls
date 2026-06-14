@@ -3,7 +3,7 @@
 // で読み込み、グローバル参照する前提。
 
 // APIベースURL
-const API = "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev";
+const API = "https://9nvfvkd6f5.execute-api.ap-northeast-1.amazonaws.com/dev";
 
 // 認証ガード：sessionStorage から token / raceId を取得して返す。
 // 不足していればログイン画面へ遷移し null を返す。
