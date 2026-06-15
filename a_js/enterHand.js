@@ -3,18 +3,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   const carNumSection = document.getElementById("carNum");
 
   async function getCarNumber(cnt = 3) {
+    const auth = requireAuth(true); // token + raceId 必須
+    if (!auth) return null;
     try {
-      // サーバから車両番号リストを取得（例：JSONで["1","2","3",...]）
+      // サーバから車両番号リストを取得（race_id 内の担当車両）
       const response = await fetch(
-        "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/init",
+        `${API}/entries/init?race_id=${encodeURIComponent(auth.raceId)}`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${auth.token}` },
+        },
       );
       const data = await response.json();
 
       if (response.ok) {
         if (data.msg === "") {
-          if (data.raceId) {
-            sessionStorage.setItem("raceId", data.raceId);
-          }
           return data.carNum || [];
         } else {
           alert(data.msg);
@@ -38,6 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   let carNumbers = await getCarNumber();
+  if (!carNumbers) return; // 認証切れ/取得失敗時（requireAuth が遷移済み）
 
   carNumbers.forEach((num) => {
     //ラベルを作成

@@ -22,23 +22,16 @@ let cashTime = {}; // 時間キャッシュ
 
 // 関数
 async function getInitData(cnt = 3) {
-  const token = sessionStorage.getItem("token");
-  const raceId = sessionStorage.getItem("raceId");
-
-  if (!token || !raceId) {
-    alert("認証情報が不足しています。再度ログインしてください。");
-    window.location.href = "./login.html";
-    return null;
-  }
+  const auth = requireAuth(true); // token + raceId 必須（無ければ index.html へ）
+  if (!auth) return null;
 
   try {
     const response = await fetch(
-      "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/init",
+      `${API}/entries/init?race_id=${encodeURIComponent(auth.raceId)}`,
       {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${auth.token}`,
         },
       },
     );
@@ -164,14 +157,14 @@ async function sendData(current, unsent, cnt = 3) {
       const raceId = sessionStorage.getItem("raceId");
 
       const response = await fetch(
-        "https://phtodjmcv1.execute-api.ap-northeast-1.amazonaws.com/dev/entries/auto",
+        `${API}/entries/auto?race_id=${encodeURIComponent(raceId)}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ current, unsent, raceId }),
+          body: JSON.stringify({ current, unsent }),
         },
       ).then((response) => {
         if (response.ok) {
