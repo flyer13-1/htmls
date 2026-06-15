@@ -128,3 +128,21 @@ section {
     padding: 10px;
   }
 }
+
+/* トースト（送信成功などの一時通知）。既定は非表示で showToast() が block にして表示 */
+#toast {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  padding: 12px 24px;
+  background-color: #0066cc;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}

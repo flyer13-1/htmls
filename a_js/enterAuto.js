@@ -1,6 +1,7 @@
 // DOM宣言
 const carNumSection = document.getElementById("carNum"); // 車両欄
 const carData = {}; // 車両データ
+let driverData = {}; // ドライバーデータ（getInitDataで設定／driverResetで参照）
 
 const inTimeBtn = document.getElementById("inTime"); // イン
 const outTimeBtn = document.getElementById("outTime"); // アウト
@@ -208,7 +209,10 @@ function getCorrectedTime() {
 
 // 実行コード
 (async () => {
-  const { carNumbers, driverData } = await getInitData();
+  const init = await getInitData();
+  if (!init) return;
+  const { carNumbers } = init;
+  driverData = init.driverData; // トップレベル変数へ代入（driverReset が参照）
   if (!carNumbers || !driverData) return;
 
   carNumbers.forEach((num) => {

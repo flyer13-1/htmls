@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
@@ -23,83 +23,91 @@
     </header>
 
     <main>
-      <form id="myForm" method="post">
-        <h2>ゼッケン番号</h2>
-        <section id="carNum"></section>
+      <article id="carInfo">
+        <h2>車両情報</h2>
+        <p>車両の情報をここに表示します。</p>
+        <form id="myForm" method="post">
+          <h2>ゼッケン番号</h2>
+          <section id="carNum"></section>
 
-        <h2>ピット時間</h2>
-        <section id="Time">
-          <button type="button" id="inTime">イン</button>
+          <h2>ピット時間</h2>
+          <section id="Time">
+            <button type="button" id="inTime">イン</button>
 
-          <button type="button" id="outTime">アウト</button>
+            <button type="button" id="outTime">アウト</button>
 
-          <button type="button" id="noneTime">ガレージ</button>
+            <button type="button" id="noneTime">ガレージ</button>
 
-          <input type="text" id="inTimeMsg" value="ここに時間を表示" />
-          <input type="text" id="outTimeMsg" value="ここに時間を表示" />
-          <input type="text" id="noneTimeMsg" value="ここに時間を表示" />
-        </section>
+            <input type="text" id="inTimeMsg" value="ここに時間を表示" />
+            <input type="text" id="outTimeMsg" value="ここに時間を表示" />
+            <input type="text" id="noneTimeMsg" value="ここに時間を表示" />
+          </section>
 
-        <h2>交代したドライバー</h2>
-        <section id="Driver">
-          <input type="radio" name="driver" id="driverA" value="A" />
-          <label for="driverA"
-            >A <br />
-            ドライバー名</label
-          >
+          <h2>交代したドライバー</h2>
+          <section id="Driver">
+            <input type="radio" name="driver" id="driverA" value="A" />
+            <label for="driverA"
+              >A <br />
+              ドライバー名</label
+            >
 
-          <input type="radio" name="driver" id="driverB" value="B" />
-          <label for="driverB"
-            >B<br />
-            ドライバー名</label
-          >
+            <input type="radio" name="driver" id="driverB" value="B" />
+            <label for="driverB"
+              >B<br />
+              ドライバー名</label
+            >
 
-          <input type="radio" name="driver" id="driverC" value="C" />
-          <label for="driverC"
-            >C<br />
-            ドライバー名</label
-          >
+            <input type="radio" name="driver" id="driverC" value="C" />
+            <label for="driverC"
+              >C<br />
+              ドライバー名</label
+            >
 
-          <input type="radio" name="driver" id="driverD" value="D" />
-          <label for="driverD"
-            >D<br />
-            ドライバー名</label
-          >
+            <input type="radio" name="driver" id="driverD" value="D" />
+            <label for="driverD"
+              >D<br />
+              ドライバー名</label
+            >
 
-          <input type="radio" name="driver" id="driverE" value="E" />
-          <label for="driverE"
-            >E<br />
-            ドライバー名</label
-          >
+            <input type="radio" name="driver" id="driverE" value="E" />
+            <label for="driverE"
+              >E<br />
+              ドライバー名</label
+            >
 
-          <input type="radio" name="driver" id="driverF" value="F" />
-          <label for="driverF"
-            >F<br />
-            ドライバー名</label
-          >
+            <input type="radio" name="driver" id="driverF" value="F" />
+            <label for="driverF"
+              >F<br />
+              ドライバー名</label
+            >
 
-          <input type="radio" name="driver" id="driverNone" value="none" />
-          <label for="driverNone">交代なし</label>
-        </section>
+            <input type="radio" name="driver" id="driverNone" value="none" />
+            <label for="driverNone">交代なし</label>
+          </section>
 
-        <h2>作業内容</h2>
-        <section id="task">
-          <input type="checkbox" id="tires" value="tire" />
-          <label for="tires">タイヤ交換</label>
+          <h2>作業内容</h2>
+          <section id="task">
+            <input type="checkbox" id="tires" value="tire" />
+            <label for="tires">タイヤ交換</label>
 
-          <input type="checkbox" id="oils" value="oil" />
-          <label for="oils">給油</label>
-        </section>
+            <input type="checkbox" id="oils" value="oil" />
+            <label for="oils">給油</label>
+          </section>
 
-        <section id="notes">
-          <h2>備考欄</h2>
-          <input type="text" id="note" maxlength="200" />
-        </section>
+          <section id="notes">
+            <h2>備考欄</h2>
+            <input type="text" id="note" maxlength="200" />
+          </section>
 
-        <section id="submits">
-          <input type="submit" id="submit" value="送信" />
-        </section>
-      </form>
+          <section id="submits">
+            <input type="submit" id="submit" value="送信" />
+          </section>
+        </form>
+      </article>
+      <article id="log">
+        <h2>送信ログ</h2>
+        <div id="logContent">ここに送信した内容を表示します。</div>
+      </article>
     </main>
   </body>
 </html>
