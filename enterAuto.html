@@ -3,20 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="a_css/autoEnter.css" />
+    <link rel="stylesheet" href="a_css/enterShared.css" />
     <script defer src="a_js/common.js"></script>
     <script defer src="a_js/enterAuto.js"></script>
     <title>autoEnter</title>
   </head>
   <body>
     <header>
-      <div id="toast"></div>
       <h1>自動入力モード</h1>
       <p>
         <a href="https://time.is/ja/Tokyo" target="_blank"
           >標準時の時刻とずれがないか確認してください。</a
-        ><br />
-        もしずれがある場合は下記の欄に入力してください。
+        >もしずれがある場合は下記の欄に入力してください。
       </p>
       <label for="offset">時計のずれ（秒）:</label>
       <input type="number" id="offset" value="0" required />
@@ -25,7 +23,7 @@
     <main>
       <article id="carInfo">
         <h2>車両情報</h2>
-        <p>車両の情報をここに表示します。</p>
+        <div>車両の情報をここに表示します。</div>
         <form id="myForm" method="post">
           <h2>ゼッケン番号</h2>
           <section id="carNum"></section>
@@ -38,9 +36,8 @@
 
             <button type="button" id="garageInTime">ガレージイン</button>
 
-            <input type="text" id="inTimeMsg" value="ここに時間を表示" />
-            <input type="text" id="outTimeMsg" value="ここに時間を表示" />
-            <input type="text" id="garageInTimeMsg" value="ここに時間を表示" />
+            <input type="text" id="inTimeMsg" value="インタイム" />
+            <input type="text" id="outTimeMsg" value="アウトタイム" />
           </section>
 
           <h2>交代したドライバー</h2>
@@ -80,9 +77,6 @@
               >F<br />
               ドライバー名</label
             >
-
-            <input type="radio" name="driver" id="driverNone" value="none" />
-            <label for="driverNone">交代なし</label>
           </section>
 
           <h2>作業内容</h2>
