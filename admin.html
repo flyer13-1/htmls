@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="a_css/admin.css" />
+    <script defer src="a_js/common.js"></script>
+    <script defer src="a_js/admin.js"></script>
+    <title>管理者画面</title>
+  </head>
+  <body>
+    <header>
+      <h1>OfficialSupportSystem</h1>
+      <h2>管理者画面 — レース管理</h2>
+    </header>
+
+    <main>
+      <!-- 新規レース追加 -->
+      <section class="card">
+        <h3>新規レース追加</h3>
+        <form id="raceForm" class="race-form">
+          <div class="field">
+            <label for="raceId">レースID*</label>
+            <input
+              type="text"
+              id="raceId"
+              name="raceId"
+              required
+              pattern="[A-Za-z0-9_-]+"
+              title="半角英数字・ハイフン・アンダースコア"
+              placeholder="例: 2026fuji_st"
+            />
+          </div>
+          <div class="field">
+            <label for="title">レースタイトル*</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              placeholder="例: 2026 Round 1"
+            />
+          </div>
+          <p class="note">
+            大会ID（todayId）はタイトルから自動生成されます（入力不要）。
+          </p>
+          <button type="submit">登録</button>
+        </form>
+      </section>
+
+      <!-- レース一覧 -->
+      <section class="card">
+        <h3>登録済みレース</h3>
+        <p id="raceEmpty" class="empty" style="display: none">
+          登録されたレースはありません。
+        </p>
+        <table id="raceTable">
+          <thead>
+            <tr>
+              <th>レースID</th>
+              <th>タイトル</th>
+              <th>大会ID</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="raceTbody"></tbody>
+        </table>
+      </section>
+    </main>
+  </body>
+</html>
