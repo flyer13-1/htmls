@@ -20,6 +20,7 @@
   --surface: #ffffff;
   --surface-2: #f6f8fa;
   --border: #d0d5dd;
+  --border-strong: #6b7682; /* 白背景でボタン/入力を見分けるための濃い枠線 */
   --text: #1f2933;
   --text-dim: #5b6573;
   --accent: #b4530f;
@@ -32,6 +33,7 @@
   --surface: #ffffff;
   --surface-2: #f6f8fa;
   --border: #d0d5dd;
+  --border-strong: #6b7682;
   --text: #1f2933;
   --text-dim: #5b6573;
   --accent: #2b6cb0;
@@ -45,6 +47,7 @@
   --surface: #1e242b;
   --surface-2: #232a32;
   --border: #333b44;
+  --border-strong: #5a6470;
   --text: #e6e9ed;
   --text-dim: #9aa4b0;
   --accent: #e0913f;
@@ -58,6 +61,7 @@
   --surface: #1e242b;
   --surface-2: #232a32;
   --border: #333b44;
+  --border-strong: #5a6470;
   --text: #e6e9ed;
   --text-dim: #9aa4b0;
   --accent: #4aa3df;
@@ -105,7 +109,7 @@ header p {
 /* 時計ずれ補正（auto） */
 #offset {
   min-height: 36px;
-  border: 2px solid var(--border);
+  border: 2px solid var(--border-strong);
   border-radius: 8px;
   background: var(--surface);
   color: var(--text);
@@ -161,9 +165,14 @@ section {
   font-weight: bold;
   color: var(--text);
   background: var(--surface);
-  border: 2px solid var(--border);
+  border: 2px solid var(--border-strong);
   border-radius: 8px;
   cursor: pointer;
+}
+
+/* ドライバーは1行につき3人（33%）。ゼッケンは4台/行のまま。 */
+#Driver input + label {
+  flex: 1 1 calc(33.333% - 6px);
 }
 
 /* 元のラジオ／チェックボックスは隠す */
@@ -202,36 +211,36 @@ section {
   flex: 1 1 calc(50% - 6px);
   min-height: 44px;
   font-size: 16px;
-  border: 2px solid var(--border);
+  border: 2px solid var(--border-strong);
   border-radius: 8px;
   background: var(--surface);
   color: var(--text);
   padding: 0 8px;
 }
 
-/* auto：イン/アウト/ガレージ ボタン */
+/* auto：イン/アウト ボタン（2つで1行＝各50%） */
 #Time button {
-  flex: 1 1 calc(33% - 6px);
+  flex: 1 1 calc(50% - 6px);
   min-height: 44px;
   font-size: 15px;
   font-weight: bold;
   color: var(--text);
   background: var(--surface);
-  border: 2px solid var(--border);
+  border: 2px solid var(--border-strong);
   border-radius: 8px;
   cursor: pointer;
 }
 
-/* auto：時刻の表示欄（読み取り表示） */
+/* auto：時刻の表示欄（手入力で訂正可。2つで1行＝各50%） */
 #Time input[type="text"] {
-  flex: 1 1 calc(33% - 6px);
+  flex: 1 1 calc(50% - 6px);
   min-height: 36px;
   font-size: 13px;
   text-align: center;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface-2);
-  color: var(--text-dim);
+  color: var(--text);
 }
 
 /* ===== 備考 ===== */
@@ -249,7 +258,7 @@ section {
   width: 100%;
   min-height: 44px;
   margin-top: 4px;
-  border: 2px solid var(--border);
+  border: 2px solid var(--border-strong);
   border-radius: 8px;
   background: var(--surface);
   color: var(--text);
