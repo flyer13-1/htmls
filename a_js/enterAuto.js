@@ -84,14 +84,25 @@ function timeReset(num) {
   shOutTime.value = formatTimeDisplay(d.outTime);
 }
 
-// 選択した車のドライバー名ラベルと選択状態を復元する
+// 選択した車のドライバー名ラベルと選択状態を復元する。
+// 登録のあるドライバーだけ表示し、未登録分はボタンごと隠す（押せても情報が無いため）。
 function driverReset(num) {
   const drivers = driverData[num] || [];
   const labels = document.querySelectorAll("#Driver label");
 
-  labels.forEach((e, index) => {
-    if (drivers[index]) {
-      e.innerHTML = drivers[index];
+  labels.forEach((label, index) => {
+    const name = drivers[index];
+    const radio = document.getElementById(label.htmlFor);
+    if (name) {
+      label.innerHTML = name;
+      label.style.display = ""; // CSS（flex）に戻す
+      if (radio) radio.disabled = false;
+    } else {
+      label.style.display = "none"; // 未登録は非表示
+      if (radio) {
+        radio.checked = false;
+        radio.disabled = true;
+      }
     }
   });
 
@@ -402,35 +413,50 @@ renderLog(); // 起動時に保持済みの送信ログを復元（init の成�
     carData[car].note = e.target.value;
   });
 
+  // 送信中フラグ：連打でリセット前に同じデータを二重送信するのを防ぐ
+  let isSubmitting = false;
+  const submitBtn = document.getElementById("submit");
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // 送信処理中はクリックを無視
+    isSubmitting = true;
+    if (submitBtn) submitBtn.disabled = true;
 
-    const { valid } = collectCarData();
-    const unsent = JSON.parse(localStorage.getItem("unsentData") || "{}");
+    try {
+      const { valid } = collectCarData();
+      const unsent = JSON.parse(localStorage.getItem("unsentData") || "{}");
 
-    // 送れる車（valid）も前回未送信（unsent）も無い
-    if (Object.keys(valid).length === 0 && Object.keys(unsent).length === 0) {
-      alert("送信するデータがありません");
-      return;
-    }
+      // 送れる車（valid）も前回未送信（unsent）も無い
+      if (
+        Object.keys(valid).length === 0 &&
+        Object.keys(unsent).length === 0
+      ) {
+        alert("送信するデータがありません");
+        return;
+      }
 
-    const result = await sendData(valid, unsent);
+      const result = await sendData(valid, unsent);
 
-    if (result) {
-      // 送信できた車だけクリア
-      for (const car in valid) carData[car] = emptyCar();
-      localStorage.removeItem("unsentData");
-      cashTime = {};
-      clearFormDisplay();
-      appendLog(valid); // 成功をログ＆localStorage保持
-      alert("送信成功");
-    } else {
-      // 失敗：未送信データを保存（既存 unsent にマージ）
-      const merged = { ...unsent, ...valid };
-      localStorage.setItem("unsentData", JSON.stringify(merged));
-      alert(
-        "[重要]送信に失敗しました。データを保存しました。一度開発者に連絡してください。",
-      );
+      if (result) {
+        // 送信できた車だけクリア
+        for (const car in valid) carData[car] = emptyCar();
+        localStorage.removeItem("unsentData");
+        cashTime = {};
+        clearFormDisplay();
+        appendLog(valid); // 成功をログ＆localStorage保持
+        alert("送信成功");
+      } else {
+        // 失敗：未送信データを保存（既存 unsent にマージ）
+        const merged = { ...unsent, ...valid };
+        localStorage.setItem("unsentData", JSON.stringify(merged));
+        alert(
+          "[重要]送信に失敗しました。データを保存しました。一度開発者に連絡してください。",
+        );
+      }
+    } finally {
+      isSubmitting = false;
+      if (submitBtn) submitBtn.disabled = false;
     }
   });
 })();
