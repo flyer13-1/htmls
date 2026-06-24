@@ -139,6 +139,11 @@ main {
   font-size: 13px;
 }
 
+/* フォームの表示内容（見出しなど）は中央寄せ（ログは左のまま） */
+#myForm {
+  text-align: center;
+}
+
 /* ===== セクション共通（ボタン群を横並び） ===== */
 section {
   margin: 5px;
@@ -170,9 +175,10 @@ section {
   cursor: pointer;
 }
 
-/* ドライバーは1行につき3人（33%）。ゼッケンは4台/行のまま。 */
+/* ドライバーは1行につき3人（33%）。ゼッケンは4台/行のまま。縦幅は共通+5px。 */
 #Driver input + label {
   flex: 1 1 calc(33.333% - 6px);
+  min-height: 49px;
 }
 
 /* 元のラジオ／チェックボックスは隠す */
@@ -231,10 +237,10 @@ section {
   cursor: pointer;
 }
 
-/* auto：時刻の表示欄（手入力で訂正可。2つで1行＝各50%） */
+/* auto：時刻の表示欄（手入力で訂正可。2つで1行＝各50%。高さはボタンに合わせる） */
 #Time input[type="text"] {
   flex: 1 1 calc(50% - 6px);
-  min-height: 36px;
+  min-height: 44px;
   font-size: 13px;
   text-align: center;
   border: 1px solid var(--border);
