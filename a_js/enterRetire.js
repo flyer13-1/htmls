@@ -43,7 +43,7 @@ document.getElementById("retireForm").addEventListener("submit", async (e) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${auth.token}`,
       },
-      body: JSON.stringify({ carNum, reason: reasonVal }),
+      body: JSON.stringify({ carNum, reason: reasonVal, raceId: auth.raceId }),
     });
     const data = await res.json();
     if (handleApiError(res, data)) return;
