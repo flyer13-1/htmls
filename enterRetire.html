@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="a_css/enterShared.css" />
+    <link rel="stylesheet" href="a_css/enterRetire.css" />
+    <script defer src="a_js/common.js"></script>
+    <script defer src="a_js/enterRetire.js"></script>
+    <title>リタイア登録</title>
+  </head>
+  <body>
+    <header>
+      <h1>リタイア登録</h1>
+      <p>車番とリタイア理由を入力して送信してください。</p>
+    </header>
+
+    <main>
+      <form id="retireForm">
+        <section id="carArea">
+          <label for="carNumber">車番</label>
+          <input
+            type="number"
+            id="carNumber"
+            name="carNum"
+            min="0"
+            max="999"
+            placeholder="例：5"
+          />
+        </section>
+
+        <section id="notes">
+          <label for="reason">リタイア理由</label>
+          <input
+            type="text"
+            id="reason"
+            name="reason"
+            maxlength="200"
+            placeholder="例：エンジンブロー"
+          />
+        </section>
+
+        <section id="submits">
+          <button type="submit" id="submit">送信</button>
+        </section>
+      </form>
+
+      <div id="toast"></div>
+    </main>
+  </body>
+</html>
