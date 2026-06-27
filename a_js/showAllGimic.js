@@ -1,12 +1,12 @@
 // DOM宣言
 const allButton = document.getElementById("all");         // 全表示
-const carFilterInput = document.getElementById("car");    // ゼッケン入力
+const searchInput = document.getElementById("search");    // 統合検索入力（数字→ゼッケン / 文字→担当者）
 const filterList = document.getElementById("filter");     // フィルター欄
 const tableBody = document.querySelector("tbody");        // テーブル本体
 
 // 変数
 let currentClassFilter = "";
-let currentCarFilter = "";
+let currentSearchFilter = "";
 
 // 関数
 function formatBoolean(value) {
@@ -57,10 +57,16 @@ function createClassButtons(classNames) {
 function filterAndSortEntries() {
   let filtered = Array.from(entries);
 
-  if (currentCarFilter) {
-    const carNumber = Number(currentCarFilter);
-    if (!Number.isNaN(carNumber)) {
-      filtered = filtered.filter((entry) => entry.carNum === carNumber);
+  if (currentSearchFilter) {
+    const asNum = Number(currentSearchFilter);
+    if (!Number.isNaN(asNum) && /^\d+$/.test(currentSearchFilter)) {
+      // 数字のみ → ゼッケン番号で絞り込み
+      filtered = filtered.filter((entry) => entry.carNum === asNum);
+    } else {
+      // 文字列 → 担当者名で部分一致
+      filtered = filtered.filter((entry) =>
+        (entry.manager || "").includes(currentSearchFilter),
+      );
     }
   }
 
@@ -119,15 +125,15 @@ function renderTable() {
 // 実行コード
 allButton.addEventListener("click", () => {
   currentClassFilter = "";
-  currentCarFilter = "";
-  carFilterInput.value = "";
+  currentSearchFilter = "";
+  searchInput.value = "";
   filterList
     .querySelectorAll("button[data-class]")
     .forEach((btn) => btn.classList.remove("active"));
   renderTable();
 });
 
-carFilterInput.addEventListener("input", (event) => {
-  currentCarFilter = event.target.value.trim();
+searchInput.addEventListener("input", (event) => {
+  currentSearchFilter = event.target.value.trim();
   renderTable();
 });

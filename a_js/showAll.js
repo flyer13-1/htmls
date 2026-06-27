@@ -64,8 +64,8 @@ async function loadEntries() {
 // 実行コード
 resetButton.addEventListener("click", async () => {
   currentClassFilter = "";
-  currentCarFilter = "";
-  carFilterInput.value = "";
+  currentSearchFilter = "";
+  searchInput.value = "";
   await loadEntries();
 });
 
