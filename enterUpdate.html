@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../a_css/updateEnter.css" />
-    <script defer src="../a_js/enterUpdate.js"></script>
+    <link rel="stylesheet" href="a_css/enterShared.css" />
+    <script defer src="a_js/common.js"></script>
+    <script defer src="a_js/enterUpdate.js"></script>
     <title>updateEnter</title>
   </head>
 
@@ -16,88 +17,34 @@
     <main>
       <article>
         <p>最初に変更したい車両を指定してください。</p>
-        <input type="number" id="carNumber" max="999" />
+        <input type="number" id="carNum" max="999" />
 
-        <div id="showCarData"></div>
+        <div id="showCarData">
+          <table class="grid-table" aria-label="ピット情報">
+            <thead>
+              <tr>
+                <th>変更</th>
+                <th>ピット番号</th>
+                <th>ゼッケン番号</th>
+                <th>担当者</th>
+                <th>リタイア</th>
+                <th>インドライバー</th>
+                <th>アウトドライバー</th>
+                <th>ピットイン</th>
+                <th>ピットアウト</th>
+                <th>備考</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
       </article>
 
-      <p>次に変更内容を記入してください</p>
+      <p>
+        次に変更内容を記入してください。変更がない場合は未記入でお願いします
+      </p>
 
-      <form id="myForm" method="post">
-        <input type="hidden" id="carNum" name="carNum" />
-
-        <select name="selection" id="selection">
-          <!-- １が記録変更　２がリタイア -->
-          <option value="">選択してください</option>
-          <option value="1">監視記録変更</option>
-          <option value="2">リタイア</option>
-        </select>
-
-        <article id="retire" style="display: none">
-          <h2>リタイア事項</h2>
-          <input type="text" id="reason" maxlength="200" />
-        </article>
-
-        <article id="change" style="display: none">
-          <label for="when">何回目のピットイン？</label>
-          <input type="number" id="when" maxlength="2" />
-
-          <h2>ピット時間</h2>
-          <section id="Time">
-            <label for="inTime">イン</label>
-            <input type="time" id="inTime" />
-
-            <label for="outTime">アウト</label>
-            <input type="time" id="outTime" />
-
-            <label for="noneTime">ガレージ</label>
-            <input type="time" id="noneTime" />
-          </section>
-
-          <h2>交代したドライバー</h2>
-          <section id="Driver">
-            <br />
-            <input type="radio" name="driver" id="driverA" value="A" />
-            <label for="driverA">Aドラ</label>
-
-            <input type="radio" name="driver" id="driverB" value="B" />
-            <label for="driverB">Bドラ</label>
-
-            <input type="radio" name="driver" id="driverC" value="C" />
-            <label for="driverC">Cドラ</label>
-
-            <input type="radio" name="driver" id="driverD" value="D" />
-            <label for="driverD">Dドラ</label>
-
-            <input type="radio" name="driver" id="driverE" value="E" />
-            <label for="driverE">Eドラ</label>
-
-            <input type="radio" name="driver" id="driverF" value="F" />
-            <label for="driverF">Fドラ</label>
-
-            <input type="radio" name="driver" id="driverNone" value="none" />
-            <label for="driverNone">NONE</label>
-          </section>
-
-          <h2>作業内容</h2>
-          <section id="task">
-            <input type="checkbox" id="tires" value="tire" />
-            <label for="tires">タイヤ交換</label>
-
-            <input type="checkbox" id="oils" value="oil" />
-            <label for="oils">給油</label>
-          </section>
-
-          <h2>備考欄</h2>
-          <section id="notes">
-            <input type="text" id="note" maxlength="200" />
-          </section>
-        </article>
-
-        <section id="submits">
-          <input type="submit" id="submit" value="送信" />
-        </section>
-      </form>
+      <form id="myForm" method="post"></form>
     </main>
   </body>
 </html>
