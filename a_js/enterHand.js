@@ -63,3 +63,93 @@ carNumbers.forEach((num) => {
 
 const car = document.getElementById("carNum");
 car.addEventListener("click", () => {});
+
+// ── 時刻 "HH:MM" / "HH:MM:SS" → ISO 8601 変換（今日の日付＋端末タイムゾーン） ──
+function timeToIso(timeVal) {
+  if (!timeVal) return null;
+  const now  = new Date();
+  const pad  = (n) => String(n).padStart(2, "0");
+  const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const tzMin = -now.getTimezoneOffset();
+  const sign  = tzMin >= 0 ? "+" : "-";
+  const tz    = `${sign}${pad(Math.floor(Math.abs(tzMin) / 60))}:${pad(Math.abs(tzMin) % 60)}`;
+  const ss    = timeVal.length === 5 ? `${timeVal}:00` : timeVal;
+  return `${date}T${ss}${tz}`;
+}
+
+// ── 送信処理 ──
+const handForm = document.querySelector("form[name='handEnter']");
+let goToMain   = false;
+let isSubmitting = false;
+
+// どちらのボタンが押されたか記録（submit イベントより先に click が来る）
+handForm.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[type='submit']");
+  if (btn) goToMain = !!btn.getAttribute("formaction");
+});
+
+handForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (isSubmitting) return;
+
+  const auth = requireAuth(true);
+  if (!auth) return;
+
+  const carRadio = document.querySelector("#carNum input[type='radio']:checked");
+  if (!carRadio) {
+    alert("車番を選択してください");
+    return;
+  }
+  const carNum = carRadio.value;
+
+  const inTimeVal  = document.getElementById("inTime").value;
+  const outTimeVal = document.getElementById("outTime").value;
+  if (!inTimeVal && !outTimeVal) {
+    alert("ピットインまたはピットアウト時刻を入力してください");
+    return;
+  }
+
+  const inTime    = timeToIso(inTimeVal);
+  const outTime   = timeToIso(outTimeVal);
+  const outDriver = document.querySelector("#Driver input:checked")?.value || null;
+  const tire      = document.getElementById("tires").checked;
+  const oil       = document.getElementById("oils").checked;
+  const note      = document.getElementById("note").value.trim();
+
+  isSubmitting = true;
+  const btns = handForm.querySelectorAll("button[type='submit']");
+  btns.forEach((b) => (b.disabled = true));
+
+  try {
+    const res = await fetch(
+      `${API}/entries/hand?race_id=${encodeURIComponent(auth.raceId)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.token}`,
+        },
+        body: JSON.stringify({
+          [carNum]: { inTime, outTime, garageInTime: null, outDriver, tire, oil, note },
+        }),
+      },
+    );
+    const data = await res.json();
+    if (handleApiError(res, data)) return;
+
+    if (goToMain) {
+      window.location.href = "./main.html";
+    } else {
+      document.getElementById("inTime").value  = "";
+      document.getElementById("outTime").value = "";
+      document.querySelectorAll("#Driver input").forEach((r) => (r.checked = false));
+      document.getElementById("tires").checked = false;
+      document.getElementById("oils").checked  = false;
+      document.getElementById("note").value    = "";
+      alert("送信しました");
+    }
+  } finally {
+    isSubmitting = false;
+    btns.forEach((b) => (b.disabled = false));
+  }
+});
