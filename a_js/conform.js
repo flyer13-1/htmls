@@ -6,6 +6,8 @@ const conform = document.getElementById("conform");
 const form = document.getElementById("form");
 const conformBtn = document.getElementById("conformBtn");
 const backBtn = document.getElementById("backBtn");
+const adminBtn = document.getElementById("adminBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
 // API は common.js で宣言済み。
 // サーキット番号に対応するサーキット名の配列（1始まりのため index 0 は null）
@@ -31,6 +33,28 @@ function sucsessMsg() {
     window.location.href = "./main.html";
   }, 1000);
 }
+
+// ページロード時: 管理者フラグを確認してadminBtnを表示制御
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = sessionStorage.getItem("token");
+  if (!token) return;
+  try {
+    const res = await fetch(`${API}/user/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      adminBtn.style.display = data.isAdmin ? "" : "none";
+    }
+  } catch { /* 無視 */ }
+});
+
+// ログアウト
+logoutBtn.addEventListener("click", () => {
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("raceId");
+  window.location.href = "./index.html";
+});
 
 let isSending = false;
 
@@ -99,6 +123,7 @@ async function prof() {
     // プロフィール情報を画面に表示
     textUser.textContent = "利用者ID: " + data.username;
     textCir.textContent = "所属サーキット: " + circuits[data.circuit];
+    adminBtn.style.display = data.isAdmin ? "" : "none";
 
     main.style.display = "none";
     conform.style.display = "block";
