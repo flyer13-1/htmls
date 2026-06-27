@@ -32,12 +32,23 @@ function sucsessMsg() {
   }, 1000);
 }
 
+let isSending = false;
+
 // 大会ID照会フォームの送信処理
 async function send(event) {
   event.preventDefault();
 
+  if (isSending) return;
+  isSending = true;
+  const submitBtn = form.querySelector("[type='submit']");
+  if (submitBtn) submitBtn.disabled = true;
+
   const auth = requireAuth(); // token を取得（無ければログイン画面へ）
-  if (!auth) return;
+  if (!auth) {
+    isSending = false;
+    if (submitBtn) submitBtn.disabled = false;
+    return;
+  }
 
   const todayId = document.getElementById("todayId").value;
 
@@ -60,6 +71,9 @@ async function send(event) {
   } catch (error) {
     console.error("送信エラー:", error);
     alert("送信失敗しました。管理者に一度報告してください。");
+  } finally {
+    isSending = false;
+    if (submitBtn) submitBtn.disabled = false;
   }
 }
 

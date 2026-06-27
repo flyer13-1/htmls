@@ -338,12 +338,19 @@ function initReg() {
   });
 
   // プレビュー: 登録
-  document.getElementById("submitRegBtn").addEventListener("click", async () => {
+  let isSubmitting = false;
+  const submitRegBtn = document.getElementById("submitRegBtn");
+  submitRegBtn.addEventListener("click", async () => {
+    if (isSubmitting) return;
+
     const raceId = document.getElementById("regRaceId").value.trim();
     if (!raceId) { alert("レースIDを入力してください"); return; }
 
     const schema = getSchema();
     if (!schema.api) { alert(`${schema.label}テーブルのAPIは未実装です`); return; }
+
+    isSubmitting = true;
+    submitRegBtn.disabled = true;
 
     const rows = [];
     document.querySelectorAll("#previewBody tr").forEach((tr) => {
@@ -355,20 +362,25 @@ function initReg() {
       rows.push(row);
     });
 
-    const res = await fetch(schema.api, {
-      method:  "POST",
-      headers: authHeaders(),
-      body:    JSON.stringify({ raceId, entries: rows }),
-    });
-    const data = await res.json();
-    if (handleApiError(res, data)) return;
+    try {
+      const res = await fetch(schema.api, {
+        method:  "POST",
+        headers: authHeaders(),
+        body:    JSON.stringify({ raceId, entries: rows }),
+      });
+      const data = await res.json();
+      if (handleApiError(res, data)) return;
 
-    alert(`${rows.length}件を登録しました`);
-    stagingRows = [];
-    document.getElementById("regRaceId").value = "";
-    buildManualForm();
-    buildStagingTable();
-    showInputArea();
+      alert(`${rows.length}件を登録しました`);
+      stagingRows = [];
+      document.getElementById("regRaceId").value = "";
+      buildManualForm();
+      buildStagingTable();
+      showInputArea();
+    } finally {
+      isSubmitting = false;
+      submitRegBtn.disabled = false;
+    }
   });
 
   buildManualForm();
