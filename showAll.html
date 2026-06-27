@@ -24,7 +24,12 @@
         <!-- フィルター系 -->
         <ul id="filter">
           <li>
-            <input type="text" id="search" pattern="^\d+$|^[^\d].*$" placeholder="ゼッケン番号 or 担当者名" />
+            <input
+              type="text"
+              id="search"
+              pattern="^\d+$|^[^\d].*$"
+              placeholder="ゼッケン番号 or 担当者名"
+            />
           </li>
           <!--クラス用のボタンを作成-->
         </ul>
@@ -35,18 +40,18 @@
       <table class="grid-table" aria-label="ピット情報">
         <thead>
           <tr>
-            <th>管理ID</th>
-            <th>担当者</th>
             <th>ピット番号</th>
             <th>ゼッケン番号</th>
-            <th>クラス名</th>
-            <th>チーム名</th>
+            <th>担当者</th>
             <th>リタイア</th>
             <th>インドライバー</th>
             <th>アウトドライバー</th>
             <th>ピットイン</th>
             <th>ピットアウト</th>
             <th>ピットGAP</th>
+            <th>クラス名</th>
+            <th>チーム名</th>
+            <th>備考</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>

@@ -112,7 +112,7 @@ body {
 .grid-table {
   border-collapse: collapse;
   width: 100%;
-  min-width: 900px;
+  min-width: 1100px;
   font-family:
     system-ui,
     -apple-system,
@@ -190,21 +190,19 @@ body {
   border-right: 1px solid var(--border);
 }
 
-/* ===== 列幅指定（必要に応じて） ===== */
-.grid-table th:nth-child(1),
-.grid-table td:nth-child(1) {
-  width: 80px;
-}
-
-.grid-table th:nth-child(3),
-.grid-table td:nth-child(3) {
-  width: 80px;
-}
-
-.grid-table th:nth-child(4),
-.grid-table td:nth-child(4) {
-  width: 90px;
-}
+/* ===== 列幅指定（ピット番号 / ゼッケン / 担当者 / リタイア / イン・アウトドライバー / 時刻×2 / GAP / クラス / チーム / 備考） ===== */
+.grid-table th:nth-child(1),  .grid-table td:nth-child(1)  { width:  70px; } /* ピット番号 */
+.grid-table th:nth-child(2),  .grid-table td:nth-child(2)  { width:  90px; } /* ゼッケン番号 */
+.grid-table th:nth-child(3),  .grid-table td:nth-child(3)  { width: 100px; } /* 担当者 */
+.grid-table th:nth-child(4),  .grid-table td:nth-child(4)  { width:  70px; } /* リタイア */
+.grid-table th:nth-child(5),  .grid-table td:nth-child(5)  { width:  90px; } /* インドライバー */
+.grid-table th:nth-child(6),  .grid-table td:nth-child(6)  { width:  90px; } /* アウトドライバー */
+.grid-table th:nth-child(7),  .grid-table td:nth-child(7)  { width:  90px; } /* ピットイン */
+.grid-table th:nth-child(8),  .grid-table td:nth-child(8)  { width:  90px; } /* ピットアウト */
+.grid-table th:nth-child(9),  .grid-table td:nth-child(9)  { width:  90px; } /* ピットGAP */
+.grid-table th:nth-child(10), .grid-table td:nth-child(10) { width:  80px; } /* クラス名 */
+.grid-table th:nth-child(11), .grid-table td:nth-child(11) { width: 120px; } /* チーム名 */
+.grid-table th:nth-child(12), .grid-table td:nth-child(12) { width: 120px; } /* 備考 */
 
 /* ===== モバイル対応 ===== */
 @media (max-width: 480px) {

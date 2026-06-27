@@ -123,3 +123,140 @@ td.ops button {
   color: #888;
   font-size: 0.9rem;
 }
+
+/* データ登録 */
+.reg-field {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reg-field label,
+.reg-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.reg-field input[type="text"] {
+  padding: 8px 10px;
+  border: 1px solid #c8cdd3;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  max-width: 320px;
+}
+
+.table-select {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.table-select label {
+  font-size: 0.9rem;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.method-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.method-tab {
+  background: #f1f3f5;
+  color: #444;
+  border: 1px solid #d0d5db;
+}
+
+.method-tab.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.method-tab:disabled {
+  background: #e9ecef;
+  color: #aaa;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.input-area {
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.manual-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.manual-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.manual-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.manual-field input {
+  padding: 6px 8px;
+  border: 1px solid #c8cdd3;
+  border-radius: 4px;
+  font-size: 0.88rem;
+}
+
+.manual-field input.err {
+  border-color: #dc2626;
+}
+
+.manual-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.manual-actions button:last-child {
+  background: #059669;
+}
+
+.staging-label {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0 0 8px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.reg-note {
+  font-size: 0.82rem;
+  color: #666;
+  margin: 10px 0 0;
+}
+
+.preview-title {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+button.secondary {
+  background: #6b7280;
+}

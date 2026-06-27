@@ -13,13 +13,22 @@ function formatBoolean(value) {
   return value ? "はい" : "いいえ";
 }
 
+// ISO 8601 → HH:MM:SS 表示
 function formatDatetime(value) {
-  return value === null || value === undefined ? "-" : value;
+  if (value === null || value === undefined) return "-";
+  const m = String(value).match(/T(\d{2}:\d{2}:\d{2})/);
+  return m ? m[1] : value;
 }
 
+// 秒 → DD:HH:MM:SS 表示（1日未満なら HH:MM:SS）
 function formatGap(value) {
   if (value === null || value === undefined) return "-";
-  return `${value} 秒`;
+  const p  = (n) => String(n).padStart(2, "0");
+  const d  = Math.floor(value / 86400);
+  const h  = Math.floor((value % 86400) / 3600);
+  const m  = Math.floor((value % 3600) / 60);
+  const s  = value % 60;
+  return d > 0 ? `${p(d)}:${p(h)}:${p(m)}:${p(s)}` : `${p(h)}:${p(m)}:${p(s)}`;
 }
 
 function createClassButtons(classNames) {
@@ -102,21 +111,23 @@ function renderTable() {
     return;
   }
 
+  // ドライバー列はAPIが A/B/C… のアルファベット表記で返す。
+  // inDriver: pit#1 は StartDriverTable から、pit#2 以降は前回の outDriver をサーバー側で算出。
   rows.forEach((entry) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${entry.managerId}</td>
-      <td>${entry.manager}</td>
       <td>${entry.pitNum}</td>
       <td>${entry.carNum}</td>
-      <td>${entry.className}</td>
-      <td>${entry.teamName}</td>
+      <td>${entry.manager}</td>
       <td>${formatBoolean(entry.retire)}</td>
-      <td>${entry.inDriver || "-"}</td>
+      <td>${entry.inDriver  || "-"}</td>
       <td>${entry.outDriver || "-"}</td>
       <td>${formatDatetime(entry.inTime)}</td>
       <td>${formatDatetime(entry.outTime)}</td>
       <td>${formatGap(entry.pitGap)}</td>
+      <td>${entry.className}</td>
+      <td>${entry.teamName}</td>
+      <td>${entry.note || ""}</td>
     `;
     tableBody.appendChild(tr);
   });
