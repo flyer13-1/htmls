@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="a_css/showAll.css" />
+    <script defer src="a_js/common.js"></script>
+    <script defer src="a_js/outPosts.js"></script>
+    <script defer src="a_js/showAllGimic.js"></script>
+    <title>出力</title>
+  </head>
+  <body>
+    <header>
+      <h1>ピット情報を出力</h1>
+      <p>プレビューを見て出力先を選択してください</p>
+
+      <nav>
+        <!-- 操作系 -->
+        <ul id="action">
+          <li><button id="excle">エクセルファイルで出力</button></li>
+          <li><button id="pdf">PDFファイルで出力</button></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="table-wrap">
+      <h2>プレビュー画面</h2>
+      <table class="grid-table" aria-label="ピット情報">
+        <thead>
+          <tr>
+            <th>ピット番号</th>
+            <th>ゼッケン番号</th>
+            <th>担当者</th>
+            <th>リタイア</th>
+            <th>インドライバー</th>
+            <th>アウトドライバー</th>
+            <th>ピットイン</th>
+            <th>ピットアウト</th>
+            <th>ピットGAP</th>
+            <th>クラス名</th>
+            <th>チーム名</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </main>
+  </body>
+</html>
