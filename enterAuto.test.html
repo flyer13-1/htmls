@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="a_css/enterShared.css" />
+    <title>autoEnter（テスト用・認証/通信なし）</title>
+    <style>
+      /* テスト用バナー（本番には無い） */
+      #testBanner {
+        background: #ffe08a;
+        color: #333;
+        padding: 6px 10px;
+        font-size: 13px;
+        border-bottom: 2px solid #e0a800;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="testBanner">
+      ⚠ テスト用サンプル：認証・サーバ通信なし。車番／ドライバーはダミー、送信は擬似（既定で成功）。
+      <label style="margin-left:8px;">
+        <input type="checkbox" id="forceFail" /> 送信を失敗させる
+      </label>
+    </div>
+
+    <header>
+      <h1>自動入力モード（テスト）</h1>
+      <p>
+        <a href="https://time.is/ja/Tokyo" target="_blank"
+          >標準時の時刻とずれがないか確認してください。</a
+        >もしずれがある場合は下記の欄に入力してください。
+      </p>
+      <label for="offset">時計のずれ（秒）:</label>
+      <input type="number" id="offset" value="0" required />
+    </header>
+
+    <main>
+      <article id="carInfo">
+        <form id="myForm" method="post">
+          <h2>ゼッケン番号</h2>
+          <section id="carNum"></section>
+
+          <h2>ピット時間</h2>
+          <section id="Time">
+            <!-- 1行目：イン/アウトのボタン　2行目：その時刻表示（手入力で訂正可） -->
+            <button type="button" id="inTime">イン</button>
+            <button type="button" id="outTime">アウト</button>
+
+            <input type="text" id="inTimeMsg" placeholder="インタイム" />
+            <input type="text" id="outTimeMsg" placeholder="アウトタイム" />
+          </section>
+
+          <h2>交代したドライバー</h2>
+          <section id="Driver">
+            <input type="radio" name="driver" id="driverA" value="A" />
+            <label for="driverA"
+              >A <br />
+              ドライバー名</label
+            >
+
+            <input type="radio" name="driver" id="driverB" value="B" />
+            <label for="driverB"
+              >B<br />
+              ドライバー名</label
+            >
+
+            <input type="radio" name="driver" id="driverC" value="C" />
+            <label for="driverC"
+              >C<br />
+              ドライバー名</label
+            >
+
+            <input type="radio" name="driver" id="driverD" value="D" />
+            <label for="driverD"
+              >D<br />
+              ドライバー名</label
+            >
+
+            <input type="radio" name="driver" id="driverE" value="E" />
+            <label for="driverE"
+              >E<br />
+              ドライバー名</label
+            >
+
+            <input type="radio" name="driver" id="driverF" value="F" />
+            <label for="driverF"
+              >F<br />
+              ドライバー名</label
+            >
+          </section>
+
+          <h2>作業内容</h2>
+          <section id="task">
+            <input type="checkbox" id="tires" value="tire" />
+            <label for="tires">タイヤ交換</label>
+
+            <input type="checkbox" id="oils" value="oil" />
+            <label for="oils">給油</label>
+          </section>
+
+          <section id="notes">
+            <h2>備考欄</h2>
+            <input type="text" id="note" maxlength="200" />
+          </section>
+
+          <section id="submits">
+            <input type="submit" id="submit" value="送信" />
+          </section>
+        </form>
+      </article>
+      <article id="log">
+        <h2>送信ログ</h2>
+        <div id="logContent">ここに送信した内容を表示します。</div>
+      </article>
+    </main>
+
+    <!-- ============================================================
+         テスト用スクリプト（common.js / enterAuto.js は読み込まない）
+         本番 enterAuto.js のロジックをそのまま写し、認証(getInitData)と
+         送信(sendData)だけモックに差し替えている。
+         localStorage のキーは本番と衝突しないよう _test を付けている。
+         ============================================================ -->
+    <script>
+      // ---- テストデータ（本来は getInitData がサーバから取得する） ----
+      const TEST_CAR_NUMBERS = ["1", "5", "23", "100"];
+      const TEST_DRIVER_DATA = {
+        "1": ["山田", "佐藤", "田中"],
+        "5": ["鈴木", "高橋"],
+        "23": ["伊藤", "渡辺", "中村", "小林"],
+        "100": ["加藤"],
+      };
+
+      // DOM宣言
+      const carNumSection = document.getElementById("carNum"); // 車両欄
+      const carData = {}; // 車両データ
+      let driverData = {}; // ドライバーデータ（getInitDataで設定／driverResetで参照）
+
+      const inTimeBtn = document.getElementById("inTime"); // イン
+      const outTimeBtn = document.getElementById("outTime"); // アウト
+      const offsetTime = document.getElementById("offset"); // 補正値
+
+      const shInTime = document.getElementById("inTimeMsg"); // イン表示／手入力
+      const shOutTime = document.getElementById("outTimeMsg"); // アウト表示／手入力
+
+      const driver = document.getElementById("Driver"); // ドライバー
+      const tires = document.getElementById("tires"); // タイヤ
+      const oils = document.getElementById("oils"); // オイル
+      const note = document.getElementById("note"); // メモ
+
+      const form = document.getElementById("myForm"); // フォーム
+
+      // 解除→再押下で同じ時刻を戻すためのキャッシュ（field単位）
+      let cashTime = {};
+
+      // 選択中の車番を返す（未選択なら通知して null）
+      function getSelectedCar() {
+        const el = document.querySelector(".carBtn.selected");
+        if (!el) {
+          alert("先に車番を選択してください");
+          return null;
+        }
+        return el.textContent;
+      }
+
+      // ---- 初期データ取得モック（本番の getInitData の代わり） ----
+      async function getInitData() {
+        return { carNumbers: TEST_CAR_NUMBERS, driverData: TEST_DRIVER_DATA };
+      }
+
+      // 選択した車のボタン色・時刻表示を carData から復元する。
+      // 時刻が入っている＝そのボタンが押された、で一意（別フラグは持たない）。
+      function timeReset(num) {
+        const d = carData[num];
+        inTimeBtn.classList.toggle("active", !!d.inTime);
+        outTimeBtn.classList.toggle("active", !!d.outTime);
+        shInTime.value = formatTimeDisplay(d.inTime);
+        shOutTime.value = formatTimeDisplay(d.outTime);
+      }
+
+      // 選択した車のドライバー名ラベルと選択状態を復元する。
+      // 登録のあるドライバーだけ表示し、未登録分はボタンごと隠す（押せても情報が無いため）。
+      function driverReset(num) {
+        const drivers = driverData[num] || [];
+        const labels = document.querySelectorAll("#Driver label");
+
+        labels.forEach((label, index) => {
+          const name = drivers[index];
+          const radio = document.getElementById(label.htmlFor);
+          if (name) {
+            label.innerHTML = name;
+            label.style.display = ""; // CSS（flex）に戻す
+            if (radio) radio.disabled = false;
+          } else {
+            label.style.display = "none"; // 未登録は非表示
+            if (radio) {
+              radio.checked = false;
+              radio.disabled = true;
+            }
+          }
+        });
+
+        if (carData[num].driver) {
+          const driverRadio = document.querySelector(
+            `#Driver input[value="${carData[num].driver}"]`,
+          );
+          if (driverRadio) driverRadio.checked = true;
+        } else {
+          document
+            .querySelectorAll("#Driver input")
+            .forEach((r) => (r.checked = false));
+        }
+      }
+
+      // 送信ログの localStorage キー。
+      // 未送信データ(unsentData)と同様に端末へ保持し、セッション切れ・リロードでも残す。
+      const LOG_KEY = "sendLog_test"; // テスト用に本番とキーを分ける
+
+      // 送信結果（成功した車）をログに1件追記し、localStorage に保持してから再描画する。
+      function appendLog(valid) {
+        const log = JSON.parse(localStorage.getItem(LOG_KEY) || "[]");
+        const time = new Date().toLocaleTimeString("ja-JP");
+
+        const success = Object.entries(valid).map(([car, p]) => ({
+          car,
+          inTime: p.inTime,
+          outTime: p.outTime,
+        }));
+
+        log.unshift({ time, success });
+        localStorage.setItem(LOG_KEY, JSON.stringify(log));
+        renderLog();
+      }
+
+      // localStorage のログを #logContent に描画する（リロード・再ログイン後も復元）。
+      function renderLog() {
+        const logContent = document.getElementById("logContent");
+        if (!logContent) return;
+
+        const log = JSON.parse(localStorage.getItem(LOG_KEY) || "[]");
+        if (log.length === 0) {
+          logContent.textContent = "ここに送信した内容を表示します。";
+          return;
+        }
+
+        logContent.innerHTML = "";
+        log.forEach((entry) => {
+          entry.success.forEach((s) => {
+            const times = [s.inTime, s.outTime]
+              .filter(Boolean)
+              .map(formatTimeDisplay)
+              .join(" / ");
+            const line = document.createElement("div");
+            line.textContent = `✅ [${entry.time}] 送信 車番 ${s.car}：${times}`;
+            logContent.appendChild(line);
+          });
+        });
+      }
+
+      // carData を送信対象に仕分ける。バリデーション（2個必須）は廃止。
+      // inTime / outTime のどちらかがあれば送る。押された時刻だけが入る。
+      //   valid: { 車番: { inTime, outTime, outDriver, tire, oil, note } }
+      function collectCarData() {
+        const valid = {};
+        for (const car in carData) {
+          const d = carData[car];
+          if (!d.inTime && !d.outTime) continue; // ピット時刻が無い車は対象外
+
+          valid[car] = {
+            inTime: d.inTime || null,
+            outTime: d.outTime || null,
+            outDriver: d.driver || null,
+            tire: !!d.tire,
+            oil: !!d.oil,
+            note: d.note || "",
+          };
+        }
+        return { valid };
+      }
+
+      // ---- 送信モック（本番の sendData の代わり） ----
+      async function sendData(current, unsent) {
+        const fail = document.getElementById("forceFail").checked;
+        console.log("[TEST] sendData payload:", { current, unsent });
+        await new Promise((r) => setTimeout(r, 200)); // 通信の擬似遅延
+        if (fail) {
+          console.warn("[TEST] 送信失敗を擬似");
+          return null;
+        }
+        return { msg: "", saved: Object.keys(current) };
+      }
+
+      // 入力フォームの表示を初期状態に戻す
+      function clearFormDisplay() {
+        document
+          .querySelectorAll(".carBtn")
+          .forEach((b) => b.classList.remove("selected"));
+        inTimeBtn.classList.remove("active");
+        outTimeBtn.classList.remove("active");
+        shInTime.value = "";
+        shOutTime.value = "";
+        document
+          .querySelectorAll("#Driver input, #task input")
+          .forEach((r) => (r.checked = false));
+        note.value = "";
+      }
+
+      // 補正値（秒）を反映した現在時刻を ISO 8601（端末のタイムゾーンオフセット付き）で返す。
+      // 例: "2026-05-06T10:00:00+09:00"（IF: enterAuto2.md）。サーバ送信用の値。
+      function getCorrectedTime() {
+        const offsetSec = parseFloat(offsetTime.value) || 0;
+        const t = new Date(Date.now() + offsetSec * 1000);
+        const p = (n) => String(n).padStart(2, "0");
+
+        // 端末のローカル時刻の各要素 ＋ 端末のタイムゾーンオフセット（日本運用なら +09:00）
+        const tzMin = -t.getTimezoneOffset(); // 例: JST = +540
+        const sign = tzMin >= 0 ? "+" : "-";
+        const tzAbs = Math.abs(tzMin);
+        const tz = `${sign}${p(Math.floor(tzAbs / 60))}:${p(tzAbs % 60)}`;
+
+        return (
+          `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}` +
+          `T${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}${tz}`
+        );
+      }
+
+      // ISO 8601 の時刻を画面表示用に HH:MM:SS へ整形する（送信値はISOのまま保持）
+      function formatTimeDisplay(iso) {
+        if (!iso) return "";
+        const m = String(iso).match(/T(\d{2}:\d{2}:\d{2})/);
+        return m ? m[1] : iso;
+      }
+
+      // 手入力の "HH:MM" / "HH:MM:SS" を、元ISOの日付・タイムゾーンを保ったまま
+      // ISO文字列へ合成する。形式不正なら null を返す。
+      function mergeTime(baseIso, text) {
+        const m = String(text)
+          .trim()
+          .match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+        if (!m) return null;
+        const hh = String(m[1]).padStart(2, "0");
+        const mm = m[2];
+        const ss = m[3] ? m[3] : "00";
+        if (+hh > 23 || +mm > 59 || +ss > 59) return null;
+
+        // 日付・tz の土台は既存ISO（無ければ補正後の現在時刻）から流用する
+        const base = baseIso || getCorrectedTime();
+        const dm = String(base).match(
+          /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}:\d{2}(.*)$/,
+        );
+        if (!dm) return null;
+        return `${dm[1]}T${hh}:${mm}:${ss}${dm[2]}`;
+      }
+
+      // 空の車両データを生成
+      function emptyCar() {
+        return {
+          inTime: null,
+          outTime: null,
+          driver: null,
+          tire: null,
+          oil: null,
+          note: "",
+        };
+      }
+
+      // 実行コード
+      renderLog(); // 起動時に保持済みの送信ログを復元（init の成否に依存させない）
+
+      (async () => {
+        const init = await getInitData();
+        if (!init) {
+          console.log("車両データ読み取り不可");
+          return;
+        }
+        const { carNumbers } = init;
+        driverData = init.driverData; // トップレベル変数へ代入（driverReset が参照）
+        if (!carNumbers || !driverData) return;
+
+        carNumbers.forEach((num) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = num;
+          btn.classList.add("carBtn");
+
+          carData[num] = emptyCar();
+
+          btn.addEventListener("click", () => {
+            document
+              .querySelectorAll(".carBtn")
+              .forEach((b) => b.classList.remove("selected"));
+            btn.classList.add("selected");
+
+            timeReset(num);
+            driverReset(num);
+
+            tires.checked = !!carData[num].tire;
+            oils.checked = !!carData[num].oil;
+            note.value = carData[num].note || "";
+          });
+
+          carNumSection.appendChild(btn);
+        });
+
+        // イン/アウト共通の時刻ボタンハンドラを生成する。
+        //   btn: ボタン要素 / shInput: 表示input / field: carDataのキー(inTime/outTime)
+        function makeTimeHandler(btn, shInput, field) {
+          return () => {
+            const car = getSelectedCar();
+            if (!car) return;
+            const d = carData[car];
+
+            // すでに時刻がある → 2度押し = 解除（キャッシュへ退避、carDataはnull）
+            if (d[field]) {
+              if (!cashTime[car]) cashTime[car] = {};
+              cashTime[car][field] = d[field];
+              d[field] = null;
+              btn.classList.remove("active");
+              shInput.value = "";
+              return;
+            }
+
+            // 同じボタンのキャッシュがあれば同じ時刻を復元、無ければ現在時刻
+            const cached = cashTime[car] && cashTime[car][field];
+            const time = cached || getCorrectedTime();
+            if (cached) cashTime[car][field] = null;
+
+            d[field] = time;
+            btn.classList.add("active");
+            shInput.value = formatTimeDisplay(time);
+          };
+        }
+
+        inTimeBtn.addEventListener(
+          "click",
+          makeTimeHandler(inTimeBtn, shInTime, "inTime"),
+        );
+        outTimeBtn.addEventListener(
+          "click",
+          makeTimeHandler(outTimeBtn, shOutTime, "outTime"),
+        );
+
+        // 時刻欄の手入力を carData に書き戻す。
+        //   空にすれば解除、HH:MM(:SS) を入れればその時刻をセット（ボタンも連動）。
+        function makeManualEdit(shInput, field, btn) {
+          return () => {
+            const car = getSelectedCar();
+            if (!car) return;
+            const text = shInput.value.trim();
+
+            if (text === "") {
+              carData[car][field] = null;
+              btn.classList.remove("active");
+              return;
+            }
+            const merged = mergeTime(carData[car][field], text);
+            if (!merged) {
+              alert("時刻は HH:MM または HH:MM:SS の形式で入力してください");
+              shInput.value = formatTimeDisplay(carData[car][field]); // 元に戻す
+              return;
+            }
+            carData[car][field] = merged;
+            shInput.value = formatTimeDisplay(merged);
+            btn.classList.add("active");
+          };
+        }
+
+        shInTime.addEventListener(
+          "change",
+          makeManualEdit(shInTime, "inTime", inTimeBtn),
+        );
+        shOutTime.addEventListener(
+          "change",
+          makeManualEdit(shOutTime, "outTime", outTimeBtn),
+        );
+
+        driver.addEventListener("change", (e) => {
+          const car = getSelectedCar();
+          if (!car) return;
+          carData[car].driver = e.target.value;
+        });
+
+        tires.addEventListener("change", (e) => {
+          const car = getSelectedCar();
+          if (!car) return;
+          carData[car].tire = e.target.checked; // 真偽値
+        });
+
+        oils.addEventListener("change", (e) => {
+          const car = getSelectedCar();
+          if (!car) return;
+          carData[car].oil = e.target.checked; // 真偽値
+        });
+
+        note.addEventListener("change", (e) => {
+          const car = getSelectedCar();
+          if (!car) return;
+          carData[car].note = e.target.value;
+        });
+
+        // 送信中フラグ：連打でリセット前に同じデータを二重送信するのを防ぐ
+        let isSubmitting = false;
+        const submitBtn = document.getElementById("submit");
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (isSubmitting) return; // 送信処理中はクリックを無視
+          isSubmitting = true;
+          if (submitBtn) submitBtn.disabled = true;
+
+          try {
+            const { valid } = collectCarData();
+            const unsent = JSON.parse(
+              localStorage.getItem("unsentData_test") || "{}",
+            );
+
+            // 送れる車（valid）も前回未送信（unsent）も無い
+            if (
+              Object.keys(valid).length === 0 &&
+              Object.keys(unsent).length === 0
+            ) {
+              alert("送信するデータがありません");
+              return;
+            }
+
+            const result = await sendData(valid, unsent);
+
+            if (result) {
+              // 送信できた車だけクリア
+              for (const car in valid) carData[car] = emptyCar();
+              localStorage.removeItem("unsentData_test");
+              cashTime = {};
+              clearFormDisplay();
+              appendLog(valid); // 成功をログ＆localStorage保持
+              alert("送信成功");
+            } else {
+              // 失敗：未送信データを保存（既存 unsent にマージ）
+              const merged = { ...unsent, ...valid };
+              localStorage.setItem("unsentData_test", JSON.stringify(merged));
+              alert(
+                "[重要]送信に失敗しました。データを保存しました。一度開発者に連絡してください。",
+              );
+            }
+          } finally {
+            isSubmitting = false;
+            if (submitBtn) submitBtn.disabled = false;
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

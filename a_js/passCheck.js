@@ -2,13 +2,18 @@ function isPasswordStrong(pwd) {
   const hasLowercase = /[a-z]/.test(pwd);
   const hasUppercase = /[A-Z]/.test(pwd);
   const hasNumber = /[0-9]/.test(pwd);
-  const isLongEnough = pwd.length >= 6;
-  const isWithinMax = pwd.length <= 20;
+  const isLongEnough = pwd.length >= 6; // パスワード　6文字以上
+  const isWithinMax = pwd.length <= 20; // パスワード　20文字以内
   const isAlnumOnly = /^[A-Za-z0-9]*$/.test(pwd); // 半角英数字以外（記号・全角）を禁止
 
   return {
     valid:
-      hasLowercase && hasUppercase && hasNumber && isLongEnough && isWithinMax && isAlnumOnly,
+      hasLowercase &&
+      hasUppercase &&
+      hasNumber &&
+      isLongEnough &&
+      isWithinMax &&
+      isAlnumOnly,
     hasLowercase,
     hasUppercase,
     hasNumber,
@@ -37,11 +42,11 @@ document.querySelectorAll("[data-passcheck]").forEach((input) => {
     if (!result.valid) {
       let msg = "次を含めてください: ";
       if (!result.isLongEnough) msg += "6文字以上 ";
-      if (!result.hasLowercase)  msg += "小文字 ";
-      if (!result.hasUppercase)  msg += "大文字 ";
-      if (!result.hasNumber)     msg += "数字 ";
-      if (!result.isWithinMax)   msg += "20文字以内 ";
-      if (!result.isAlnumOnly)   msg += "半角英数字のみ ";
+      if (!result.hasLowercase) msg += "小文字 ";
+      if (!result.hasUppercase) msg += "大文字 ";
+      if (!result.hasNumber) msg += "数字 ";
+      if (!result.isWithinMax) msg += "20文字以内 ";
+      if (!result.isAlnumOnly) msg += "半角英数字のみ ";
       errEl.textContent = msg.trim();
       errEl.style.color = "red";
       input.style.borderColor = "red";

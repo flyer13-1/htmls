@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="a_css/formPage.css" />
+    <script src="https://unpkg.com/amazon-cognito-identity-js@6/dist/amazon-cognito-identity.min.js"></script>
     <script defer src="a_js/common.js"></script>
     <script defer src="a_js/passCheck.js"></script>
     <script defer src="a_js/passConfirmCheck.js"></script>
@@ -17,6 +18,7 @@
     </header>
 
     <main>
+      <!-- ステップ1: サインアップフォーム(ユーザー名・パスワード・メール・サーキット) -->
       <article id="formArea">
         <form id="form">
           <section>
@@ -35,6 +37,17 @@
             <p class="charNote">
               使用可能文字：ひらがな・カタカナ・漢字（4〜20文字）。
             </p>
+          </section>
+
+          <section>
+            <label for="email">メールアドレス*:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              placeholder="example@example.com"
+            />
           </section>
 
           <section>
@@ -86,6 +99,19 @@
             <input type="submit" value="アカウント登録" id="submit" disabled />
           </section>
         </form>
+      </article>
+
+      <!-- ステップ2: メール確認コード入力欄(サインアップ後に表示) -->
+      <article id="codeArea" style="display: none">
+        <p id="resendMsg" style="color: green; font-weight: bold"></p>
+
+        <p>
+          記入されたEMailアドレスに確認コードを送信しました。<br />
+          メールに届いた確認コードを入力してください
+        </p>
+        <input id="code" placeholder="確認コードを入力" />
+        <button onclick="doConfirm()">確認する</button>
+        <button onclick="doResend()">コードを再送信</button>
       </article>
 
       <article id="msgArea">
