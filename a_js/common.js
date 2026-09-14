@@ -20,6 +20,20 @@ function requireAuth(needRaceId = false) {
   return { token, raceId };
 }
 
+//成功時のメッセ表示
+function sucsessMsg() {
+  const formArea = document.getElementById("formArea");
+  const msg = document.getElementById("msgArea");
+  formArea.style.display = "none";
+  msg.style.display = "block";
+
+  setTimeout(() => {
+    msg.style.display = "none";
+    formArea.style.display = "block";
+    window.location.href = "./index.html";
+  }, 500);
+}
+
 // レスポンス共通処理。
 // エラー（非200 / msg が空文字でない）の場合は alert を出して true を返す。
 // → 呼び出し側は `if (handleApiError(response, data)) return;` で早期離脱できる。

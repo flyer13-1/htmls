@@ -2,24 +2,11 @@
 const formRegist = document.getElementById("form");
 let tmp = {};
 
+// Cognitoの接続設定
 const pool = new AmazonCognitoIdentity.CognitoUserPool({
   UserPoolId: "us-east-1_P6B4NaQPe",
   ClientId: "7i8g9mqjr6a932isnp7nkl1csj",
 });
-
-//成功時のメッセ表示
-function sucsessMsg() {
-  const formArea = document.getElementById("formArea");
-  const msg = document.getElementById("msgArea");
-  formArea.style.display = "none";
-  msg.style.display = "block";
-
-  setTimeout(() => {
-    msg.style.display = "none";
-    formArea.style.display = "block";
-    window.location.href = "./index.html";
-  }, 1000);
-}
 
 // 確認コード入力画面に切り替え
 function checkCode() {
@@ -98,7 +85,7 @@ formRegist.addEventListener("submit", async (event) => {
   ];
 
   // Cognitoにサインアップ
-  pool.signUp(usernameInp, passInp, emailInp, null, (err, res) => {
+  pool.signUp(usernameInp, passInp, emailInp, null, (err) => {
     if (err) {
       alert(err.message);
       return;
@@ -110,20 +97,4 @@ formRegist.addEventListener("submit", async (event) => {
     // 確認コード入力画面に切り替え(既存のsucsessMsgとは別の画面遷移が必要)
     checkCode();
   });
-
-  if (doConfirm()) {
-    const response = await fetch(`${API}/regist`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: usernameInp,
-        sub: res.userSub,
-        circuit: circuitInp,
-      }),
-    });
-    const data = await response.json();
-    if (handleApiError(response, data)) return;
-
-    sucsessMsg(); // 既存の成功演出→ページ遷移
-  }
 });
