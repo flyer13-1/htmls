@@ -1,0 +1,26 @@
+@charset "utf-8";
+
+/* 車番入力 */
+#carArea {
+  align-items: center;
+}
+
+#carArea label {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+#carArea input[type="number"] {
+  flex: 1;
+  min-height: 44px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  border: 2px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 0 8px;
+}
+

@@ -1,25 +1,34 @@
 // DOM宣言
 const allButton = document.getElementById("all");         // 全表示
-const carFilterInput = document.getElementById("car");    // ゼッケン入力
+const searchInput = document.getElementById("search");    // 統合検索入力（数字→ゼッケン / 文字→担当者）
 const filterList = document.getElementById("filter");     // フィルター欄
 const tableBody = document.querySelector("tbody");        // テーブル本体
 
 // 変数
 let currentClassFilter = "";
-let currentCarFilter = "";
+let currentSearchFilter = "";
 
 // 関数
 function formatBoolean(value) {
   return value ? "はい" : "いいえ";
 }
 
+// ISO 8601 → HH:MM:SS 表示
 function formatDatetime(value) {
-  return value === null || value === undefined ? "-" : value;
+  if (value === null || value === undefined) return "-";
+  const m = String(value).match(/T(\d{2}:\d{2}:\d{2})/);
+  return m ? m[1] : value;
 }
 
+// 秒 → DD:HH:MM:SS 表示（1日未満なら HH:MM:SS）
 function formatGap(value) {
   if (value === null || value === undefined) return "-";
-  return `${value} 秒`;
+  const p  = (n) => String(n).padStart(2, "0");
+  const d  = Math.floor(value / 86400);
+  const h  = Math.floor((value % 86400) / 3600);
+  const m  = Math.floor((value % 3600) / 60);
+  const s  = value % 60;
+  return d > 0 ? `${p(d)}:${p(h)}:${p(m)}:${p(s)}` : `${p(h)}:${p(m)}:${p(s)}`;
 }
 
 function createClassButtons(classNames) {
@@ -57,10 +66,16 @@ function createClassButtons(classNames) {
 function filterAndSortEntries() {
   let filtered = Array.from(entries);
 
-  if (currentCarFilter) {
-    const carNumber = Number(currentCarFilter);
-    if (!Number.isNaN(carNumber)) {
-      filtered = filtered.filter((entry) => entry.carNum === carNumber);
+  if (currentSearchFilter) {
+    const asNum = Number(currentSearchFilter);
+    if (!Number.isNaN(asNum) && /^\d+$/.test(currentSearchFilter)) {
+      // 数字のみ → ゼッケン番号で絞り込み
+      filtered = filtered.filter((entry) => entry.carNum === asNum);
+    } else {
+      // 文字列 → 担当者名で部分一致
+      filtered = filtered.filter((entry) =>
+        (entry.manager || "").includes(currentSearchFilter),
+      );
     }
   }
 
@@ -96,21 +111,23 @@ function renderTable() {
     return;
   }
 
+  // ドライバー列はAPIが A/B/C… のアルファベット表記で返す。
+  // inDriver: pit#1 は StartDriverTable から、pit#2 以降は前回の outDriver をサーバー側で算出。
   rows.forEach((entry) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${entry.managerId}</td>
-      <td>${entry.manager}</td>
       <td>${entry.pitNum}</td>
       <td>${entry.carNum}</td>
-      <td>${entry.className}</td>
-      <td>${entry.teamName}</td>
+      <td>${entry.manager}</td>
       <td>${formatBoolean(entry.retire)}</td>
-      <td>${entry.inDriver || "-"}</td>
+      <td>${entry.inDriver  || "-"}</td>
       <td>${entry.outDriver || "-"}</td>
       <td>${formatDatetime(entry.inTime)}</td>
       <td>${formatDatetime(entry.outTime)}</td>
       <td>${formatGap(entry.pitGap)}</td>
+      <td>${entry.className}</td>
+      <td>${entry.teamName}</td>
+      <td>${entry.note || ""}</td>
     `;
     tableBody.appendChild(tr);
   });
@@ -119,15 +136,15 @@ function renderTable() {
 // 実行コード
 allButton.addEventListener("click", () => {
   currentClassFilter = "";
-  currentCarFilter = "";
-  carFilterInput.value = "";
+  currentSearchFilter = "";
+  searchInput.value = "";
   filterList
     .querySelectorAll("button[data-class]")
     .forEach((btn) => btn.classList.remove("active"));
   renderTable();
 });
 
-carFilterInput.addEventListener("input", (event) => {
-  currentCarFilter = event.target.value.trim();
+searchInput.addEventListener("input", (event) => {
+  currentSearchFilter = event.target.value.trim();
   renderTable();
 });

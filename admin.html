@@ -66,6 +66,71 @@
           <tbody id="raceTbody"></tbody>
         </table>
       </section>
+
+      <!-- データ登録 -->
+      <section class="card">
+        <h3>データ登録</h3>
+
+        <div class="reg-field">
+          <label for="regRaceId">レースID *</label>
+          <input type="text" id="regRaceId" placeholder="例: 2026fuji_st" />
+        </div>
+
+        <div class="reg-field">
+          <span class="reg-label">登録先テーブル</span>
+          <div class="table-select">
+            <label><input type="radio" name="tableTarget" value="entry" checked /> エントリー</label>
+            <label><input type="radio" name="tableTarget" value="startDriver" /> スタートドライバー</label>
+            <label><input type="radio" name="tableTarget" value="pitAssignment" /> 担当ピット</label>
+          </div>
+        </div>
+
+        <div class="method-tabs">
+          <button type="button" class="method-tab active" data-method="manual">手入力</button>
+          <button type="button" class="method-tab" data-method="csv">CSV</button>
+          <button type="button" class="method-tab" data-method="pdf" disabled>PDF（実装予定）</button>
+        </div>
+
+        <!-- 手入力エリア -->
+        <div id="manualArea" class="input-area">
+          <div id="manualForm" class="manual-form"></div>
+          <div class="manual-actions">
+            <button type="button" id="addRowBtn">＋ 追加</button>
+            <button type="button" id="manualPreviewBtn">プレビュー確認 →</button>
+          </div>
+          <div id="stagingWrap" style="display: none">
+            <p class="staging-label">追加済み（<span id="stagingCount">0</span>件）</p>
+            <div class="table-scroll">
+              <table>
+                <thead id="stagingHead"></thead>
+                <tbody id="stagingBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- CSVエリア -->
+        <div id="csvArea" class="input-area" style="display: none">
+          <button type="button" id="csvSelectBtn">CSVファイルを選択</button>
+          <input type="file" id="csvFile" accept=".csv" style="display: none" />
+          <p class="reg-note">1行目はヘッダー行として読み飛ばします。列順はスキーマ順に合わせてください。</p>
+        </div>
+
+        <!-- プレビューエリア -->
+        <div id="previewSection" style="display: none">
+          <h4 class="preview-title">プレビュー（<span id="previewCount">0</span>件）</h4>
+          <div class="table-scroll">
+            <table>
+              <thead id="previewHead"></thead>
+              <tbody id="previewBody"></tbody>
+            </table>
+          </div>
+          <div class="preview-actions">
+            <button type="button" id="backToInputBtn" class="secondary">← 戻る</button>
+            <button type="button" id="submitRegBtn">登録する</button>
+          </div>
+        </div>
+      </section>
     </main>
   </body>
 </html>

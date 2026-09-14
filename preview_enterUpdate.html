@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="a_css/enterShared.css" />
+    <title>【プレビュー】enterUpdate</title>
+    <style>
+      /* テーブル用（enterShared.css はフォーム専用なので補足） */
+      #showCarData { overflow-x: auto; margin: 8px 4px; }
+      table { border-collapse: collapse; width: 100%; font-size: 14px; }
+      th, td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; white-space: nowrap; }
+      th { background: var(--surface-2); font-size: 13px; color: var(--text-dim); }
+      tbody tr:hover { background: var(--accent-fill); }
+
+      /* 変更ボタン */
+      #showCarData button {
+        padding: 4px 10px;
+        font-size: 13px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      /* モックバナー */
+      #mockBanner {
+        background: #f59e0b;
+        color: #1c1c1c;
+        text-align: center;
+        font-weight: bold;
+        font-size: 13px;
+        padding: 4px;
+      }
+
+      /* 車番入力エリア */
+      #carNumWrap { margin: 10px 4px; }
+      #carNumWrap label { font-size: 14px; color: var(--text-dim); }
+      #carNum {
+        margin-left: 6px;
+        padding: 4px 8px;
+        font-size: 16px;
+        border: 2px solid var(--border-strong);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text);
+        width: 80px;
+      }
+      #carNum:disabled { opacity: 0.5; }
+    </style>
+  </head>
+  <body>
+    <div id="mockBanner">⚠ プレビューモード — APIは呼ばずモックデータを使用</div>
+
+    <header>
+      <h1>変更モード</h1>
+    </header>
+
+    <main>
+      <article>
+        <p>最初に変更したい車両を指定してください。</p>
+        <div id="carNumWrap">
+          <label for="carNum">ゼッケン番号</label>
+          <input type="number" id="carNum" value="6" disabled />
+        </div>
+
+        <div id="showCarData"></div>
+      </article>
+
+      <p>次に変更内容を記入してください。変更がない場合は未記入でお願いします</p>
+      <form id="myForm" method="post"></form>
+    </main>
+
+    <script>
+      // ── モックデータ（ゼッケン6番） ──
+      const MOCK = {
+        msg: "",
+        1: { pitNum: 1, carNum: 6, manager: "田中", retire: false,
+             inDriver: "A", outDriver: "B",
+             inTime:  "2026-06-01T10:30:00+09:00",
+             outTime: "2026-06-01T10:32:15+09:00",
+             garageInTime: null, tire: true, oil: false, note: "", reason: "" },
+        2: { pitNum: 2, carNum: 6, manager: "鈴木", retire: false,
+             inDriver: "B", outDriver: "C",
+             inTime:  "2026-06-01T11:15:00+09:00",
+             outTime: "2026-06-01T11:17:30+09:00",
+             garageInTime: null, tire: false, oil: true, note: "タイヤ確認", reason: "" },
+        3: { pitNum: 3, carNum: 6, manager: "佐藤", retire: true,
+             inDriver: "C", outDriver: null,
+             inTime:  "2026-06-01T12:00:00+09:00",
+             outTime: null,
+             garageInTime: null, tire: false, oil: false, note: "エンジントラブル", reason: "エンジン故障" },
+      };
+
+      // ── DOM ──
+      const showCarDiv = document.getElementById("showCarData");
+      const form       = document.getElementById("myForm");
+      let pitRecords   = {};
+
+      // ── ユーティリティ ──
+      function isoToTimeVal(iso) {
+        if (!iso) return "";
+        const m = String(iso).match(/T(\d{2}:\d{2}:\d{2})/);
+        return m ? m[1] : "";
+      }
+      function formatTime(iso) {
+        if (!iso) return "-";
+        const m = String(iso).match(/T(\d{2}:\d{2}:\d{2})/);
+        return m ? m[1] : "-";
+      }
+      function timeValToIso(timeVal, refIso) {
+        if (!timeVal) return null;
+        const base = refIso || "2026-06-01T00:00:00+09:00";
+        const dm   = String(base).match(/^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}:\d{2}(.*)$/);
+        if (!dm) return null;
+        const ss = timeVal.length === 5 ? `${timeVal}:00` : timeVal;
+        return `${dm[1]}T${ss}${dm[2]}`;
+      }
+
+      // ── テーブル描画 ──
+      function renderTable() {
+        showCarDiv.innerHTML = "";
+        const table = document.createElement("table");
+        table.innerHTML = `
+          <thead><tr>
+            <th>変更</th><th>ピット番号</th><th>ゼッケン</th><th>担当者</th>
+            <th>リタイア</th><th>インドライバー</th><th>アウトドライバー</th>
+            <th>ピットイン</th><th>ピットアウト</th><th>備考</th>
+          </tr></thead>`;
+        const tbody = document.createElement("tbody");
+
+        Object.values(pitRecords).sort((a, b) => a.pitNum - b.pitNum).forEach((rec) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td></td>
+            <td>${rec.pitNum}</td>
+            <td>${rec.carNum}</td>
+            <td>${rec.manager}</td>
+            <td>${rec.retire ? "はい" : "いいえ"}</td>
+            <td>${rec.inDriver  || "-"}</td>
+            <td>${rec.outDriver || "-"}</td>
+            <td>${formatTime(rec.inTime)}</td>
+            <td>${formatTime(rec.outTime)}</td>
+            <td>${rec.note || ""}</td>
+          `;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = "変更";
+          btn.addEventListener("click", () => openEditForm(rec));
+          tr.cells[0].appendChild(btn);
+          tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+        showCarDiv.appendChild(table);
+      }
+
+      // ── ドライバーラジオボタン生成（A〜F） ──
+      function buildDriverRadios(currentDriver) {
+        return ["A", "B", "C", "D", "E", "F"].map((d) => {
+          const checked = currentDriver === d ? "checked" : "";
+          return `
+            <input type="radio" name="driver" id="driver${d}" value="${d}" ${checked} />
+            <label for="driver${d}">${d}ドラ</label>`;
+        }).join("");
+      }
+
+      // ── 変更フォームを JS 側で全生成 ──
+      function openEditForm(rec) {
+        const safeNote   = (rec.note   || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+        const safeReason = (rec.reason || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+
+        const retireSection = rec.retire ? `
+          <h2>リタイア対応</h2>
+          <section id="retireAction">
+            <input type="checkbox" id="retireCancel" />
+            <label for="retireCancel">リタイア取り消し</label>
+            <label for="reason" style="flex: 1 1 100%; margin-top: 8px">理由変更</label>
+            <input type="text" id="reason" maxlength="200" value="${safeReason}" />
+          </section>` : "";
+
+        form.innerHTML = `
+          <input type="hidden" id="hiddenCarNum" value="${rec.carNum}" />
+          <input type="hidden" id="when"         value="${rec.pitNum}" />
+
+          <article id="change">
+            <h2>ピット時間</h2>
+            <section id="Time">
+              <label for="inTime">イン</label>
+              <input type="time" id="inTime"  step="1" value="${isoToTimeVal(rec.inTime)}" />
+              <label for="outTime">アウト</label>
+              <input type="time" id="outTime" step="1" value="${isoToTimeVal(rec.outTime)}" />
+            </section>
+
+            <h2>交代したドライバー</h2>
+            <section id="Driver">
+              ${buildDriverRadios(rec.outDriver)}
+            </section>
+
+            <h2>作業内容</h2>
+            <section id="task">
+              <input type="checkbox" id="tires" value="tire" ${rec.tire ? "checked" : ""} />
+              <label for="tires">タイヤ交換</label>
+              <input type="checkbox" id="oils"  value="oil"  ${rec.oil  ? "checked" : ""} />
+              <label for="oils">給油</label>
+            </section>
+
+            <h2>備考欄</h2>
+            <section id="notes">
+              <input type="text" id="note" maxlength="200" value="${safeNote}" />
+            </section>
+
+            ${retireSection}
+          </article>
+
+          <section id="submits">
+            <input type="submit" id="submit" value="送信（プレビュー：コンソールに出力）" />
+          </section>
+        `;
+
+        document.getElementById("change").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      // ── 送信（プレビュー：差分のみコンソール出力） ──
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const carNumVal = parseInt(document.getElementById("hiddenCarNum")?.value);
+        const pitNum    = parseInt(document.getElementById("when")?.value);
+        if (!carNumVal || !pitNum) return;
+
+        const orig   = pitRecords[pitNum];
+        const refIso = orig?.inTime || orig?.outTime || "2026-06-01T00:00:00+09:00";
+
+        const retireCancelEl = document.getElementById("retireCancel");
+        const reasonEl       = document.getElementById("reason");
+
+        let body;
+
+        if (retireCancelEl?.checked) {
+          body = { selection: "3", carNum: carNumVal };
+
+        } else if (reasonEl?.value.trim() && reasonEl.value.trim() !== (orig?.reason || "")) {
+          body = { selection: "2", carNum: carNumVal, reason: reasonEl.value.trim() };
+
+        } else {
+          const changes = { selection: "1", carNum: carNumVal, when: String(pitNum) };
+
+          const newInTime  = timeValToIso(document.getElementById("inTime")?.value,  refIso);
+          const newOutTime = timeValToIso(document.getElementById("outTime")?.value, refIso);
+          const newDriver  = document.querySelector("#Driver input:checked")?.value || null;
+          const newTire    = document.getElementById("tires")?.checked || false;
+          const newOil     = document.getElementById("oils")?.checked  || false;
+          const newNote    = document.getElementById("note")?.value    || "";
+
+          if (newInTime  !== (orig?.inTime    || null))  changes.inTime    = newInTime;
+          if (newOutTime !== (orig?.outTime   || null))  changes.outTime   = newOutTime;
+          if (newDriver  !== (orig?.outDriver || null))  changes.outDriver = newDriver;
+          if (newTire    !== !!orig?.tire)               changes.tire      = newTire;
+          if (newOil     !== !!orig?.oil)                changes.oil       = newOil;
+          if (newNote    !== (orig?.note || ""))         changes.note      = newNote;
+
+          if (Object.keys(changes).length === 3) {
+            alert("変更がありません");
+            return;
+          }
+          body = changes;
+        }
+
+        console.log("📤 送信ボディ（差分のみ）:", JSON.stringify(body, null, 2));
+        alert(`【プレビュー】差分のみ送信:\n${JSON.stringify(body, null, 2)}`);
+      });
+
+      // ── 初期ロード：モックデータをそのまま展開 ──
+      (function init() {
+        Object.entries(MOCK).forEach(([key, val]) => {
+          if (key !== "msg") pitRecords[val.pitNum] = val;
+        });
+        renderTable();
+      })();
+    </script>
+  </body>
+</html>

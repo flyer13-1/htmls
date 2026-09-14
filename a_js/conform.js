@@ -6,6 +6,8 @@ const conform = document.getElementById("conform");
 const form = document.getElementById("form");
 const conformBtn = document.getElementById("conformBtn");
 const backBtn = document.getElementById("backBtn");
+const adminBtn = document.getElementById("adminBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
 // API は common.js で宣言済み。
 // サーキット番号に対応するサーキット名の配列（1始まりのため index 0 は null）
@@ -32,12 +34,45 @@ function sucsessMsg() {
   }, 1000);
 }
 
+// ページロード時: 管理者フラグを確認してadminBtnを表示制御
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = sessionStorage.getItem("token");
+  if (!token) return;
+  try {
+    const res = await fetch(`${API}/user/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      adminBtn.style.display = data.isAdmin ? "" : "none";
+    }
+  } catch { /* 無視 */ }
+});
+
+// ログアウト
+logoutBtn.addEventListener("click", () => {
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("raceId");
+  window.location.href = "./index.html";
+});
+
+let isSending = false;
+
 // 大会ID照会フォームの送信処理
 async function send(event) {
   event.preventDefault();
 
+  if (isSending) return;
+  isSending = true;
+  const submitBtn = form.querySelector("[type='submit']");
+  if (submitBtn) submitBtn.disabled = true;
+
   const auth = requireAuth(); // token を取得（無ければログイン画面へ）
-  if (!auth) return;
+  if (!auth) {
+    isSending = false;
+    if (submitBtn) submitBtn.disabled = false;
+    return;
+  }
 
   const todayId = document.getElementById("todayId").value;
 
@@ -60,6 +95,9 @@ async function send(event) {
   } catch (error) {
     console.error("送信エラー:", error);
     alert("送信失敗しました。管理者に一度報告してください。");
+  } finally {
+    isSending = false;
+    if (submitBtn) submitBtn.disabled = false;
   }
 }
 
@@ -85,6 +123,7 @@ async function prof() {
     // プロフィール情報を画面に表示
     textUser.textContent = "利用者ID: " + data.username;
     textCir.textContent = "所属サーキット: " + circuits[data.circuit];
+    adminBtn.style.display = data.isAdmin ? "" : "none";
 
     main.style.display = "none";
     conform.style.display = "block";

@@ -125,7 +125,9 @@ const LOG_KEY = "sendLog";
 // 送信結果（成功した車）をログに1件追記し、localStorage に保持してから再描画する。
 function appendLog(valid) {
   const log = JSON.parse(localStorage.getItem(LOG_KEY) || "[]");
-  const time = new Date().toLocaleTimeString("ja-JP");
+  const now = new Date();
+  const date = now.toLocaleDateString("ja-JP");
+  const time = now.toLocaleTimeString("ja-JP");
 
   const success = Object.entries(valid).map(([car, p]) => ({
     car,
@@ -133,9 +135,20 @@ function appendLog(valid) {
     outTime: p.outTime,
   }));
 
-  log.unshift({ time, success });
+  log.unshift({ date, time, success });
   localStorage.setItem(LOG_KEY, JSON.stringify(log));
   renderLog();
+}
+
+// 前日以前のログを localStorage から削除する。
+function cleanupOldLogs() {
+  const log = JSON.parse(localStorage.getItem(LOG_KEY) || "[]");
+  if (log.length === 0) return;
+  const today = new Date().toLocaleDateString("ja-JP");
+  // 最新エントリが今日でなければ（date フィールド無しの古いログも含む）全削除
+  if (!log[0].date || log[0].date !== today) {
+    localStorage.removeItem(LOG_KEY);
+  }
 }
 
 // localStorage のログを #logContent に描画する（リロード・再ログイン後も復元）。
@@ -283,6 +296,7 @@ function emptyCar() {
 }
 
 // 実行コード
+cleanupOldLogs(); // 前日以前のログを削除してから描画
 renderLog(); // 起動時に保持済みの送信ログを復元（init の成否に依存させない）
 
 (async () => {

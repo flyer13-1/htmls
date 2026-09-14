@@ -95,6 +95,22 @@
         <h2>送信ログ</h2>
         <div id="logContent">ここに送信した内容を表示します。</div>
       </article>
+          <input type="checkbox" id="oils" value="oil" />
+          <label for="oils">給油</label>
+        </section>
+
+        <section id="notes">
+          <label for="note">備考欄:</label>
+          <input type="textarea" id="note" name="note" maxlength="200" />
+        </section>
+
+        <section id="submits">
+          <button type="submit">送信して入力を続ける</button>
+          <button type="submit" formaction="./main.html">
+            送信してモード選択へ戻る
+          </button>
+        </section>
+      </form>
     </main>
   </body>
 </html>
