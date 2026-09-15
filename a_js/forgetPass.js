@@ -49,6 +49,7 @@ function doReset() {
   tmp.cognitoUser.confirmPassword(code, newPassword, {
     onSuccess: () => {
       sucsessMsg(); // 成功演出→ページ遷移
+      window.location.href = "./index.html"; //ページ遷移
     },
     onFailure: (err) => {
       alert(err.message || "確認コードが正しくありません");

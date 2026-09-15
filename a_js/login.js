@@ -8,7 +8,7 @@ formLogin.addEventListener("submit", async (event) => {
 
   if (isSubmitting) return;
   isSubmitting = true;
-  const submitBtn = formLogin.querySelector("[type='submit']");
+  const submitBtn = formLogin.getElementById("submit");
   if (submitBtn) submitBtn.disabled = true;
 
   //要素のdom要素
@@ -30,6 +30,7 @@ formLogin.addEventListener("submit", async (event) => {
       // 正常終了：Cognitoが発行したIDトークンを保存してページ遷移
       sessionStorage.setItem("token", result.getIdToken().getJwtToken());
       sucsessMsg();
+      window.location.href = "./conform.html";
       isSubmitting = false;
       if (submitBtn) submitBtn.disabled = false;
     },

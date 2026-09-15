@@ -20,7 +20,18 @@
         <h3>新規レース追加</h3>
         <form id="raceForm" class="race-form">
           <div class="field">
-            <label for="raceId">レースID*</label>
+            <label for="title">レースタイトル*</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              placeholder="例: 2026 AUTOBACS SUPER GT Round4 FUJI GT 300km RACE"
+            />
+          </div>
+
+          <div class="field">
+            <label for="raceId">大会ID*</label>
             <input
               type="text"
               id="raceId"
@@ -28,21 +39,16 @@
               required
               pattern="[A-Za-z0-9_-]+"
               title="半角英数字・ハイフン・アンダースコア"
-              placeholder="例: 2026fuji_st"
+              placeholder="例: r4_x7Qp2mK9zL3vN8w"
             />
           </div>
-          <div class="field">
-            <label for="title">レースタイトル*</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              required
-              placeholder="例: 2026 Round 1"
-            />
-          </div>
+
           <p class="note">
-            大会ID（todayId）はタイトルから自動生成されます（入力不要）。
+            レースタイトルは各大会の正式名称を入力してください。<br />
+            大会IDはタイトルから自動生成されます。手動で設定する場合は
+            <span style="color: red; font-weight: bold"
+              >15文字以上の半角英数字・ハイフン・アンダースコアのみ</span
+            >使用可能です。
           </p>
           <button type="submit">登録</button>
         </form>
@@ -51,16 +57,15 @@
       <!-- レース一覧 -->
       <section class="card">
         <h3>登録済みレース</h3>
-        <p id="raceEmpty" class="empty" style="display: none">
-          登録されたレースはありません。
-        </p>
+        <input type="text" id="searchRace" placeholder="レースタイトルで検索" />
+
         <table id="raceTable">
           <thead>
             <tr>
-              <th>レースID</th>
               <th>タイトル</th>
               <th>大会ID</th>
-              <th>操作</th>
+              <th>登録</th>
+              <th>変更・削除</th>
             </tr>
           </thead>
           <tbody id="raceTbody"></tbody>
@@ -72,23 +77,42 @@
         <h3>データ登録</h3>
 
         <div class="reg-field">
-          <label for="regRaceId">レースID *</label>
-          <input type="text" id="regRaceId" placeholder="例: 2026fuji_st" />
+          <label for="regRaceId">大会ID *</label>
+          <input
+            type="text"
+            id="regRaceId"
+            placeholder="例: r4_x7Qp2mK9zL3vN8w"
+          />
         </div>
 
         <div class="reg-field">
           <span class="reg-label">登録先テーブル</span>
           <div class="table-select">
-            <label><input type="radio" name="tableTarget" value="entry" checked /> エントリー</label>
-            <label><input type="radio" name="tableTarget" value="startDriver" /> スタートドライバー</label>
-            <label><input type="radio" name="tableTarget" value="pitAssignment" /> 担当ピット</label>
+            <label
+              ><input type="radio" name="tableTarget" value="entry" checked />
+              エントリー</label
+            >
+            <label
+              ><input type="radio" name="tableTarget" value="startDriver" />
+              スタートドライバー</label
+            >
+            <label
+              ><input type="radio" name="tableTarget" value="pitAssignment" />
+              担当ピット</label
+            >
           </div>
         </div>
 
         <div class="method-tabs">
-          <button type="button" class="method-tab active" data-method="manual">手入力</button>
-          <button type="button" class="method-tab" data-method="csv">CSV</button>
-          <button type="button" class="method-tab" data-method="pdf" disabled>PDF（実装予定）</button>
+          <button type="button" class="method-tab active" data-method="manual">
+            手入力
+          </button>
+          <button type="button" class="method-tab" data-method="csv">
+            CSV
+          </button>
+          <button type="button" class="method-tab" data-method="pdf" disabled>
+            PDF（実装予定）
+          </button>
         </div>
 
         <!-- 手入力エリア -->
@@ -96,10 +120,14 @@
           <div id="manualForm" class="manual-form"></div>
           <div class="manual-actions">
             <button type="button" id="addRowBtn">＋ 追加</button>
-            <button type="button" id="manualPreviewBtn">プレビュー確認 →</button>
+            <button type="button" id="manualPreviewBtn">
+              プレビュー確認 →
+            </button>
           </div>
           <div id="stagingWrap" style="display: none">
-            <p class="staging-label">追加済み（<span id="stagingCount">0</span>件）</p>
+            <p class="staging-label">
+              追加済み（<span id="stagingCount">0</span>件）
+            </p>
             <div class="table-scroll">
               <table>
                 <thead id="stagingHead"></thead>
@@ -113,12 +141,16 @@
         <div id="csvArea" class="input-area" style="display: none">
           <button type="button" id="csvSelectBtn">CSVファイルを選択</button>
           <input type="file" id="csvFile" accept=".csv" style="display: none" />
-          <p class="reg-note">1行目はヘッダー行として読み飛ばします。列順はスキーマ順に合わせてください。</p>
+          <p class="reg-note">
+            1行目はヘッダー行として読み飛ばします。列順はスキーマ順に合わせてください。
+          </p>
         </div>
 
         <!-- プレビューエリア -->
         <div id="previewSection" style="display: none">
-          <h4 class="preview-title">プレビュー（<span id="previewCount">0</span>件）</h4>
+          <h4 class="preview-title">
+            プレビュー（<span id="previewCount">0</span>件）
+          </h4>
           <div class="table-scroll">
             <table>
               <thead id="previewHead"></thead>
@@ -126,7 +158,9 @@
             </table>
           </div>
           <div class="preview-actions">
-            <button type="button" id="backToInputBtn" class="secondary">← 戻る</button>
+            <button type="button" id="backToInputBtn" class="secondary">
+              ← 戻る
+            </button>
             <button type="button" id="submitRegBtn">登録する</button>
           </div>
         </div>

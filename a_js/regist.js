@@ -40,7 +40,8 @@ async function doConfirm() {
     const data = await response.json();
     if (handleApiError(response, data)) return;
 
-    sucsessMsg(); // 成功演出→ページ遷移
+    sucsessMsg(); // 成功演出
+    window.location.href = "./index.html"; //ページ遷移
   });
 }
 
