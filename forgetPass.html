@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="a_css/formPage.css" />
+    <script src="https://unpkg.com/amazon-cognito-identity-js@6/dist/amazon-cognito-identity.min.js"></script>
     <script defer src="a_js/common.js"></script>
     <script defer src="a_js/passCheck.js"></script>
     <script defer src="a_js/passConfirmCheck.js"></script>
@@ -17,6 +18,7 @@
     </header>
 
     <main>
+      <!-- ステップ1: 担当者名を入力し確認コードを送信 -->
       <article id="formArea">
         <form id="form">
           <section>
@@ -36,53 +38,57 @@
             </p>
           </section>
 
-          <section>
-            <label for="password">パスワード*:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              minlength="6"
-              maxlength="20"
-              required
-              data-passcheck
-              data-errmsg="errMsg"
-            />
-            <br />
-            <small id="errMsg"></small>
-          </section>
-
-          <section>
-            <label for="newPassword">新しいパスワード*:</label>
-            <input
-              type="password"
-              id="newPassword"
-              name="newPassword"
-              minlength="6"
-              maxlength="20"
-              required
-              data-passcheck
-              data-errmsg="newPassErrMsg"
-            /><br />
-            <small id="newPassErrMsg"></small>
-          </section>
-
-          <section>
-            <label for="passConfirm">新しいパスワード確認*:</label>
-            <input
-              type="password"
-              id="passConfirm"
-              minlength="6"
-              maxlength="20"
-              required
-              data-confirms="newPassword"
-              data-errmsg="passConfError"
-            /><br />
-            <small id="passConfError"></small>
-          </section>
-
-          <input type="submit" value="送信" id="submit" disabled />
+          <input type="submit" value="確認コードを送信" id="sendCodeBtn" />
         </form>
+      </article>
+
+      <!-- ステップ2: メールで届いた確認コードと新しいパスワードを入力(コード送信後に表示) -->
+      <article id="codeArea" style="display: none">
+        <p id="resendMsg" style="color: green; font-weight: bold"></p>
+
+        <p>
+          登録されたメールアドレスに確認コードを送信しました。<br />
+          メールに届いた確認コードと新しいパスワードを入力してください
+        </p>
+
+        <section>
+          <label for="code">確認コード*:</label>
+          <input id="code" placeholder="確認コードを入力" />
+        </section>
+
+        <section>
+          <label for="newPassword">新しいパスワード*:</label>
+          <input
+            type="password"
+            id="newPassword"
+            name="newPassword"
+            minlength="6"
+            maxlength="20"
+            required
+            data-passcheck
+            data-errmsg="newPassErrMsg"
+          /><br />
+          <small id="newPassErrMsg"></small>
+        </section>
+
+        <section>
+          <label for="passConfirm">新しいパスワード確認*:</label>
+          <input
+            type="password"
+            id="passConfirm"
+            minlength="6"
+            maxlength="20"
+            required
+            data-confirms="newPassword"
+            data-errmsg="passConfError"
+          /><br />
+          <small id="passConfError"></small>
+        </section>
+
+        <button type="button" id="submit" disabled onclick="doReset()">
+          パスワードを再設定
+        </button>
+        <button type="button" onclick="doResend()">コードを再送信</button>
       </article>
 
       <article id="msgArea">

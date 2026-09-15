@@ -5,6 +5,14 @@
 // APIベースURL
 const API = "https://9nvfvkd6f5.execute-api.ap-northeast-1.amazonaws.com/dev";
 
+// Cognito User Pool 設定（ログイン/登録/パスワード再設定の全ページで共通）
+const COGNITO_POOL_ID = "us-east-1_P6B4NaQPe";
+const COGNITO_CLIENT_ID = "7i8g9mqjr6a932isnp7nkl1csj";
+const cognitoPool = new AmazonCognitoIdentity.CognitoUserPool({
+  UserPoolId: COGNITO_POOL_ID,
+  ClientId: COGNITO_CLIENT_ID,
+});
+
 // 認証ガード：sessionStorage から token / raceId を取得して返す。
 // 不足していればログイン画面へ遷移し null を返す。
 // needRaceId=true のときは raceId も必須とする。
