@@ -6,8 +6,8 @@
 const API = "https://9nvfvkd6f5.execute-api.ap-northeast-1.amazonaws.com/dev";
 
 // Cognito User Pool 設定（ログイン/登録/パスワード再設定の全ページで共通）
-const COGNITO_POOL_ID = "us-east-1_P6B4NaQPe";
-const COGNITO_CLIENT_ID = "7i8g9mqjr6a932isnp7nkl1csj";
+const COGNITO_POOL_ID = "ap-northeast-1_CieJXqC9H";
+const COGNITO_CLIENT_ID = "404fhgre43fnt3pbb7bfv2c33v";
 const cognitoPool = new AmazonCognitoIdentity.CognitoUserPool({
   UserPoolId: COGNITO_POOL_ID,
   ClientId: COGNITO_CLIENT_ID,
