@@ -8,7 +8,7 @@ formLogin.addEventListener("submit", async (event) => {
 
   if (isSubmitting) return;
   isSubmitting = true;
-  const submitBtn = formLogin.getElementById("submit");
+  const submitBtn = formLogin.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
 
   //要素のdom要素
