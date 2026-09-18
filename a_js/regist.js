@@ -14,9 +14,11 @@ function checkCode() {
 async function doConfirm() {
   const code = document.getElementById("code").value; // 入力された確認コード
 
-  // 対象ユーザーのCognitoUserオブジェクトを作る(showConfirmBoxで保持したユーザー名を使う)
+  // 対象ユーザーのCognitoUserオブジェクトを作る
+  // Cognitoはメールアドレスをusernameとして扱う設定のため、担当者名(tmp.username)ではなく
+  // signUp時に使ったメールアドレス(tmp.email)を指定する
   const ojUser = new AmazonCognitoIdentity.CognitoUser({
-    Username: tmp.username,
+    Username: tmp.email,
     Pool: cognitoPool,
   });
 
@@ -47,8 +49,9 @@ async function doConfirm() {
 
 // コードの再送信
 function doResend() {
+  // Cognitoのusernameはメールアドレスなので担当者名欄ではなくemail欄を参照する
   const usr = new AmazonCognitoIdentity.CognitoUser({
-    Username: document.getElementById("username").value,
+    Username: document.getElementById("email").value,
     Pool: cognitoPool,
   });
 
@@ -72,21 +75,36 @@ formRegist.addEventListener("submit", async (event) => {
   const usernameInp = document.getElementById("username").value;
   const passInp = document.getElementById("password").value;
   const circuitInp = document.getElementById("circuit").value;
+  const emailValue = document.getElementById("email").value;
   const emailInp = [
     new AmazonCognitoIdentity.CognitoUserAttribute({
       Name: "email",
-      Value: document.getElementById("email").value,
+      Value: emailValue,
     }),
   ];
 
+  //usernameの重複チェック
+  const checkResponse = await fetch(
+    `${API}/user/check?username=${encodeURIComponent(usernameInp)}`,
+  );
+  const checkData = await checkResponse.json();
+  if (handleApiError(checkResponse, checkData)) return;
+  if (checkData.exists) {
+    alert("その担当者名は既に使用されています");
+    return;
+  }
+
   // Cognitoにサインアップ
-  cognitoPool.signUp(usernameInp, passInp, emailInp, null, (err, res) => {
+  // Cognitoはメールアドレスをusernameとして扱う設定のため、担当者名(usernameInp)ではなく
+  // メールアドレス(emailValue)をUsernameとして渡す
+  cognitoPool.signUp(emailValue, passInp, emailInp, null, (err, res) => {
     if (err) {
       alert(err.message);
       return;
     }
 
     tmp.username = usernameInp;
+    tmp.email = emailValue;
     tmp.circuit = circuitInp;
     tmp.sub = res.userSub;
     // 確認コード入力画面に切り替え(既存のsucsessMsgとは別の画面遷移が必要)

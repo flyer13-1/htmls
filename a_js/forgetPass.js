@@ -9,7 +9,8 @@ function showCodeArea() {
   document.getElementById("codeArea").style.display = "block";
 }
 
-// ステップ1: 担当者名を送信し、Cognitoから確認コードをメール送信させる
+// ステップ1: メールアドレスを送信し、Cognitoから確認コードをメール送信させる
+// Cognitoはメールアドレスをusernameとして扱う設定のため、ここで渡すUsernameもメールアドレスになる
 formForget.addEventListener("submit", (event) => {
   event.preventDefault(); // デフォルト送信をキャンセル
 

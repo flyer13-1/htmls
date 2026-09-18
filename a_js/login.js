@@ -35,7 +35,7 @@ formLogin.addEventListener("submit", async (event) => {
       if (submitBtn) submitBtn.disabled = false;
     },
     onFailure: (err) => {
-      alert(err.message || "担当者名またはパスワードが違います");
+      alert(err.message || "メールアドレスまたはパスワードが違います");
       isSubmitting = false;
       if (submitBtn) submitBtn.disabled = false;
     },

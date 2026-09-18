@@ -18,24 +18,18 @@
     </header>
 
     <main>
-      <!-- ステップ1: 担当者名を入力し確認コードを送信 -->
+      <!-- ステップ1: メールアドレスを入力し確認コードを送信 -->
       <article id="formArea">
         <form id="form">
           <section>
-            <label for="username">担当者名*:</label>
+            <label for="username">メールアドレス*:</label>
             <input
-              type="text"
+              type="email"
               id="username"
               name="username"
               required
-              minlength="4"
-              maxlength="20"
-              pattern="[ぁ-んァ-ヶ一-鿿㐀-䶿]+"
-              title="ひらがな・カタカナ・漢字で入力してください（4文字〜20文字以内）"
+              placeholder="example@example.com"
             />
-            <p class="charNote">
-              使用可能文字：ひらがな・カタカナ・漢字（4〜20文字）。
-            </p>
           </section>
 
           <input type="submit" value="確認コードを送信" id="sendCodeBtn" />
