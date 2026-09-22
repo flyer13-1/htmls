@@ -5,13 +5,20 @@
 // APIベースURL
 const API = "https://9nvfvkd6f5.execute-api.ap-northeast-1.amazonaws.com/dev";
 
-// Cognito User Pool 設定（ログイン/登録/パスワード再設定の全ページで共通）
+// Cognito User Pool 設定（ログイン/登録/パスワード再設定でのみ使用）
+// cognitoPool を実際に使うのは Cognito SDK を読み込むページ（index / regist /
+// forgetPass）だけ。SDK 未読み込みのページ（conform 等）でも common.js は
+// 読み込まれるため、SDK がある時だけ生成する。無ければ null（それらのページは
+// cognitoPool を参照しないので影響なし）。
 const COGNITO_POOL_ID = "ap-northeast-1_tGblsfFgk";
 const COGNITO_CLIENT_ID = "6lh05mp69vfns3cfpj6hls4e7i";
-const cognitoPool = new AmazonCognitoIdentity.CognitoUserPool({
-  UserPoolId: COGNITO_POOL_ID,
-  ClientId: COGNITO_CLIENT_ID,
-});
+const cognitoPool =
+  typeof AmazonCognitoIdentity !== "undefined"
+    ? new AmazonCognitoIdentity.CognitoUserPool({
+        UserPoolId: COGNITO_POOL_ID,
+        ClientId: COGNITO_CLIENT_ID,
+      })
+    : null;
 
 // 認証ガード：sessionStorage から token / raceId を取得して返す。
 // 不足していればログイン画面へ遷移し null を返す。
