@@ -1,5 +1,5 @@
 // DOM宣言
-const main = document.getElementById("main");
+const main = document.getElementById("formArea");
 const success = document.getElementById("success");
 const conform = document.getElementById("conform");
 
@@ -9,7 +9,7 @@ const backBtn = document.getElementById("backBtn");
 const adminBtn = document.getElementById("adminBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 
-// API は common.js で宣言済み。
+// API・成功メッセージ・ログアウト関数 は common.js で宣言済み。
 // サーキット番号に対応するサーキット名の配列（1始まりのため index 0 は null）
 const circuits = [
   null,
@@ -22,38 +22,40 @@ const circuits = [
   "無所属",
 ];
 
-function sucsessMsg() {
-  main.style.display = "none";
-  conform.style.display = "none";
-  success.style.display = "block";
+// プロフィール（GET /user/me）。取得済みなら再取得しない。失敗時は null。
+let profile = null;
 
-  setTimeout(() => {
-    success.style.display = "none";
-    main.style.display = "block";
-    window.location.href = "./main.html";
-  }, 1000);
+async function loadProfile() {
+  if (profile) return profile;
+
+  const auth = requireAuth();
+  if (!auth) return null;
+
+  try {
+    const response = await fetch(`${API}/user/me`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+      },
+    });
+
+    const data = await response.json();
+    if (handleApiError(response, data)) return null;
+
+    profile = data;
+    adminBtn.style.display = data.isAdmin ? "" : "none";
+    return profile;
+  } catch (error) {
+    console.error("プロフィール取得エラー:", error);
+    alert("プロフィールの取得に失敗しました。管理者に一度報告してください。");
+    return null;
+  }
 }
 
-// ページロード時: 管理者フラグを確認してadminBtnを表示制御
-document.addEventListener("DOMContentLoaded", async () => {
-  const token = sessionStorage.getItem("token");
-  if (!token) return;
-  try {
-    const res = await fetch(`${API}/user/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      adminBtn.style.display = data.isAdmin ? "" : "none";
-    }
-  } catch { /* 無視 */ }
-});
-
-// ログアウト
-logoutBtn.addEventListener("click", () => {
-  sessionStorage.removeItem("token");
-  sessionStorage.removeItem("raceId");
-  window.location.href = "./index.html";
+// ページロード時: プロフィールを取得して管理者フラグでadminBtnを表示制御
+document.addEventListener("DOMContentLoaded", () => {
+  if (!sessionStorage.getItem("token")) return logout();
+  loadProfile();
 });
 
 let isSending = false;
@@ -71,7 +73,7 @@ async function send(event) {
   if (!auth) {
     isSending = false;
     if (submitBtn) submitBtn.disabled = false;
-    return;
+    return logout();
   }
 
   const todayId = document.getElementById("todayId").value;
@@ -92,6 +94,7 @@ async function send(event) {
     // 大会ID照合成功：Lambda が返した raceId を保存してメイン画面へ
     sessionStorage.setItem("raceId", data.raceId);
     sucsessMsg();
+    window.location.href = "./main.html";
   } catch (error) {
     console.error("送信エラー:", error);
     alert("送信失敗しました。管理者に一度報告してください。");
@@ -101,36 +104,18 @@ async function send(event) {
   }
 }
 
-// プロフィール取得（GETリクエスト）
+// プロフィール確認画面を表示
 async function prof() {
-  const auth = requireAuth();
-  if (!auth) return;
+  const data = profile;
+  if (!data) return;
 
-  const textUser = document.getElementById("textUser");
-  const textCir = document.getElementById("textCir");
+  document.getElementById("textUser").textContent =
+    "利用者ID: " + data.username;
+  document.getElementById("textCir").textContent =
+    "所属サーキット: " + circuits[data.circuit];
 
-  try {
-    const response = await fetch(`${API}/user/me`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${auth.token}`,
-      },
-    });
-
-    const data = await response.json();
-    if (handleApiError(response, data)) return;
-
-    // プロフィール情報を画面に表示
-    textUser.textContent = "利用者ID: " + data.username;
-    textCir.textContent = "所属サーキット: " + circuits[data.circuit];
-    adminBtn.style.display = data.isAdmin ? "" : "none";
-
-    main.style.display = "none";
-    conform.style.display = "block";
-  } catch (error) {
-    console.error("プロフィール取得エラー:", error);
-    alert("プロフィールの取得に失敗しました。管理者に一度報告してください。");
-  }
+  main.style.display = "none";
+  conform.style.display = "block";
 }
 
 // メイン画面に戻る
@@ -142,3 +127,4 @@ function back() {
 form.addEventListener("submit", send);
 conformBtn.addEventListener("click", prof);
 backBtn.addEventListener("click", back);
+logoutBtn.addEventListener("click", logout);

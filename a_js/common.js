@@ -35,6 +35,13 @@ function requireAuth(needRaceId = false) {
   return { token, raceId };
 }
 
+// ログアウト
+function logout() {
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("raceId");
+  window.location.href = "./index.html";
+}
+
 //成功時のメッセ表示
 function sucsessMsg() {
   const formArea = document.getElementById("formArea");
