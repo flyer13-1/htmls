@@ -33,8 +33,7 @@ body::after {
 /* 初期化 */
 h2,
 h3,
-p,
-button {
+p {
   margin: 0px;
   padding: 0px;
 }
@@ -67,14 +66,31 @@ a:visited {
   color: purple;
 }
 
-button {
+/* ボタン風リンク（<a class="btn">）。全面がクリックできる */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 10px auto;
   padding: 15px;
   width: 80%;
   min-width: 100px;
   min-height: 60px;
+  border: 1px solid #b37400;
+  border-radius: 4px;
   font-size: larger;
   font-weight: bold;
   background-color: #ffa600; /* ソフトオレンジの色を指定 */
+}
+
+/* 訪問済みでも文字を紫にしない（a:visited より優先） */
+.btn:visited {
+  color: black;
+}
+
+.btn:hover {
+  opacity: 0.9;
 }
 
 @media screen and (max-width: 450px) {
