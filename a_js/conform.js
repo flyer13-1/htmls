@@ -44,6 +44,8 @@ async function loadProfile() {
 
     profile = data;
     adminBtn.style.display = data.isAdmin ? "" : "none";
+    sessionStorage.setItem("circuit", data.circuit);
+
     return profile;
   } catch (error) {
     console.error("プロフィール取得エラー:", error);
@@ -66,6 +68,7 @@ async function send(event) {
 
   if (isSending) return;
   isSending = true;
+
   const submitBtn = form.querySelector("[type='submit']");
   if (submitBtn) submitBtn.disabled = true;
 

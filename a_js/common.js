@@ -20,6 +20,38 @@ const cognitoPool =
       })
     : null;
 
+// ログイン前に開いてよいページ（bfcache 復元チェックの対象外）
+const PUBLIC_PAGES = ["index.html", "regist.html", "forgetPass.html"];
+
+// 認証情報を全部消す
+function clearAuth() {
+  // sessionStorage は全消し（token / raceId / circuit ...）
+  sessionStorage.clear();
+
+  // Cognito SDK が localStorage に書いたセッションだけ消す。
+  // localStorage.clear() は不可：enterAuto の unsentData / 送信ログまで消えるため。
+  Object.keys(localStorage)
+    .filter((k) =>
+      k.startsWith(`CognitoIdentityServiceProvider.${COGNITO_CLIENT_ID}`),
+    )
+    .forEach((k) => localStorage.removeItem(k));
+}
+
+// ログアウト：履歴を置き換えて、戻るでこのページに来られないようにする
+function logout() {
+  clearAuth();
+  window.location.replace("./index.html");
+}
+
+// 戻る／進むでキャッシュ(bfcache)から復元された時、token が無ければログイン画面へ
+window.addEventListener("pageshow", (e) => {
+  const page = location.pathname.split("/").pop() || "index.html";
+  if (PUBLIC_PAGES.includes(page)) return;
+  if (e.persisted && !sessionStorage.getItem("token")) {
+    window.location.replace("./index.html");
+  }
+});
+
 // 認証ガード：sessionStorage から token / raceId を取得して返す。
 // 不足していればログイン画面へ遷移し null を返す。
 // needRaceId=true のときは raceId も必須とする。
@@ -29,17 +61,10 @@ function requireAuth(needRaceId = false) {
 
   if (!token || (needRaceId && !raceId)) {
     alert("認証情報が不足しています。再度ログインしてください。");
-    window.location.href = "./index.html";
+    window.location.replace("./index.html");
     return null;
   }
   return { token, raceId };
-}
-
-// ログアウト
-function logout() {
-  sessionStorage.removeItem("token");
-  sessionStorage.removeItem("raceId");
-  window.location.href = "./index.html";
 }
 
 //成功時のメッセ表示
@@ -70,7 +95,7 @@ function handleApiError(response, data) {
     alert(data.msg || "error: 400 Bad Request");
   } else if (response.status === 401) {
     alert(data.msg || "セッションが切れました。再度ログインしてください。");
-    window.location.href = "./index.html";
+    window.location.replace("./index.html");
   } else if (response.status === 500) {
     alert(data.msg || "error: 500 Internal Server Error");
   } else {

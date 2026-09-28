@@ -1,16 +1,13 @@
 @charset "utf-8";
-/* 背景と全体の設定 */
+* {
+  box-sizing: border-box;
+}
+
+/* 背景と全体の設定（admin.css と揃える） */
 body {
+  font-family: system-ui, "Segoe UI", sans-serif;
   margin: 0;
-  padding: 0;
-
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-
-  text-align: center;
-  position: relative;
-  z-index: 0;
+  color: #222;
 }
 
 body::before {
@@ -35,44 +32,144 @@ body::after {
   z-index: -1;
 }
 
-/* 初期化 */
-h1,
-h2,
-p,
-input,
-label,
-small {
-  margin: 0px;
-  padding: 0px;
-}
 /* ヘッダー */
 header {
-  margin: 20px;
-  flex: 0 0 20%;
-  width: 100%;
-  font-size: 20px;
+  text-align: center;
+  background: #1f2d3d;
+  color: #fff;
+  padding: 16px 24px;
 }
 
-/* メイン */
-main form {
+header h1 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+header h2 {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+  font-weight: normal;
+  opacity: 0.85;
+}
+
+/* メイン：中央にカードを縦積み */
+main {
+  max-width: 480px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+main > article {
+  background: #fff;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 20px;
   margin-bottom: 20px;
 }
 
-#conform p {
-  padding: 10px;
+#formArea > p {
+  margin: 0 0 16px;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
-section {
-  margin-bottom: 10px;
+/* 大会ID入力フォーム */
+#form section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+#form label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+#form input[type="text"] {
   width: 100%;
-  font-style: oblique;
-  font-size: larger;
-  color: #111;
+  padding: 8px 10px;
+  border: 1px solid #c8cdd3;
+  border-radius: 4px;
+  font-size: 0.95rem;
 }
 
-/* 色設定 */
-a:visited {
-  color: #444;
+/* ボタン共通（button / 送信 / リンクボタン） */
+button,
+input[type="submit"],
+.btn {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  background: #2563eb;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button:hover,
+input[type="submit"]:hover,
+.btn:hover {
+  opacity: 0.9;
+}
+
+button:disabled,
+input[type="submit"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 大会ID送信の下に、プロフ確認・管理画面・ログアウトを縦に並べる */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eceef0;
+}
+
+/* 管理画面は inline の display:none を JS が外したときだけ表示される */
+#adminBtn {
+  background: #1f2d3d;
+}
+
+#logoutBtn {
+  background: #dc2626;
+}
+
+/* プロフィール確認カード */
+#conform h2 {
+  margin: 0 0 16px;
+  font-size: 1.05rem;
+}
+
+#conform p {
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid #eceef0;
+  text-align: left;
+}
+
+#conform button {
+  margin-top: 16px;
+}
+
+/* 承認メッセージ */
+#msgArea {
+  text-align: center;
+  font-weight: 600;
+}
+
+#msgArea p {
+  margin: 0;
 }
 
 /* スマホ対応 */
