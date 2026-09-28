@@ -114,4 +114,14 @@ a:visited {
   body {
     font-size: 14px;
   }
+
+  /* タイトルが画面幅を超えて背景帯が途切れるのを防ぐ（PCは 20px のまま） */
+  header {
+    padding: 16px;
+    font-size: 12px;
+  }
+
+  header h1 {
+    overflow-wrap: anywhere;
+  }
 }
