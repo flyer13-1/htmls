@@ -43,6 +43,10 @@ function logout() {
   window.location.replace("./index.html");
 }
 
+// ヘッダーの #logoutBtn（admin / main / conform 共通）。defer 読み込みなので DOM は構築済み。
+// グローバルの const にすると各ページ JS の宣言と衝突するため、変数は作らない。
+document.getElementById("logoutBtn")?.addEventListener("click", logout);
+
 // 戻る／進むでキャッシュ(bfcache)から復元された時、token が無ければログイン画面へ
 window.addEventListener("pageshow", (e) => {
   const page = location.pathname.split("/").pop() || "index.html";

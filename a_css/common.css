@@ -1,0 +1,42 @@
+@charset "utf-8";
+/* 複数ページ共通の部品。各ページのCSSと一緒に読み込む（id指定なので順序は問わない） */
+
+/* ヘッダー右端のログアウトボタン（admin / main / conform 共通。処理は common.js） */
+header {
+  position: relative;
+}
+
+#logoutBtn {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  display: block;
+  width: auto;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+  background: #dc2626;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-style: normal;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+#logoutBtn:hover {
+  opacity: 0.9;
+}
+
+/* 狭い画面ではタイトルと重なるので、タイトルの下の右端に置く */
+@media screen and (max-width: 450px) {
+  #logoutBtn {
+    position: static;
+    transform: none;
+    margin: 8px 0 0 auto;
+  }
+}

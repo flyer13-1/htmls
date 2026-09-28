@@ -141,10 +141,6 @@ input[type="submit"]:disabled {
   background: #1f2d3d;
 }
 
-#logoutBtn {
-  background: #dc2626;
-}
-
 /* プロフィール確認カード */
 #conform h2 {
   margin: 0 0 16px;

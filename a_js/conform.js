@@ -7,7 +7,6 @@ const form = document.getElementById("form");
 const conformBtn = document.getElementById("conformBtn");
 const backBtn = document.getElementById("backBtn");
 const adminBtn = document.getElementById("adminBtn");
-const logoutBtn = document.getElementById("logoutBtn");
 
 // API・成功メッセージ・ログアウト関数 は common.js で宣言済み。
 // サーキット番号に対応するサーキット名の配列（1始まりのため index 0 は null）
@@ -130,4 +129,3 @@ function back() {
 form.addEventListener("submit", send);
 conformBtn.addEventListener("click", prof);
 backBtn.addEventListener("click", back);
-logoutBtn.addEventListener("click", logout);
