@@ -37,23 +37,27 @@ async function doConfirm() {
     }
 
     // 正常終了：APIにユーザー情報を登録（コード検証が通った後に送る）
-    const response = await fetch(`${API}/user`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: tmp.username,
-        sub: tmp.sub,
-        circuit: tmp.circuit,
-      }),
-    });
-    const data = await response.json();
-    if (handleApiError(response, data)) {
-      isConfirmSend = false;
-      return;
-    }
+    try {
+      const response = await fetch(`${API}/user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: tmp.username,
+          sub: tmp.sub,
+          circuit: tmp.circuit,
+        }),
+      });
+      const data = await response.json();
+      if (handleApiError(response, data)) return;
 
-    sucsessMsg(); // 成功演出
-    window.location.href = "./index.html"; //ページ遷移
+      sucsessMsg(); // 成功演出
+      window.location.href = "./index.html"; //ページ遷移
+    } catch (error) {
+      console.error("ユーザー登録エラー:", error);
+      alert("通信に失敗しました。もう一度お試しください。");
+    } finally {
+      isConfirmSend = false;
+    }
   });
 }
 
@@ -96,16 +100,23 @@ formRegist.addEventListener("submit", async (event) => {
   ];
 
   //usernameの重複チェック
-  const checkResponse = await fetch(
-    `${API}/user/check?username=${encodeURIComponent(usernameInp)}`,
-  );
-  const checkData = await checkResponse.json();
-  if (handleApiError(checkResponse, checkData)) {
-    isSend = false;
-    return;
-  }
-  if (checkData.exists) {
-    alert("その担当者名は既に使用されています");
+  try {
+    const checkResponse = await fetch(
+      `${API}/user/check?username=${encodeURIComponent(usernameInp)}`,
+    );
+    const checkData = await checkResponse.json();
+    if (handleApiError(checkResponse, checkData)) {
+      isSend = false;
+      return;
+    }
+    if (checkData.exists) {
+      alert("その担当者名は既に使用されています");
+      isSend = false;
+      return;
+    }
+  } catch (error) {
+    console.error("重複チェックエラー:", error);
+    alert("通信に失敗しました。もう一度お試しください。");
     isSend = false;
     return;
   }
