@@ -1,5 +1,8 @@
 //宣言
 const formRegist = document.getElementById("form");
+let isSend = false; // 送信済みかどうかのフラグ
+let isConfirmSend = false; // 確認コード検証中かどうかのフラグ
+
 let tmp = {};
 
 // 確認コード入力画面に切り替え
@@ -12,6 +15,9 @@ function checkCode() {
 
 // 確認コードの検証
 async function doConfirm() {
+  if (isConfirmSend) return;
+  isConfirmSend = true;
+
   const code = document.getElementById("code").value; // 入力された確認コード
 
   // 対象ユーザーのCognitoUserオブジェクトを作る
@@ -26,6 +32,7 @@ async function doConfirm() {
   ojUser.confirmRegistration(code, true, async (err) => {
     if (err) {
       alert("確認コードが正しくありません" + err.message);
+      isConfirmSend = false;
       return;
     }
 
@@ -40,7 +47,10 @@ async function doConfirm() {
       }),
     });
     const data = await response.json();
-    if (handleApiError(response, data)) return;
+    if (handleApiError(response, data)) {
+      isConfirmSend = false;
+      return;
+    }
 
     sucsessMsg(); // 成功演出
     window.location.href = "./index.html"; //ページ遷移
@@ -70,6 +80,8 @@ function doResend() {
 // 送信時チェック
 formRegist.addEventListener("submit", async (event) => {
   event.preventDefault(); // デフォルト送信をキャンセル
+  if (isSend) return;
+  isSend = true;
 
   // 入力値取得
   const usernameInp = document.getElementById("username").value;
@@ -88,9 +100,13 @@ formRegist.addEventListener("submit", async (event) => {
     `${API}/user/check?username=${encodeURIComponent(usernameInp)}`,
   );
   const checkData = await checkResponse.json();
-  if (handleApiError(checkResponse, checkData)) return;
+  if (handleApiError(checkResponse, checkData)) {
+    isSend = false;
+    return;
+  }
   if (checkData.exists) {
     alert("その担当者名は既に使用されています");
+    isSend = false;
     return;
   }
 
@@ -100,6 +116,7 @@ formRegist.addEventListener("submit", async (event) => {
   cognitoPool.signUp(emailValue, passInp, emailInp, null, (err, res) => {
     if (err) {
       alert(err.message);
+      isSend = false;
       return;
     }
 
@@ -109,5 +126,6 @@ formRegist.addEventListener("submit", async (event) => {
     tmp.sub = res.userSub;
     // 確認コード入力画面に切り替え(既存のsucsessMsgとは別の画面遷移が必要)
     checkCode();
+    isSend = false; // 送信フラグをリセット
   });
 });
