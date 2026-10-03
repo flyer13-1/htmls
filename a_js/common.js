@@ -25,7 +25,7 @@ const PUBLIC_PAGES = ["index.html", "regist.html", "forgetPass.html"];
 
 // 認証情報を全部消す
 function clearAuth() {
-  // sessionStorage は全消し（token / raceId / circuit ...）
+  // sessionStorage は全消し（token / raceToken / circuit ...）
   sessionStorage.clear();
 
   // Cognito SDK が localStorage に書いたセッションだけ消す。
@@ -56,19 +56,21 @@ window.addEventListener("pageshow", (e) => {
   }
 });
 
-// 認証ガード：sessionStorage から token / raceId を取得して返す。
+// 認証ガード：sessionStorage から token / raceToken を取得して返す。
 // 不足していればログイン画面へ遷移し null を返す。
-// needRaceId=true のときは raceId も必須とする。
-function requireAuth(needRaceId = false) {
+// needRaceToken=true のときは raceToken も必須とする。
+// raceToken は conform が発行した署名付きトークン（doc/IF/raceIdToken.md）。
+// 以降のAPIには X-Race-Id ヘッダーでそのまま送る（01章 R10）。
+function requireAuth(needRaceToken = false) {
   const token = sessionStorage.getItem("token");
-  const raceId = sessionStorage.getItem("raceId");
+  const raceToken = sessionStorage.getItem("raceToken");
 
-  if (!token || (needRaceId && !raceId)) {
+  if (!token || (needRaceToken && !raceToken)) {
     alert("認証情報が不足しています。再度ログインしてください。");
     window.location.replace("./index.html");
     return null;
   }
-  return { token, raceId };
+  return { token, raceToken };
 }
 
 //成功時のメッセ表示

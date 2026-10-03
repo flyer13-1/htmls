@@ -93,8 +93,10 @@ async function send(event) {
     const data = await response.json();
     if (handleApiError(response, data)) return;
 
-    // 大会ID照合成功：Lambda が返した raceId を保存してメイン画面へ
-    sessionStorage.setItem("raceId", data.raceId);
+    // 大会ID照合成功：Lambda が返した raceToken（署名付き）を保存してメイン画面へ。
+    // 以降の一般向けAPIには、この値をそのまま X-Race-Id ヘッダーで送る
+    // （doc/IF/raceIdToken.md §3・§4、01章 R10）。
+    sessionStorage.setItem("raceToken", data.raceToken);
     sucsessMsg();
     window.location.href = "./main.html";
   } catch (error) {
