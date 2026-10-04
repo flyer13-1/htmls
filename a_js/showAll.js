@@ -6,47 +6,23 @@ let entries = [];
 
 // 関数
 async function loadEntries() {
-  const auth = requireAuth(true); // token + raceId が必須
+  const auth = requireAuth(true); // token + raceToken が必須
   if (!auth) return;
 
   try {
-    const response = await fetch(
-      `${API}/entries/show?race_id=${encodeURIComponent(auth.raceId)}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.token}`,
-        },
+    const response = await fetch(`${API}/entries/show`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Race-Id": auth.raceToken,
+        Authorization: `Bearer ${auth.token}`,
       },
-    );
+    });
     const data = await response.json();
 
     if (handleApiError(response, data)) return;
 
-    entries = Object.keys(data)
-      .filter((key) => key !== "msg")
-      .map((key) => {
-        const value = data[key];
-        return {
-          managerId: value.managerId,
-          manager: value.manager,
-          pitNum: value.pitNum,
-          carNum: value.carNum,
-          className: value.className,
-          teamName: value.teamName,
-          retire: value.retire,
-          inDriver: value.inDriver,
-          outDriver: value.outDriver,
-          inTime: value.inTime,
-          outTime: value.outTime,
-          garageInTime: value.garageInTime,
-          pitGap: value.pitGap,
-          tire: value.tire,
-          oil: value.oil,
-          note: value.note,
-        };
-      });
+    entries = data.logs || [];
 
     const classes = Array.from(
       new Set(entries.map((entry) => entry.className)),

@@ -37,10 +37,11 @@ document.getElementById("retireForm").addEventListener("submit", async (e) => {
   submitBtn.disabled = true;
 
   try {
-    const res = await fetch(`${API}/entries/retire?race_id=${encodeURIComponent(auth.raceId)}`, {
+    const res = await fetch(`${API}/entries/retire`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-Race-Id": auth.raceToken,
         Authorization: `Bearer ${auth.token}`,
       },
       body: JSON.stringify({ carNum, reason: reasonVal }),

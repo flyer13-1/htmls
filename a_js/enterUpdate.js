@@ -43,8 +43,8 @@ async function fetchCarData(carNumVal) {
   showCarDiv.style.display = "block";
 
   const res  = await fetch(
-    `${API}/entries/update?carNum=${encodeURIComponent(carNumVal)}&race_id=${encodeURIComponent(auth.raceId)}`,
-    { headers: { Authorization: `Bearer ${auth.token}` } },
+    `${API}/entries/update?carNum=${encodeURIComponent(carNumVal)}`,
+    { headers: { "X-Race-Id": auth.raceToken, Authorization: `Bearer ${auth.token}` } },
   );
   const data = await res.json();
   if (handleApiError(res, data)) { showCarDiv.style.display = "none"; return; }
@@ -240,10 +240,10 @@ form.addEventListener("submit", async (e) => {
 
   try {
     const res  = await fetch(
-      `${API}/entries/update?race_id=${encodeURIComponent(auth.raceId)}`,
+      `${API}/entries/update`,
       {
         method:  "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth.token}` },
+        headers: { "Content-Type": "application/json", "X-Race-Id": auth.raceToken, Authorization: `Bearer ${auth.token}` },
         body:    JSON.stringify(body),
       },
     );

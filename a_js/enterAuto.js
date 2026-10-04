@@ -32,15 +32,16 @@ function getSelectedCar() {
 
 // 初期データ取得（担当エリアの車両・ドライバー）
 async function getInitData(cnt = 3) {
-  const auth = requireAuth(true); // token + raceId 必須（無ければ index.html へ）
+  const auth = requireAuth(true); // token + raceToken 必須（無ければ index.html へ）
   if (!auth) return null;
 
   try {
     const response = await fetch(
-      `${API}/entries/init?race_id=${encodeURIComponent(auth.raceId)}`,
+      `${API}/entries/init`,
       {
         method: "GET",
         headers: {
+          "X-Race-Id": auth.raceToken,
           Authorization: `Bearer ${auth.token}`,
         },
       },
@@ -204,11 +205,12 @@ async function sendData(current, unsent) {
 
   try {
     const response = await fetch(
-      `${API}/entries/auto?race_id=${encodeURIComponent(auth.raceId)}`,
+      `${API}/entries/auto`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Race-Id": auth.raceToken,
           Authorization: `Bearer ${auth.token}`,
         },
         body: JSON.stringify({ current, unsent }),

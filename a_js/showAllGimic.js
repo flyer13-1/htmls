@@ -9,6 +9,19 @@ let currentClassFilter = "";
 let currentSearchFilter = "";
 
 // 関数
+// 並べ替えの時刻: その記録の時刻（inTime 無ければ outTime）。両方無ければ末尾（設計 04章§2.4）
+function sortTimeOf(row) {
+  const time = row.inTime ?? row.outTime;
+  return time ? Date.parse(time) : Infinity;
+}
+
+// 枠（A〜F）と氏名を "A:あそう太郎" の形にする（設計 04章§4.3）
+function formatDriver(slot, name) {
+  if (!slot) return "-";
+  if (!name) return slot;
+  return `${slot}:${name}`;
+}
+
 function formatBoolean(value) {
   return value ? "はい" : "いいえ";
 }
@@ -86,15 +99,32 @@ function filterAndSortEntries() {
   }
 
   filtered.sort((a, b) => {
-    if (a.pitNum !== b.pitNum) return a.pitNum - b.pitNum;
-    if (a.inTime === b.inTime) return a.managerId - b.managerId;
-    if (a.inTime === null) return 1;
-    if (b.inTime === null) return -1;
-    return a.inTime.localeCompare(b.inTime);
+    const ta = sortTimeOf(a);
+    const tb = sortTimeOf(b);
+    if (ta !== tb) return ta < tb ? -1 : 1;
+    return a.carNum - b.carNum;
   });
 
   return filtered;
 }
+
+// 表示とCSV出力で共通の列定義（設計 04章§4.3）。順序を変えるとどちらにも反映される
+const PIT_LOG_COLUMNS = [
+  { label: "作業エリア",       value: (r) => r.maintenanceArea ?? "" },
+  { label: "ゼッケン番号",     value: (r) => r.carNum },
+  { label: "担当者",           value: (r) => r.manager },
+  { label: "リタイア",         value: (r) => formatBoolean(r.retire) },
+  { label: "インドライバー",   value: (r) => formatDriver(r.inDriver, r.inDriverName) },
+  { label: "アウトドライバー", value: (r) => formatDriver(r.outDriver, r.outDriverName) },
+  { label: "ピットイン",       value: (r) => formatDatetime(r.inTime) },
+  { label: "ピットアウト",     value: (r) => formatDatetime(r.outTime) },
+  { label: "ピットGAP",        value: (r) => formatGap(r.pitGap) },
+  { label: "給油",             value: (r) => formatBoolean(r.oil) },
+  { label: "タイヤ交換",       value: (r) => formatBoolean(r.tire) },
+  { label: "クラス名",         value: (r) => r.className },
+  { label: "チーム名",         value: (r) => r.teamName },
+  { label: "備考",             value: (r) => r.note || "" },
+];
 
 function renderTable() {
   const rows = filterAndSortEntries();
@@ -103,7 +133,7 @@ function renderTable() {
   if (rows.length === 0) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
-    td.colSpan = 12;
+    td.colSpan = PIT_LOG_COLUMNS.length;
     td.textContent = "該当するデータがありません。";
     td.style.textAlign = "center";
     tr.appendChild(td);
@@ -111,24 +141,13 @@ function renderTable() {
     return;
   }
 
-  // ドライバー列はAPIが A/B/C… のアルファベット表記で返す。
-  // inDriver: pit#1 は StartDriverTable から、pit#2 以降は前回の outDriver をサーバー側で算出。
   rows.forEach((entry) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${entry.pitNum}</td>
-      <td>${entry.carNum}</td>
-      <td>${entry.manager}</td>
-      <td>${formatBoolean(entry.retire)}</td>
-      <td>${entry.inDriver  || "-"}</td>
-      <td>${entry.outDriver || "-"}</td>
-      <td>${formatDatetime(entry.inTime)}</td>
-      <td>${formatDatetime(entry.outTime)}</td>
-      <td>${formatGap(entry.pitGap)}</td>
-      <td>${entry.className}</td>
-      <td>${entry.teamName}</td>
-      <td>${entry.note || ""}</td>
-    `;
+    for (const col of PIT_LOG_COLUMNS) {
+      const td = document.createElement("td");
+      td.textContent = col.value(entry);
+      tr.appendChild(td);
+    }
     tableBody.appendChild(tr);
   });
 }

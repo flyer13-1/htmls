@@ -1,9 +1,10 @@
 // DOM宣言
-const excelButton = document.getElementById("excle");
-const pdfButton   = document.getElementById("pdf");
+const csvButton = document.getElementById("csv");
+const pdfButton = document.getElementById("pdf");
 
 // グローバル変数（showAllGimic.js の renderTable / filterAndSortEntries が参照する）
 let entries = [];
+let raceTitle = "";
 
 // ── API取得 ──
 async function loadEntries() {
@@ -11,43 +12,20 @@ async function loadEntries() {
   if (!auth) return;
 
   try {
-    const response = await fetch(
-      `${API}/entries/show?race_id=${encodeURIComponent(auth.raceId)}&act=1`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.token}`,
-        },
+    const response = await fetch(`${API}/entries/show?act=1`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Race-Id": auth.raceToken,
+        Authorization: `Bearer ${auth.token}`,
       },
-    );
+    });
     const data = await response.json();
 
     if (handleApiError(response, data)) return;
 
-    entries = Object.keys(data)
-      .filter((key) => key !== "msg")
-      .map((key) => {
-        const value = data[key];
-        return {
-          managerId:    value.managerId,
-          manager:      value.manager,
-          pitNum:       value.pitNum,
-          carNum:       value.carNum,
-          className:    value.className,
-          teamName:     value.teamName,
-          retire:       value.retire,
-          inDriver:     value.inDriver,
-          outDriver:    value.outDriver,
-          inTime:       value.inTime,
-          outTime:      value.outTime,
-          garageInTime: value.garageInTime,
-          pitGap:       value.pitGap,
-          tire:         value.tire,
-          oil:          value.oil,
-          note:         value.note,
-        };
-      });
+    entries = data.logs || [];
+    raceTitle = data.raceTitle || "";
 
     renderTable(); // showAllGimic.js が提供
   } catch (err) {
@@ -56,69 +34,37 @@ async function loadEntries() {
   }
 }
 
-// ── Excel 出力（SpreadsheetML / .xls）──
-function exportExcel() {
-  if (entries.length === 0) {
+// ── CSV 出力（設計 04章§5）。画面で絞り込み・並べ替えた状態をそのまま出す ──
+function csvEscape(value) {
+  const text = String(value ?? "");
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function safeFileName(text) {
+  return text.replace(/[\\/:*?"<>|]/g, "_");
+}
+
+function exportCsv() {
+  const rows = filterAndSortEntries(); // showAllGimic.js が提供
+  if (rows.length === 0) {
     alert("出力するデータがありません。");
     return;
   }
 
-  const cols = [
-    { key: "pitNum",    label: "ピット番号",       type: "Number" },
-    { key: "carNum",    label: "ゼッケン番号",     type: "Number" },
-    { key: "manager",   label: "担当者",           type: "String" },
-    { key: "retire",    label: "リタイア",         type: "String", fmt: (v) => (v ? "はい" : "いいえ") },
-    { key: "inDriver",  label: "インドライバー",   type: "String", fmt: (v) => v || "" },
-    { key: "outDriver", label: "アウトドライバー", type: "String", fmt: (v) => v || "" },
-    { key: "inTime",    label: "ピットイン",       type: "String", fmt: formatDatetime },
-    { key: "outTime",   label: "ピットアウト",     type: "String", fmt: formatDatetime },
-    { key: "pitGap",    label: "ピットGAP",        type: "String", fmt: formatGap },
-    { key: "className", label: "クラス名",         type: "String" },
-    { key: "teamName",  label: "チーム名",         type: "String" },
-    { key: "note",      label: "備考",             type: "String", fmt: (v) => v || "" },
-  ];
+  const lines = [PIT_LOG_COLUMNS.map((col) => csvEscape(col.label)).join(",")];
+  for (const row of rows) {
+    lines.push(PIT_LOG_COLUMNS.map((col) => csvEscape(col.value(row))).join(","));
+  }
+  const csv = "﻿" + lines.join("\r\n"); // BOM: Excel で日本語が文字化けしないように
 
-  const esc = (s) =>
-    String(s === null || s === undefined ? "" : s)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const ymd = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
 
-  const headerRow =
-    "<Row>" +
-    cols.map((c) => `<Cell ss:StyleID="h"><Data ss:Type="String">${esc(c.label)}</Data></Cell>`).join("") +
-    "</Row>";
-
-  const dataRows = filterAndSortEntries() // showAllGimic.js が提供（フィルターなし・全件）
-    .map((e) => {
-      const cells = cols.map((c) => {
-        const val = c.fmt ? c.fmt(e[c.key]) : e[c.key];
-        return `<Cell><Data ss:Type="${c.type}">${esc(val)}</Data></Cell>`;
-      });
-      return `<Row>${cells.join("")}</Row>`;
-    })
-    .join("\n");
-
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
- <Styles>
-  <Style ss:ID="h"><Font ss:Bold="1"/></Style>
- </Styles>
- <Worksheet ss:Name="ピット情報">
-  <Table>
-   ${headerRow}
-   ${dataRows}
-  </Table>
- </Worksheet>
-</Workbook>`;
-
-  const blob = new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" });
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `pit-log-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}.xls`;
+  a.download = `pit-log-${safeFileName(raceTitle)}-${ymd}.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -133,7 +79,7 @@ function exportPdf() {
 }
 
 // ── イベント ──
-excelButton.addEventListener("click", exportExcel);
+csvButton.addEventListener("click", exportCsv);
 pdfButton.addEventListener("click", exportPdf);
 
 loadEntries();

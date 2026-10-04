@@ -2,15 +2,15 @@
 const carNumSection = document.getElementById("carNum");
 
 async function getCarNumber(cnt = 3) {
-  const auth = requireAuth(true); // token + raceId 必須
+  const auth = requireAuth(true); // token + raceToken 必須
   if (!auth) return null;
   try {
-    // サーバから車両番号リストを取得（race_id 内の担当車両）
+    // サーバから車両番号リストを取得（担当エリアの車両）
     const response = await fetch(
-      `${API}/entries/init?race_id=${encodeURIComponent(auth.raceId)}`,
+      `${API}/entries/init`,
       {
         method: "GET",
-        headers: { Authorization: `Bearer ${auth.token}` },
+        headers: { "X-Race-Id": auth.raceToken, Authorization: `Bearer ${auth.token}` },
       },
     );
     const data = await response.json();
@@ -39,10 +39,11 @@ async function getCarNumber(cnt = 3) {
   }
 }
 
-let carNumbers = await getCarNumber();
-if (!carNumbers) return; // 認証切れ/取得失敗時（requireAuth が遷移済み）
+async function initCarNumbers() {
+  const carNumbers = await getCarNumber();
+  if (!carNumbers) return; // 認証切れ/取得失敗時（requireAuth が遷移済み）
 
-carNumbers.forEach((num) => {
+  carNumbers.forEach((num) => {
   //ラベルを作成
   const label = document.createElement("label");
   label.textContent = num;
@@ -59,7 +60,10 @@ carNumbers.forEach((num) => {
   carNumSection.appendChild(label);
 
   console.log("車両オブジェクト初期化完了:");
-});
+  });
+}
+
+initCarNumbers();
 
 const car = document.getElementById("carNum");
 car.addEventListener("click", () => {});
@@ -122,15 +126,16 @@ handForm.addEventListener("submit", async (e) => {
 
   try {
     const res = await fetch(
-      `${API}/entries/hand?race_id=${encodeURIComponent(auth.raceId)}`,
+      `${API}/entries/hand`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Race-Id": auth.raceToken,
           Authorization: `Bearer ${auth.token}`,
         },
         body: JSON.stringify({
-          [carNum]: { inTime, outTime, garageInTime: null, outDriver, tire, oil, note },
+          [carNum]: { inTime, outTime, outDriver, tire, oil, note },
         }),
       },
     );
