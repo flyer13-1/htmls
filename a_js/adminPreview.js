@@ -14,6 +14,15 @@ function showInputArea() {
   document.getElementById("csvArea").hidden = currentMethod !== "csv";
 }
 
+// 必須項目が空・数値になっていない（NaN）行は false
+function isRowComplete(schema, row) {
+  return schema.fields.every((f) => {
+    if (!f.required) return true;
+    const val = row[f.key];
+    return val !== null && val !== undefined && val !== "" && !Number.isNaN(val);
+  });
+}
+
 function stagedTotal() {
   return SUBMIT_ORDER.reduce((sum, name) => sum + stagingByTable[name].length, 0);
 }
@@ -49,6 +58,7 @@ function showPreview() {
     const tbody = document.createElement("tbody");
     rows.forEach((row) => {
       const tr = document.createElement("tr");
+      if (!isRowComplete(schema, row)) tr.className = "row-invalid";
       schema.fields.forEach((f) => {
         const td = document.createElement("td");
         td.textContent = row[f.key] ?? "";
@@ -72,6 +82,15 @@ async function submitAllStaged() {
   if (isSubmitting) return;
   if (!selectedRace) {
     alert("レースを選択してください");
+    return;
+  }
+
+  const hasInvalid = SUBMIT_ORDER.some((name) =>
+    stagingByTable[name].some((row) => !isRowComplete(TABLE_SCHEMAS[name], row))
+  );
+  if (hasInvalid) {
+    showPreview();
+    alert("必須項目が空の行があります（赤く表示された行を修正してください）");
     return;
   }
 

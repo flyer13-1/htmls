@@ -5,6 +5,8 @@
 let editRace = null; // 変更対象のレース（{ raceId, title, finishDate, ... }）
 let editData = null; // GET /admin/race/data の結果
 const editingRows = {}; // テーブル名 → 変更中の行
+const editingHolders = {}; // テーブル名 → 編集フォームを載せている行（tr）
+const editorHomes = {}; // テーブル名 → 編集フォームの元の置き場所
 
 const DRIVER_KEYS = ["driverA", "driverB", "driverC", "driverD", "driverE", "driverF"];
 
@@ -58,7 +60,7 @@ const EDIT_TABLES = {
       { label: "担当エリア", text: (r) => r.maintenanceArea },
     ],
     fields: [
-      { key: "username", label: "担当者名", type: "text", required: true, list: "userList" },
+      { key: "username", label: "担当者名", type: "text", required: true },
       { key: "maintenanceArea", label: "担当エリア(例 5-10)", type: "text", required: true },
     ],
     rowTitle: (r) => `${r.username}（${r.maintenanceArea}）`,
@@ -125,20 +127,10 @@ async function loadEditData() {
   if (handleApiError(res, data)) return;
 
   editData = data;
-  renderUserList();
+  renderUsernameList("userList", "editUserCircuit", "pitAssignmentFields");
   for (const name of Object.keys(EDIT_TABLES)) {
-    renderEditTable(name);
     closeRowEditor(name);
-  }
-}
-
-function renderUserList() {
-  const list = document.getElementById("userList");
-  list.innerHTML = "";
-  for (const u of editData.users || []) {
-    const opt = document.createElement("option");
-    opt.value = u.username;
-    list.appendChild(opt);
+    renderEditTable(name);
   }
 }
 
@@ -164,7 +156,7 @@ function renderEditTable(name) {
     ops.className = "ops";
     const editBtn = document.createElement("button");
     editBtn.textContent = "変更";
-    editBtn.addEventListener("click", () => openRowEditor(name, row));
+    editBtn.addEventListener("click", () => openRowEditor(name, row, tr));
     const delBtn = document.createElement("button");
     delBtn.textContent = "削除";
     delBtn.className = "danger";
@@ -176,7 +168,8 @@ function renderEditTable(name) {
   }
 }
 
-function openRowEditor(name, row) {
+function openRowEditor(name, row, tr) {
+  closeRowEditor(name);
   const def = EDIT_TABLES[name];
   editingRows[name] = row;
   document.getElementById(`${name}EditorTitle`).textContent = `${def.label}を変更: ${def.rowTitle(row)}`;
@@ -192,17 +185,28 @@ function openRowEditor(name, row) {
     input.type = f.type === "number" ? "number" : "text";
     input.dataset.key = f.key;
     input.value = row[f.key] ?? "";
-    if (f.list) input.setAttribute("list", f.list);
     wrap.append(label, input);
     fields.appendChild(wrap);
   }
 
-  document.getElementById(`${name}Editor`).hidden = false;
+  const editor = document.getElementById(`${name}Editor`);
+  const holder = document.createElement("tr");
+  const cell = document.createElement("td");
+  cell.colSpan = def.columns.length + 1;
+  cell.appendChild(editor);
+  holder.appendChild(cell);
+  tr.after(holder);
+  editingHolders[name] = holder;
+  editor.hidden = false;
 }
 
 function closeRowEditor(name) {
   editingRows[name] = null;
-  document.getElementById(`${name}Editor`).hidden = true;
+  const editor = document.getElementById(`${name}Editor`);
+  editor.hidden = true;
+  editorHomes[name].appendChild(editor);
+  editingHolders[name]?.remove();
+  editingHolders[name] = null;
 }
 
 async function saveRow(name, form) {
@@ -275,8 +279,10 @@ async function onSaveRaceEdit(event) {
 function initEdit() {
   document.getElementById("raceEditForm").addEventListener("submit", onSaveRaceEdit);
   document.getElementById("backToListBtn").addEventListener("click", closeEdit);
+  buildCircuitRadios("editCircuitRadios", "editUserCircuit", () => renderUsernameList("userList", "editUserCircuit", "pitAssignmentFields"));
 
   for (const name of Object.keys(EDIT_TABLES)) {
+    editorHomes[name] = document.getElementById(`${name}Editor`).parentElement;
     document.getElementById(`${name}EditorForm`).addEventListener("submit", (e) => {
       e.preventDefault();
       saveRow(name, e.target);

@@ -6,6 +6,7 @@ let authToken = null;
 let myCircuit = null; // 自分の所属サーキット（担当者候補の初期選択に使う）
 let races = []; // GET /admin/race の結果をキャッシュ（選択状態の再描画に使う）
 let selectedRace = null; // { raceId, title, finishDate, status, todayId }
+const revealedTodayIds = new Set(); // 大会IDを「表示」中のレース（「隠す」を押すまで保持）
 
 document.addEventListener("DOMContentLoaded", () => {
   const auth = requireCircuitAuth();
@@ -54,6 +55,8 @@ async function loadRaces() {
   const data = await res.json();
   if (handleApiError(res, data)) return;
   races = data.races || [];
+  regUsers = data.users || [];
+  renderUsernameList("usernameList", "userCircuit", "manualForm"); // adminOther.js
   renderRaces();
 }
 
@@ -80,6 +83,7 @@ function renderRaces() {
       .filter(Boolean)
       .join(" ");
 
+    tr.dataset.raceId = r.raceId;
     tr.appendChild(tdText(r.title));
     tr.appendChild(todayIdCell(r, finished));
     tr.appendChild(tdText(r.finishDate));
@@ -117,10 +121,14 @@ function todayIdCell(r, finished) {
   btn.type = "button";
   btn.className = "ghost-btn";
   btn.textContent = "表示";
-  let shown = false;
+  let shown = revealedTodayIds.has(r.raceId);
+  span.textContent = shown ? r.todayId : "••••••••";
+  btn.textContent = shown ? "隠す" : "表示";
   btn.addEventListener("click", (e) => {
     e.stopPropagation(); // 行クリック（選択）に伝播させない
     shown = !shown;
+    if (shown) revealedTodayIds.add(r.raceId);
+    else revealedTodayIds.delete(r.raceId);
     span.textContent = shown ? r.todayId : "••••••••";
     btn.textContent = shown ? "隠す" : "表示";
   });
@@ -154,9 +162,16 @@ function opsCell(r, finished) {
 }
 
 // レース選択 → データ登録カードを出す（03章§1.1 ステップ1）
+// 行を作り直さず選択の見た目だけ切り替える（表示中の大会IDや文字の選択を消さないため）
+function markSelectedRace() {
+  document.querySelectorAll("#raceTbody tr").forEach((tr) => {
+    tr.classList.toggle("selected", tr.dataset.raceId === selectedRace?.raceId);
+  });
+}
+
 function selectRace(r) {
   selectedRace = r;
-  renderRaces();
+  markSelectedRace();
   showDataRegCard();
 }
 
@@ -169,12 +184,10 @@ function showDataRegCard() {
   document.getElementById("dataRegBody").hidden = finished;
 
   if (!finished) {
-    regUsers = []; // adminOther.js
     resetStaging(); // adminOther.js
     buildManualForm();
     buildStagingTable();
     showInputArea(); // adminPreview.js
-    loadRegUsers(); // adminOther.js
   }
 }
 

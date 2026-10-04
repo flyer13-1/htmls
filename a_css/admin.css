@@ -265,6 +265,28 @@ td.ops button {
   overflow-x: auto;
 }
 
+/* 担当者の候補表: 5人ぶんの高さで縦スクロール */
+.user-scroll {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.user-scroll thead th {
+  position: sticky;
+  top: 0;
+}
+
+/* 変更articleの「スタートドライバー」と「担当ピット」を横並び（各45%） */
+.edit-pair {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.edit-pair > .card {
+  width: 45%;
+}
+
 .reg-note {
   font-size: 0.82rem;
   color: #666;
@@ -388,6 +410,19 @@ button.secondary {
 
 .edit-head h3 {
   margin: 0;
+}
+
+.user-row {
+  cursor: pointer;
+}
+
+.user-row:hover td {
+  background: #f5f8ff;
+}
+
+.row-invalid td {
+  background: #fdeceb;
+  color: #b3261e;
 }
 
 .row-editor {

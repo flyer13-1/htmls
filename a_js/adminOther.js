@@ -37,7 +37,7 @@ const TABLE_SCHEMAS = {
     api: `${API}/admin/pit-assignment/bulk`,
     bodyKey: "assignments",
     fields: [
-      { key: "username", label: "担当者名", type: "text", required: true, list: "usernameList" },
+      { key: "username", label: "担当者名", type: "text", required: true },
       { key: "maintenanceArea", label: "担当エリア(例 5-10)", type: "text", required: true },
     ],
   },
@@ -46,7 +46,7 @@ const TABLE_SCHEMAS = {
 // テーブルごとに貯めた行（プレビュー前）。登録は SUBMIT_ORDER の順に送る
 const stagingByTable = { entry: [], startDriver: [], pitAssignment: [] };
 let currentMethod = "manual"; // "manual" | "csv"
-let regUsers = []; // 対象レースの登録ユーザー（GET /admin/race/data の users）
+let regUsers = []; // 登録ユーザー（GET /admin/race の users）
 
 function currentTableName() {
   return document.querySelector("input[name='tableTarget']:checked")?.value || "entry";
@@ -69,7 +69,7 @@ function resetStaging() {
 function buildManualForm() {
   const schema = getSchema();
   document.getElementById("circuitSelect").hidden = currentTableName() !== "pitAssignment";
-  renderUsernameList();
+  renderUsernameList("usernameList", "userCircuit", "manualForm");
   const form = document.getElementById("manualForm");
   form.innerHTML = "";
   schema.fields.forEach((f) => {
@@ -81,7 +81,6 @@ function buildManualForm() {
     input.type = f.type === "number" ? "number" : "text";
     input.dataset.key = f.key;
     input.placeholder = f.label;
-    if (f.list) input.setAttribute("list", f.list);
     wrap.append(label, input);
     form.appendChild(wrap);
   });
@@ -121,43 +120,52 @@ function buildStagingTable() {
 }
 
 // 担当者のサーキット選択。サーキットの数だけラジオを作る（CIRCUIT_NAMES の先頭 null は除く）
-function buildCircuitRadios() {
-  const wrap = document.getElementById("circuitRadios");
+function buildCircuitRadios(containerId, groupName, onChange) {
+  const wrap = document.getElementById(containerId);
   CIRCUIT_NAMES.forEach((name, id) => {
     if (!name) return;
     const label = document.createElement("label");
     const radio = document.createElement("input");
     radio.type = "radio";
-    radio.name = "userCircuit";
+    radio.name = groupName;
     radio.value = id;
     radio.checked = id === myCircuit;
-    radio.addEventListener("change", renderUsernameList);
+    radio.addEventListener("change", onChange);
     label.append(radio, ` ${name}`);
     wrap.appendChild(label);
   });
 }
 
-function renderUsernameList() {
-  const list = document.getElementById("usernameList");
-  const circuit = Number(document.querySelector("input[name='userCircuit']:checked")?.value);
-  list.innerHTML = "";
+// 選んだサーキットの登録者を表にする。行をクリックすると fieldsId 内の担当者名欄に入る
+function renderUsernameList(listId, groupName, fieldsId) {
+  const wrap = document.getElementById(listId);
+  const circuit = Number(document.querySelector(`input[name='${groupName}']:checked`)?.value);
+  wrap.innerHTML = "";
+
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headTr = document.createElement("tr");
+  const th = document.createElement("th");
+  th.textContent = "担当者名（クリックで入力）";
+  headTr.appendChild(th);
+  thead.appendChild(headTr);
+
+  const tbody = document.createElement("tbody");
   for (const u of regUsers) {
     if (Number(u.organizationId) !== circuit) continue;
-    const opt = document.createElement("option");
-    opt.value = u.username;
-    list.appendChild(opt);
+    const tr = document.createElement("tr");
+    tr.className = "user-row";
+    const td = document.createElement("td");
+    td.textContent = u.username;
+    tr.appendChild(td);
+    tr.addEventListener("click", () => {
+      const input = document.querySelector(`#${fieldsId} input[data-key='username']`);
+      if (input) input.value = u.username;
+    });
+    tbody.appendChild(tr);
   }
-}
-
-// 対象レースの登録ユーザーを取得する（GET /admin/race/data の users）
-async function loadRegUsers() {
-  const raceId = selectedRace.raceId;
-  const res = await fetch(`${API}/admin/race/data`, { headers: authHeaders(false, raceId) });
-  const data = await res.json();
-  if (handleApiError(res, data)) return;
-  if (selectedRace?.raceId !== raceId) return;
-  regUsers = data.users || [];
-  renderUsernameList();
+  table.append(thead, tbody);
+  wrap.appendChild(table);
 }
 
 function parseCSV(text) {
@@ -177,7 +185,7 @@ function parseCSV(text) {
 // 登録先テーブル・入力方法・手入力・CSV の操作を初期化する（adminRace.js の DOMContentLoaded から呼ぶ）
 function initDataReg() {
   // テーブル選択変更: 貯めた行は残したまま、フォームと一覧だけ切り替える
-  buildCircuitRadios();
+  buildCircuitRadios("circuitRadios", "userCircuit", () => renderUsernameList("usernameList", "userCircuit", "manualForm"));
   document.querySelectorAll("input[name='tableTarget']").forEach((radio) => {
     radio.addEventListener("change", () => {
       buildManualForm();
@@ -249,7 +257,7 @@ function initDataReg() {
         alert("データが見つかりません");
         return;
       }
-      currentStaging().push(...rows);
+      stagingByTable[currentTableName()] = rows;
       buildStagingTable();
       showPreview(); // adminPreview.js
     };

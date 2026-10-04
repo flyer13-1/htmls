@@ -130,11 +130,11 @@
               <div class="reg-field">
                 <span class="reg-label">担当者のサーキット</span>
                 <div id="circuitRadios" class="table-select"></div>
-                <p class="reg-note">担当者名の候補をこのサーキットの登録者で絞り込みます</p>
+                <p class="reg-note">担当者名の候補をこのサーキットの登録者で絞り込みます（行をクリックで入力）</p>
+                <div id="usernameList" class="user-scroll"></div>
               </div>
             </div>
-            <datalist id="usernameList"></datalist>
-
+            
             <div class="method-tabs">
               <button
                 type="button"
@@ -204,8 +204,7 @@
           </form>
         </section>
 
-        <datalist id="userList"></datalist>
-
+        
         <section class="card">
           <h3>エントリー（<span id="entryCount">0</span>件）</h3>
           <div class="table-scroll">
@@ -228,6 +227,7 @@
           </div>
         </section>
 
+        <div class="edit-pair">
         <section class="card">
           <h3>スタートドライバー（<span id="startDriverCount">0</span>件）</h3>
           <div class="table-scroll">
@@ -265,6 +265,11 @@
           <div id="pitAssignmentEditor" class="row-editor" hidden>
             <p class="staging-label" id="pitAssignmentEditorTitle"></p>
             <form id="pitAssignmentEditorForm" class="row-form">
+              <div class="reg-field">
+                <span class="reg-label">担当者のサーキット</span>
+                <div id="editCircuitRadios" class="table-select"></div>
+                <div id="userList" class="user-scroll"></div>
+              </div>
               <div id="pitAssignmentFields" class="manual-form"></div>
               <div class="manual-actions">
                 <button
@@ -279,6 +284,7 @@
             </form>
           </div>
         </section>
+        </div>
       </article>
 
       <!-- プレビュー（03章§1.1 ステップ4〜5） -->
