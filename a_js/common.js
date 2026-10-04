@@ -23,6 +23,19 @@ const cognitoPool =
 // ログイン前に開いてよいページ（bfcache 復元チェックの対象外）
 const PUBLIC_PAGES = ["index.html", "regist.html", "forgetPass.html"];
 
+// サーキット番号(1〜7) → 名称。conform.js と admin.js で共用する
+// （doc/aws-sam/admin/v2/02_race.md §6）。organizations.circuit の並びに合わせる。
+const CIRCUIT_NAMES = [
+  null,
+  "富士",
+  "茂木",
+  "菅生",
+  "鈴鹿",
+  "岡山国際",
+  "その他",
+  "無所属",
+];
+
 // 認証情報を全部消す
 function clearAuth() {
   // sessionStorage は全消し（token / raceToken / circuit ...）
@@ -71,6 +84,20 @@ function requireAuth(needRaceToken = false) {
     return null;
   }
   return { token, raceToken };
+}
+
+// 管理者画面用の認証ガード：token と circuit の両方が無ければ conform.html へ戻す
+// （doc/aws-sam/admin/v2/01_permission.md §3「フロント: admin」）。
+// leader かどうかの判定は各APIの403に任せる（ここでは見た目の出し分けだけ）。
+function requireCircuitAuth() {
+  const token = sessionStorage.getItem("token");
+  const circuit = sessionStorage.getItem("circuit");
+
+  if (!token || !circuit) {
+    window.location.replace("./conform.html");
+    return null;
+  }
+  return { token, circuit };
 }
 
 //成功時のメッセ表示

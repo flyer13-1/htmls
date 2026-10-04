@@ -6,7 +6,10 @@
     <link rel="stylesheet" href="a_css/admin.css" />
     <link rel="stylesheet" href="a_css/common.css" />
     <script defer src="a_js/common.js"></script>
-    <script defer src="a_js/admin.js"></script>
+    <script defer src="a_js/adminRace.js"></script>
+    <script defer src="a_js/adminOther.js"></script>
+    <script defer src="a_js/adminPreview.js"></script>
+    <script defer src="a_js/adminEdit.js"></script>
     <title>管理者画面</title>
   </head>
   <body>
@@ -17,156 +20,283 @@
     </header>
 
     <main>
-      <!-- 新規レース追加 -->
-      <section class="card">
-        <h3>新規レース追加</h3>
-        <form id="raceForm" class="race-form">
-          <div class="field">
-            <label for="title">レースタイトル*</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              required
-              placeholder="例: 2026 AUTOBACS SUPER GT Round4 FUJI GT 300km RACE"
-            />
-          </div>
-
-          <div class="field">
-            <label for="raceId">大会ID*</label>
-            <input
-              type="text"
-              id="raceId"
-              name="raceId"
-              required
-              pattern="[A-Za-z0-9_-]+"
-              title="半角英数字・ハイフン・アンダースコア"
-              placeholder="例: r4_x7Qp2mK9zL3vN8w"
-            />
-          </div>
-
-          <p class="note">
-            レースタイトルは各大会の正式名称を入力してください。<br />
-            大会IDはタイトルから自動生成されます。手動で設定する場合は
-            <span style="color: red; font-weight: bold"
-              >15文字以上の半角英数字・ハイフン・アンダースコアのみ</span
-            >使用可能です。
-          </p>
-          <button type="submit">登録</button>
-        </form>
-      </section>
-
-      <!-- レース一覧 -->
-      <section class="card">
-        <h3>登録済みレース</h3>
-        <input type="text" id="searchRace" placeholder="レースタイトルで検索" />
-
-        <table id="raceTable">
-          <thead>
-            <tr>
-              <th>タイトル</th>
-              <th>大会ID</th>
-              <th>登録</th>
-              <th>変更・削除</th>
-            </tr>
-          </thead>
-          <tbody id="raceTbody"></tbody>
-        </table>
-      </section>
-
-      <!-- データ登録 -->
-      <section class="card">
-        <h3>データ登録</h3>
-
-        <div class="reg-field">
-          <label for="regRaceId">大会ID *</label>
-          <input
-            type="text"
-            id="regRaceId"
-            placeholder="例: r4_x7Qp2mK9zL3vN8w"
-          />
-        </div>
-
-        <div class="reg-field">
-          <span class="reg-label">登録先テーブル</span>
-          <div class="table-select">
-            <label
-              ><input type="radio" name="tableTarget" value="entry" checked />
-              エントリー</label
-            >
-            <label
-              ><input type="radio" name="tableTarget" value="startDriver" />
-              スタートドライバー</label
-            >
-            <label
-              ><input type="radio" name="tableTarget" value="pitAssignment" />
-              担当ピット</label
-            >
-          </div>
-        </div>
-
-        <div class="method-tabs">
-          <button type="button" class="method-tab active" data-method="manual">
-            手入力
-          </button>
-          <button type="button" class="method-tab" data-method="csv">
-            CSV
-          </button>
-          <button type="button" class="method-tab" data-method="pdf" disabled>
-            PDF（実装予定）
-          </button>
-        </div>
-
-        <!-- 手入力エリア -->
-        <div id="manualArea" class="input-area">
-          <div id="manualForm" class="manual-form"></div>
-          <div class="manual-actions">
-            <button type="button" id="addRowBtn">＋ 追加</button>
-            <button type="button" id="manualPreviewBtn">
-              プレビュー確認 →
-            </button>
-          </div>
-          <div id="stagingWrap" style="display: none">
-            <p class="staging-label">
-              追加済み（<span id="stagingCount">0</span>件）
-            </p>
-            <div class="table-scroll">
-              <table>
-                <thead id="stagingHead"></thead>
-                <tbody id="stagingBody"></tbody>
-              </table>
+      <article id="main">
+        <!-- 新規レース登録（02章§2.1。raceId/todayIdの入力欄は置かない） -->
+        <section class="card">
+          <h3>新規レース登録</h3>
+          <form id="raceCreateForm" class="race-form">
+            <div class="field">
+              <label for="createTitle">レースタイトル *</label>
+              <input
+                type="text"
+                id="createTitle"
+                required
+                maxlength="200"
+                placeholder="例: 2026 AUTOBACS SUPER GT Round4 FUJI GT 300km RACE"
+              />
             </div>
-          </div>
-        </div>
+            <div class="field">
+              <label for="createFinishDate">終了日 *</label>
+              <input type="date" id="createFinishDate" required />
+            </div>
+            <div class="field">
+              <label>サーキット</label>
+              <span id="raceCreateCircuit"></span>
+            </div>
+            <p class="note">
+              大会IDは登録後にこの画面で1回だけ表示されます。以後は一覧の「表示」から確認してください。
+            </p>
+            <button type="submit">登録</button>
+          </form>
+        </section>
 
-        <!-- CSVエリア -->
-        <div id="csvArea" class="input-area" style="display: none">
-          <button type="button" id="csvSelectBtn">CSVファイルを選択</button>
-          <input type="file" id="csvFile" accept=".csv" style="display: none" />
-          <p class="reg-note">
-            1行目はヘッダー行として読み飛ばします。列順はスキーマ順に合わせてください。
+        <!-- 登録完了: 大会ID表示（02章§2.1 ステップ2） -->
+        <section class="card" id="raceCreatedCard" hidden>
+          <h3>登録しました</h3>
+          <p>
+            大会ID（当日配布用）:
+            <strong id="createdTodayId"></strong>
+            <button type="button" id="copyTodayIdBtn" class="ghost-btn">
+              コピー
+            </button>
           </p>
-        </div>
+          <button type="button" id="closeCreatedBtn" class="secondary">
+            閉じる
+          </button>
+        </section>
 
-        <!-- プレビューエリア -->
-        <div id="previewSection" style="display: none">
-          <h4 class="preview-title">
-            プレビュー（<span id="previewCount">0</span>件）
-          </h4>
+        <!-- レース一覧（02章§3。クリックで選択） -->
+        <section class="card">
+          <h3>登録済みレース</h3>
           <div class="table-scroll">
-            <table>
-              <thead id="previewHead"></thead>
-              <tbody id="previewBody"></tbody>
+            <table id="raceTable">
+              <thead>
+                <tr>
+                  <th>タイトル</th>
+                  <th>大会ID</th>
+                  <th>終了日</th>
+                  <th>状態</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="raceTbody"></tbody>
             </table>
           </div>
+          <p id="raceEmpty" hidden>登録されているレースがありません</p>
+        </section>
+
+        <!-- データ登録（03章§1.1。entry → start_driver → pit_assignment の順を推奨） -->
+        <section class="card" id="dataRegCard">
+          <h3>データ登録</h3>
+          <p>対象レース: <strong id="selectedRaceTitle"></strong></p>
+
+          <p id="dataRegFinishedNotice" class="finished-notice" hidden>
+            このレースは終了しています。entry / start_driver / pit_assignment
+            の新規登録はできません（01章 R7）。
+          </p>
+
+          <div id="dataRegBody">
+            <div class="reg-field">
+              <span class="reg-label">登録先テーブル</span>
+              <div class="table-select">
+                <label
+                  ><input
+                    type="radio"
+                    name="tableTarget"
+                    value="entry"
+                    checked
+                  />
+                  エントリー</label
+                >
+                <label
+                  ><input type="radio" name="tableTarget" value="startDriver" />
+                  スタートドライバー</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="tableTarget"
+                    value="pitAssignment"
+                  />
+                  担当ピット</label
+                >
+              </div>
+              <p class="reg-note">
+                推奨順序: エントリー → スタートドライバー → 担当ピット
+              </p>
+            </div>
+
+            <div id="circuitSelect" hidden>
+              <div class="reg-field">
+                <span class="reg-label">担当者のサーキット</span>
+                <div id="circuitRadios" class="table-select"></div>
+                <p class="reg-note">担当者名の候補をこのサーキットの登録者で絞り込みます</p>
+              </div>
+            </div>
+            <datalist id="usernameList"></datalist>
+
+            <div class="method-tabs">
+              <button
+                type="button"
+                class="method-tab active"
+                data-method="manual"
+              >
+                手入力
+              </button>
+              <button type="button" class="method-tab" data-method="csv">
+                CSV
+              </button>
+            </div>
+
+            <!-- 手入力エリア -->
+            <div id="manualArea" class="input-area">
+              <div id="manualForm" class="manual-form"></div>
+              <div class="manual-actions">
+                <button type="button" id="addRowBtn">＋ 追加</button>
+                <button type="button" id="manualPreviewBtn">
+                  プレビュー確認 →
+                </button>
+              </div>
+              <div id="stagingWrap" hidden>
+                <p class="staging-label">
+                  追加済み（<span id="stagingCount">0</span>件）
+                </p>
+                <div class="table-scroll">
+                  <table>
+                    <thead id="stagingHead"></thead>
+                    <tbody id="stagingBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- CSVエリア -->
+            <div id="csvArea" class="input-area" hidden>
+              <button type="button" id="csvSelectBtn">CSVファイルを選択</button>
+              <input type="file" id="csvFile" accept=".csv" hidden />
+              <p class="reg-note">
+                1行目はヘッダー行として読み飛ばします。列順はスキーマ順に合わせてください。
+              </p>
+            </div>
+          </div>
+        </section>
+      </article>
+
+      <!-- レース変更（02章§4.2）とentry / start_driver / pit_assignment の一覧・変更・削除（03章§2〜§4） -->
+      <article id="edit" hidden>
+        <section class="card">
+          <div class="edit-head">
+            <h3>レース変更: <span id="editRaceTitle"></span></h3>
+            <button type="button" id="backToListBtn" class="secondary">
+              ← 一覧へ戻る
+            </button>
+          </div>
+          <form id="raceEditForm" class="race-form">
+            <div class="field">
+              <label for="editTitle">レースタイトル *</label>
+              <input type="text" id="editTitle" required maxlength="200" />
+            </div>
+            <div class="field">
+              <label for="editFinishDate">終了日 *</label>
+              <input type="date" id="editFinishDate" required />
+            </div>
+            <button type="submit">レース情報を保存</button>
+          </form>
+        </section>
+
+        <datalist id="userList"></datalist>
+
+        <section class="card">
+          <h3>エントリー（<span id="entryCount">0</span>件）</h3>
+          <div class="table-scroll">
+            <table>
+              <thead id="entryHead"></thead>
+              <tbody id="entryBody"></tbody>
+            </table>
+          </div>
+          <div id="entryEditor" class="row-editor" hidden>
+            <p class="staging-label" id="entryEditorTitle"></p>
+            <form id="entryEditorForm" class="row-form">
+              <div id="entryFields" class="manual-form"></div>
+              <div class="manual-actions">
+                <button type="button" id="entryCancelBtn" class="secondary">
+                  キャンセル
+                </button>
+                <button type="submit">保存する</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>スタートドライバー（<span id="startDriverCount">0</span>件）</h3>
+          <div class="table-scroll">
+            <table>
+              <thead id="startDriverHead"></thead>
+              <tbody id="startDriverBody"></tbody>
+            </table>
+          </div>
+          <div id="startDriverEditor" class="row-editor" hidden>
+            <p class="staging-label" id="startDriverEditorTitle"></p>
+            <form id="startDriverEditorForm" class="row-form">
+              <div id="startDriverFields" class="manual-form"></div>
+              <div class="manual-actions">
+                <button
+                  type="button"
+                  id="startDriverCancelBtn"
+                  class="secondary"
+                >
+                  キャンセル
+                </button>
+                <button type="submit">保存する</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>担当ピット（<span id="pitAssignmentCount">0</span>件）</h3>
+          <div class="table-scroll">
+            <table>
+              <thead id="pitAssignmentHead"></thead>
+              <tbody id="pitAssignmentBody"></tbody>
+            </table>
+          </div>
+          <div id="pitAssignmentEditor" class="row-editor" hidden>
+            <p class="staging-label" id="pitAssignmentEditorTitle"></p>
+            <form id="pitAssignmentEditorForm" class="row-form">
+              <div id="pitAssignmentFields" class="manual-form"></div>
+              <div class="manual-actions">
+                <button
+                  type="button"
+                  id="pitAssignmentCancelBtn"
+                  class="secondary"
+                >
+                  キャンセル
+                </button>
+                <button type="submit">保存する</button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </article>
+
+      <!-- プレビュー（03章§1.1 ステップ4〜5） -->
+      <article id="preview" hidden>
+        <section class="card">
+          <h3 class="preview-title">
+            プレビュー（<span id="previewCount">0</span>件）
+          </h3>
+          <p>対象レース: <strong id="previewRaceTitle"></strong></p>
+          <div id="previewTables"></div>
           <div class="preview-actions">
             <button type="button" id="backToInputBtn" class="secondary">
               ← 戻る
             </button>
             <button type="button" id="submitRegBtn">登録する</button>
           </div>
-        </div>
-      </section>
+        </section>
+      </article>
     </main>
   </body>
 </html>

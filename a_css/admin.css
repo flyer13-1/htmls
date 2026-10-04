@@ -285,3 +285,123 @@ td.ops button {
 button.secondary {
   background: #6b7280;
 }
+
+/* レース一覧: 行クリックで選択（03章§1.1） */
+#raceTbody tr {
+  cursor: pointer;
+}
+
+#raceTbody tr:hover td {
+  background: #f5f8ff;
+}
+
+#raceTbody tr.selected td {
+  background: #eaf0ff;
+  box-shadow: inset 3px 0 0 #2563eb;
+}
+
+#raceTbody tr.finished {
+  color: #888;
+}
+
+#raceTbody tr.finished td {
+  background: #f8f9fa;
+}
+
+/* 状態ピル（開催中 / 終了済み） */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+
+.pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.pill.active {
+  background: #e3f6ec;
+  color: #059669;
+}
+
+.pill.active::before {
+  background: #059669;
+}
+
+.pill.upcoming {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.pill.upcoming::before {
+  background: #4338ca;
+}
+
+.pill.lastDay {
+  background: #fff4e5;
+  color: #b45309;
+}
+
+.pill.lastDay::before {
+  background: #b45309;
+}
+
+.pill.finished {
+  background: #eceef0;
+  color: #888;
+}
+
+.pill.finished::before {
+  background: #888;
+}
+
+/* 大会ID「表示」のような、テーブル内の小さい控えめなボタン */
+.ghost-btn {
+  font-size: 0.78rem;
+  padding: 2px 8px;
+  background: transparent;
+  border: 1px solid #c8cdd3;
+  color: #555;
+}
+
+.ghost-btn:hover {
+  opacity: 1;
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+/* レース変更: 見出しと戻るボタン、行の変更フォーム */
+.edit-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.edit-head h3 {
+  margin: 0;
+}
+
+.row-editor {
+  border-top: 1px solid #e1e4e8;
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+/* 終了済みレースへのデータ登録を塞ぐ通知（01章R7） */
+.finished-notice {
+  background: #fdeceb;
+  border: 1px solid #f3b4ae;
+  color: #b3261e;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+}

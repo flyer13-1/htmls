@@ -8,18 +8,7 @@ const conformBtn = document.getElementById("conformBtn");
 const backBtn = document.getElementById("backBtn");
 const adminBtn = document.getElementById("adminBtn");
 
-// API・成功メッセージ・ログアウト関数 は common.js で宣言済み。
-// サーキット番号に対応するサーキット名の配列（1始まりのため index 0 は null）
-const circuits = [
-  null,
-  "富士",
-  "茂木",
-  "菅生",
-  "鈴鹿",
-  "岡山国際",
-  "その他",
-  "無所属",
-];
+// API・成功メッセージ・ログアウト関数・CIRCUIT_NAMES は common.js で宣言済み。
 
 // プロフィール（GET /user/me）。取得済みなら再取得しない。失敗時は null。
 let profile = null;
@@ -116,7 +105,7 @@ async function prof() {
   document.getElementById("textUser").textContent =
     "利用者ID: " + data.username;
   document.getElementById("textCir").textContent =
-    "所属サーキット: " + circuits[data.circuit];
+    "所属サーキット: " + CIRCUIT_NAMES[data.circuit];
 
   main.style.display = "none";
   conform.style.display = "block";
