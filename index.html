@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="a_css/formPage.css" />
     <script src="https://unpkg.com/amazon-cognito-identity-js@6/dist/amazon-cognito-identity.min.js"></script>
+    <!-- ログインは登録時の強度チェックを行わない。検証は <form> の標準機能
+         （required / type=email / minlength / maxlength）に任せるため
+         passCheck.js は読み込まない（doc/IF/common.md §6）。 -->
     <script defer src="a_js/common.js"></script>
-    <script defer src="a_js/passCheck.js"></script>
     <script defer src="a_js/login.js"></script>
     <title>ログイン画面</title>
   </head>
@@ -39,11 +41,7 @@
               minlength="6"
               maxlength="20"
               required
-              data-passcheck
-              data-errmsg="errMsg"
             />
-            <br />
-            <small id="errMsg"></small>
           </section>
 
           <section>
@@ -55,7 +53,7 @@
         <p>パスワードを忘れた場合は <a href="forgetPass.html">こちら</a></p>
       </article>
 
-      <article id="msgArea">
+      <article id="msgArea" hidden>
         <p>ログインに成功！</p>
       </article>
     </main>

@@ -37,7 +37,7 @@
       </article>
 
       <!-- ステップ2: メールで届いた確認コードと新しいパスワードを入力(コード送信後に表示) -->
-      <article id="codeArea" style="display: none">
+      <article id="codeArea" hidden>
         <p id="resendMsg" style="color: green; font-weight: bold"></p>
 
         <p>
@@ -47,7 +47,14 @@
 
         <section>
           <label for="code">確認コード*:</label>
-          <input id="code" placeholder="確認コードを入力" />
+          <input
+            id="code"
+            placeholder="確認コードを入力"
+            required
+            data-required
+            data-errmsg="codeErrMsg"
+          /><br />
+          <small id="codeErrMsg"></small>
         </section>
 
         <section>
@@ -79,13 +86,15 @@
           <small id="passConfError"></small>
         </section>
 
-        <button type="button" id="submit" disabled onclick="doReset()">
+        <!-- type="button" のためブラウザの標準検証は働かない。確認コード・新パスワード・
+             確認用の3つが揃うまで判定表が無効にしておく（doc/IF/common.md §6） -->
+        <button type="button" id="submit" data-submit disabled onclick="doReset()">
           パスワードを再設定
         </button>
         <button type="button" onclick="doResend()">コードを再送信</button>
       </article>
 
-      <article id="msgArea">
+      <article id="msgArea" hidden>
         <p>パスワード再設定に成功！</p>
       </article>
     </main>

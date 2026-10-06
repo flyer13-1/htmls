@@ -5,12 +5,9 @@ let isConfirmSend = false; // 確認コード検証中かどうかのフラグ
 
 let tmp = {};
 
-// 確認コード入力画面に切り替え
+// 確認コード入力画面に切り替え（showStep は common.js）
 function checkCode() {
-  const formArea = document.getElementById("formArea");
-  const codeArea = document.getElementById("codeArea");
-  formArea.style.display = "none";
-  codeArea.style.display = "block";
+  showStep("codeArea");
 }
 
 // 確認コードの検証
@@ -50,8 +47,7 @@ async function doConfirm() {
       const data = await response.json();
       if (handleApiError(response, data)) return;
 
-      sucsessMsg(); // 成功演出
-      window.location.href = "./index.html"; //ページ遷移
+      finishTo("./index.html"); // 成功表示の後にログイン画面へ（common.js）
     } catch (error) {
       console.error("ユーザー登録エラー:", error);
       alert("通信に失敗しました。もう一度お試しください。");
@@ -135,7 +131,7 @@ formRegist.addEventListener("submit", async (event) => {
     tmp.email = emailValue;
     tmp.circuit = circuitInp;
     tmp.sub = res.userSub;
-    // 確認コード入力画面に切り替え(既存のsucsessMsgとは別の画面遷移が必要)
+    // 確認コード入力画面に切り替え（判定表も codeArea の欄に組み替わる）
     checkCode();
     isSend = false; // 送信フラグをリセット
   });

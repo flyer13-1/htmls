@@ -100,18 +100,106 @@ function requireCircuitAuth() {
   return { token, circuit };
 }
 
-//成功時のメッセ表示
-function sucsessMsg() {
-  const formArea = document.getElementById("formArea");
-  const msg = document.getElementById("msgArea");
-  formArea.style.display = "none";
-  msg.style.display = "block";
+// ───────────────────────────────────────────────────────────────
+// 画面の区画（article）の切り替えと、入力検証の判定表
+// 設計: doc/IF/common.md §5〜§7
+// ───────────────────────────────────────────────────────────────
 
-  setTimeout(() => {
-    msg.style.display = "none";
-    formArea.style.display = "block";
-  }, 500);
+// フォーム画面は <article> を区画として並べ、表示を切り替えて段階を進める。
+// 区画名は画面ごとに違うため、存在するものだけを扱う。
+//   index      : formArea / msgArea
+//   regist     : formArea / codeArea / msgArea
+//   forgetPass : formArea / codeArea / msgArea
+//   conform    : formArea / conform  / msgArea   ← 2番目は codeArea ではない
+const STEP_AREAS = ["formArea", "codeArea", "conform", "msgArea"];
+
+// 今表示している区画。判定表と送信ボタンの対象を決めるのに使う。
+let currentStep = null;
+
+// 入力欄ごとの合否。検証スクリプト（passCheck / passConfirmCheck）が書き込み、
+// refreshSubmit が読む。「通ったら足す」のではなく、区画を開いた時点で全欄を
+// false で登録しておき、入力ごとに上書きする。足す方式だと、一度も触られて
+// いない欄が表に載らず「問題なし」として扱われてしまう。
+const formValidity = new Map();
+
+// 今の区画の中にある送信ボタン。区画ごとにボタンが違うため毎回探す。
+function currentSubmit() {
+  const area = currentStep ? document.getElementById(currentStep) : null;
+  return area ? area.querySelector("[data-submit]") : null;
 }
+
+// 送信ボタンの有効・無効を決める唯一の場所。
+// 登録されている欄が1つでも false なら押させない。
+// 各検証スクリプトはここを通してのみボタンに影響する（直接触らない）。
+function refreshSubmit() {
+  const btn = currentSubmit();
+  if (!btn) return;
+  btn.disabled = ![...formValidity.values()].every(Boolean);
+}
+
+// 検証スクリプトからの合否の書き込み口。
+// 今の区画に属さない欄からの通知は無視する（別区画の入力欄が表を汚さないように）。
+function setValidity(id, ok) {
+  if (!formValidity.has(id)) return;
+  formValidity.set(id, ok);
+  refreshSubmit();
+}
+
+// 区画を開いたときに、その中の検証対象を false で登録し直す。
+function registerStepFields(areaId) {
+  formValidity.clear();
+  const area = document.getElementById(areaId);
+  if (area) {
+    area
+      .querySelectorAll("[data-passcheck], [data-confirms], [data-required]")
+      .forEach((input) => formValidity.set(input.id, false));
+  }
+  refreshSubmit();
+}
+
+// 指定した区画だけを表示し、他は隠す。存在しない区画は無視する。
+// 表示・非表示は hidden 属性に統一する（style.display と CSS の併用をやめた）。
+function showStep(id) {
+  currentStep = id;
+  for (const name of STEP_AREAS) {
+    const el = document.getElementById(name);
+    if (el) el.hidden = name !== id;
+  }
+  registerStepFields(id);
+}
+
+// 成功メッセージを見せてから遷移する。
+// 待たずに遷移すると描画される前に消えるため、500ms 置く。
+// replace を使うのは、完了した画面に戻るボタンで帰れないようにするため（logout と同じ）。
+function finishTo(page, delay = 500) {
+  showStep("msgArea");
+  setTimeout(() => window.location.replace(page), delay);
+}
+
+// 規則の無い必須欄（確認コードなど）。空でないことだけを見る。
+document.querySelectorAll("[data-required]").forEach((input) => {
+  const errEl = input.dataset.errmsg
+    ? document.getElementById(input.dataset.errmsg)
+    : null;
+
+  input.addEventListener("input", () => {
+    const ok = input.value.trim() !== "";
+    if (errEl) {
+      errEl.textContent = ok ? "" : "入力してください";
+      errEl.style.color = "red";
+    }
+    setValidity(input.id, ok);
+  });
+});
+
+// 初期表示の区画を判定表に反映する。HTML の hidden が初期状態の正。
+(function initStep() {
+  const visible = STEP_AREAS.find((name) => {
+    const el = document.getElementById(name);
+    return el && !el.hidden;
+  });
+  if (visible) showStep(visible);
+})();
 
 // レスポンス共通処理。
 // エラー（非200 / msg が空文字でない）の場合は alert を出して true を返す。

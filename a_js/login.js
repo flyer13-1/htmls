@@ -27,12 +27,10 @@ formLogin.addEventListener("submit", async (event) => {
 
   cognitoUser.authenticateUser(authDetails, {
     onSuccess: (result) => {
-      // 正常終了：Cognitoが発行したIDトークンを保存してページ遷移
+      // 正常終了：Cognitoが発行したIDトークンを保存し、成功表示の後にページ遷移
+      // （finishTo は common.js。500ms 見せてから replace する）
       sessionStorage.setItem("token", result.getIdToken().getJwtToken());
-      sucsessMsg();
-      window.location.href = "./conform.html";
-      isSubmitting = false;
-      if (submitBtn) submitBtn.disabled = false;
+      finishTo("./conform.html");
     },
     onFailure: (err) => {
       alert(err.message || "メールアドレスまたはパスワードが違います");

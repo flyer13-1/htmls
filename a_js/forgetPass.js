@@ -3,10 +3,9 @@ const formForget = document.getElementById("form");
 let tmp = {};
 let isSubmitting = false;
 
-// 確認コード入力画面に切り替え
+// 確認コード入力画面に切り替え（showStep は common.js）
 function showCodeArea() {
-  document.getElementById("formArea").style.display = "none";
-  document.getElementById("codeArea").style.display = "block";
+  showStep("codeArea");
 }
 
 // ステップ1: メールアドレスを送信し、Cognitoから確認コードをメール送信させる
@@ -49,8 +48,7 @@ function doReset() {
 
   tmp.cognitoUser.confirmPassword(code, newPassword, {
     onSuccess: () => {
-      sucsessMsg(); // 成功演出→ページ遷移
-      window.location.href = "./index.html"; //ページ遷移
+      finishTo("./index.html"); // 成功表示の後にログイン画面へ（common.js）
     },
     onFailure: (err) => {
       alert(err.message || "確認コードが正しくありません");

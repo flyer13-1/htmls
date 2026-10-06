@@ -99,8 +99,10 @@ p {
   font-size: 12px;
 }
 
+/* 非表示は HTML 側の hidden 属性で行う（doc/IF/common.md §5）。
+   ここで display:none を指定すると、IDセレクタが [hidden] より優先されるため
+   hidden を外しても表示されなくなる。 */
 #msgArea {
-  display: none;
   color: green;
 }
 

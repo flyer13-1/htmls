@@ -1,3 +1,10 @@
+// パスワードの強度チェック。regist / forgetPass の2画面で使う。
+// ログイン画面は対象外で、<form> の標準検証（required / minlength / maxlength）に任せる
+// （doc/IF/common.md §6）。
+//
+// 合否は common.js の判定表（formValidity）に setValidity で書き込む。
+// 送信ボタンは触らない。ボタンの有効・無効を決めるのは refreshSubmit だけ。
+
 function isPasswordStrong(pwd) {
   const hasLowercase = /[a-z]/.test(pwd);
   const hasUppercase = /[A-Z]/.test(pwd);
@@ -23,13 +30,8 @@ function isPasswordStrong(pwd) {
   };
 }
 
-const submitBtn = document.getElementById("submit");
-const passValidity = new Map(); // 各inputの合否を記録するMap
-
 document.querySelectorAll("[data-passcheck]").forEach((input) => {
   // data-passcheckを持つ全inputをループ（1つでも2つでも動く）
-
-  passValidity.set(input.id, false); // 初期値としてfalse（未入力）を登録
 
   // data-errmsg="errMsg" の値（ID文字列）を使ってエラー表示先の要素を取得
   // → smallが別の場所に移動してもIDが同じなら壊れない
@@ -37,7 +39,6 @@ document.querySelectorAll("[data-passcheck]").forEach((input) => {
 
   input.addEventListener("input", () => {
     const result = isPasswordStrong(input.value);
-    passValidity.set(input.id, result.valid); // このinputの合否をMapに更新
 
     if (!result.valid) {
       let msg = "次を含めてください: ";
@@ -56,8 +57,6 @@ document.querySelectorAll("[data-passcheck]").forEach((input) => {
       input.style.borderColor = "green";
     }
 
-    // Mapの全エントリがtrueの時だけ送信ボタンを有効化
-    // → 1つでも未通過があれば無効のまま
-    submitBtn.disabled = ![...passValidity.values()].every(Boolean);
+    setValidity(input.id, result.valid); // common.js
   });
 });

@@ -1,4 +1,7 @@
-// submitBtn は passCheck.js で宣言済み
+// 確認用パスワードの一致チェック。
+// 合否は common.js の判定表（formValidity）に setValidity で書き込む。
+// 送信ボタンは触らない（doc/IF/common.md §6）。
+
 document.querySelectorAll("[data-confirms]").forEach((input) => {
   // data-confirms="targetId" の値で比較対象のパスワード欄を取得
   const target = document.getElementById(input.dataset.confirms);
@@ -6,11 +9,18 @@ document.querySelectorAll("[data-confirms]").forEach((input) => {
   // data-errmsg="errMsgId" の値でエラー表示先の要素を取得
   const errEl = document.getElementById(input.dataset.errmsg);
 
-  input.addEventListener("input", () => {
+  function check() {
     const ok = input.value !== "" && input.value === target.value;
     errEl.textContent = ok ? "OK!" : "パスワードが一致しません";
     errEl.style.color = ok ? "green" : "red";
     input.style.borderColor = ok ? "green" : "red";
-    submitBtn.disabled = !ok || ![...passValidity.values()].every(Boolean);
-  });
+    setValidity(input.id, ok); // common.js
+  }
+
+  input.addEventListener("input", check);
+
+  // 参照先（パスワード本体）が書き換わったときも再判定する。
+  // これが無いと、一致させた後に本体を編集しても古い判定が残り、
+  // 不一致のまま送信できてしまう。
+  target.addEventListener("input", check);
 });

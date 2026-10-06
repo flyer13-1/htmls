@@ -1,14 +1,11 @@
 // DOM宣言
-const main = document.getElementById("formArea");
-const success = document.getElementById("success");
-const conform = document.getElementById("conform");
-
 const form = document.getElementById("form");
 const conformBtn = document.getElementById("conformBtn");
 const backBtn = document.getElementById("backBtn");
 const adminBtn = document.getElementById("adminBtn");
 
-// API・成功メッセージ・ログアウト関数・CIRCUIT_NAMES は common.js で宣言済み。
+// API・showStep・finishTo・ログアウト関数・CIRCUIT_NAMES は common.js で宣言済み。
+// 区画（formArea / conform / msgArea）の切り替えは showStep に任せる。
 
 // プロフィール（GET /user/me）。取得済みなら再取得しない。失敗時は null。
 let profile = null;
@@ -86,8 +83,7 @@ async function send(event) {
     // 以降の一般向けAPIには、この値をそのまま X-Race-Id ヘッダーで送る
     // （doc/IF/raceIdToken.md §3・§4、01章 R10）。
     sessionStorage.setItem("raceToken", data.raceToken);
-    sucsessMsg();
-    window.location.href = "./main.html";
+    finishTo("./main.html"); // 成功表示の後にメイン画面へ（common.js）
   } catch (error) {
     console.error("送信エラー:", error);
     alert("送信失敗しました。管理者に一度報告してください。");
@@ -107,14 +103,12 @@ async function prof() {
   document.getElementById("textCir").textContent =
     "所属サーキット: " + CIRCUIT_NAMES[data.circuit];
 
-  main.style.display = "none";
-  conform.style.display = "block";
+  showStep("conform");
 }
 
-// メイン画面に戻る
+// 大会ID入力の区画に戻る
 function back() {
-  main.style.display = "block";
-  conform.style.display = "none";
+  showStep("formArea");
 }
 
 form.addEventListener("submit", send);

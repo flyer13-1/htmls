@@ -96,25 +96,44 @@
           </section>
 
           <section>
-            <input type="submit" value="アカウント登録" id="submit" disabled />
+            <!-- data-submit: この区画の送信ボタン。判定表が全欄OKになるまで無効
+                 （doc/IF/common.md §6） -->
+            <input
+              type="submit"
+              value="アカウント登録"
+              id="submit"
+              data-submit
+              disabled
+            />
           </section>
         </form>
       </article>
 
       <!-- ステップ2: メール確認コード入力欄(サインアップ後に表示) -->
-      <article id="codeArea" style="display: none">
+      <article id="codeArea" hidden>
         <p id="resendMsg" style="color: green; font-weight: bold"></p>
 
         <p>
           記入されたEMailアドレスに確認コードを送信しました。<br />
           メールに届いた確認コードを入力してください
         </p>
-        <input id="code" placeholder="確認コードを入力" />
-        <button onclick="doConfirm()">確認する</button>
-        <button onclick="doResend()">コードを再送信</button>
+        <input
+          id="code"
+          placeholder="確認コードを入力"
+          required
+          data-required
+          data-errmsg="codeErrMsg"
+        />
+        <small id="codeErrMsg"></small>
+        <!-- type="button" のためブラウザの標準検証は働かない。
+             判定表（data-required）が空入力を止める（doc/IF/common.md §6） -->
+        <button type="button" id="confirmCodeBtn" data-submit disabled onclick="doConfirm()">
+          確認する
+        </button>
+        <button type="button" onclick="doResend()">コードを再送信</button>
       </article>
 
-      <article id="msgArea">
+      <article id="msgArea" hidden>
         <p>アカウント登録に成功！</p>
       </article>
     </main>
