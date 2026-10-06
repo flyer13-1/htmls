@@ -216,15 +216,14 @@ function onCopyTodayId() {
   navigator.clipboard?.writeText(text).catch(() => {});
 }
 
-// ── 削除 ──
-// NOTE: raceDelete.mjs はまだ03章§5準拠（X-Race-Idヘッダー化・entry紐付きチェック）に
-// 書き換えられていないため、現状のAPIに合わせてパスパラメータ方式のままにしている。
+// ── 削除（03章§5） ──
+// raceId は X-Race-Id ヘッダーで送る（01章 R10）。entry が1件でも残っていれば 409 が返る。
 async function onDeleteRace(r) {
   if (!confirm(`レース「${r.title}」を削除しますか？`)) return;
 
-  const res = await fetch(`${API}/admin/race/${encodeURIComponent(r.raceId)}`, {
+  const res = await fetch(`${API}/admin/race`, {
     method: "DELETE",
-    headers: authHeaders(false),
+    headers: authHeaders(false, r.raceId),
   });
   const data = await res.json();
   if (handleApiError(res, data)) return;
