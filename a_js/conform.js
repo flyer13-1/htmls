@@ -111,6 +111,15 @@ function back() {
   showStep("formArea");
 }
 
+// 大会IDの前後の空白（半角・全角とも）を入力時点で取り除く。
+// 貼り付け・入力のどちらでも効くよう input イベントで処理する。
+// 大会IDは英数字のみなので、空白を含むと HTML の形式チェックで弾かれるため。
+const todayIdInput = document.getElementById("todayId");
+todayIdInput.addEventListener("input", () => {
+  const trimmed = todayIdInput.value.trim();
+  if (trimmed !== todayIdInput.value) todayIdInput.value = trimmed;
+});
+
 form.addEventListener("submit", send);
 conformBtn.addEventListener("click", prof);
 backBtn.addEventListener("click", back);
