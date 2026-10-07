@@ -110,6 +110,7 @@ async function openEdit(r) {
   document.getElementById("edit").hidden = false;
   window.scrollTo(0, 0);
 
+  resetSearch(); // adminSearch.js（検索語は保持しない）
   await loadEditData();
 }
 
@@ -132,6 +133,7 @@ async function loadEditData() {
     closeRowEditor(name);
     renderEditTable(name);
   }
+  applyView(); // adminSearch.js（描画し直した行にも検索・表示を掛ける）
 }
 
 function renderEditTable(name) {

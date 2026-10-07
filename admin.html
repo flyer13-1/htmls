@@ -10,12 +10,16 @@
     <script defer src="a_js/adminOther.js"></script>
     <script defer src="a_js/adminPreview.js"></script>
     <script defer src="a_js/adminEdit.js"></script>
+    <script defer src="a_js/adminSearch.js"></script>
     <title>管理者画面</title>
   </head>
   <body>
     <header>
       <h1>OfficialSupportSystem</h1>
       <h2>管理者画面 — レース管理</h2>
+      <button type="button" id="backToConformBtn" class="secondary">
+        確認画面に戻る
+      </button>
       <button type="button" id="logoutBtn">ログアウト</button>
     </header>
 
@@ -205,7 +209,38 @@
         </section>
 
         
-        <section class="card">
+        <!-- 表示する表の切替と検索（検索の動作は未定。ディベート後に決める） -->
+        <section class="card" id="viewControlCard">
+          <h3>表示と検索</h3>
+          <div class="reg-field">
+            <span class="reg-label">表示する表</span>
+            <div class="table-select">
+              <label
+                ><input type="checkbox" class="view-toggle" value="entryCard" checked />
+                エントリー</label
+              >
+              <label
+                ><input type="checkbox" class="view-toggle" value="startDriverCard" checked />
+                スタートドライバー</label
+              >
+              <label
+                ><input type="checkbox" class="view-toggle" value="pitAssignmentCard" checked />
+                担当ピット</label
+              >
+            </div>
+          </div>
+          <div class="reg-field">
+            <label class="reg-label" for="editSearch">検索</label>
+            <input
+              type="search"
+              id="editSearch"
+              placeholder="表示中の表を検索（空白で複数語）"
+            />
+            <p id="searchEmpty" class="reg-note" hidden>該当なし</p>
+          </div>
+        </section>
+
+        <section class="card" id="entryCard">
           <h3>エントリー（<span id="entryCount">0</span>件）</h3>
           <div class="table-scroll">
             <table>
@@ -228,7 +263,7 @@
         </section>
 
         <div class="edit-pair">
-        <section class="card">
+        <section class="card" id="startDriverCard">
           <h3>スタートドライバー（<span id="startDriverCount">0</span>件）</h3>
           <div class="table-scroll">
             <table>
@@ -254,7 +289,7 @@
           </div>
         </section>
 
-        <section class="card">
+        <section class="card" id="pitAssignmentCard">
           <h3>担当ピット（<span id="pitAssignmentCount">0</span>件）</h3>
           <div class="table-scroll">
             <table>

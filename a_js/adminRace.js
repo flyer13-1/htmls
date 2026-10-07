@@ -28,6 +28,15 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("copyTodayIdBtn")
     .addEventListener("click", onCopyTodayId);
 
+  //確認画面へ戻る（ヘッダー）
+  document
+    .getElementById("backToConformBtn")
+    .addEventListener("click", () => {
+      window.location.href = "./conform.html";
+    });
+
+  initSearch(); // adminSearch.js（表示切替と検索）
+
   //大会作成後の閉じるボタン
   document.getElementById("closeCreatedBtn").addEventListener("click", () => {
     document.getElementById("raceCreatedCard").hidden = true;
