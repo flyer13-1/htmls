@@ -48,6 +48,23 @@
               required
               placeholder="example@example.com"
             />
+            <p class="charNote">
+              確認コードの送り先です。打ち間違えると登録できません。
+            </p>
+          </section>
+
+          <section>
+            <label for="emailConfirm">確認用メールアドレス*:</label>
+            <input
+              type="email"
+              id="emailConfirm"
+              required
+              placeholder="もう一度入力してください"
+              data-confirms="email"
+              data-label="メールアドレス"
+              data-errmsg="emailConfError"
+            /><br />
+            <small id="emailConfError"></small>
           </section>
 
           <section>
@@ -75,6 +92,7 @@
               maxlength="20"
               required
               data-confirms="password"
+              data-label="パスワード"
               data-errmsg="passConfError"
             /><br />
             <small id="passConfError"></small>
