@@ -126,7 +126,8 @@ input[type="submit"]:disabled {
   cursor: not-allowed;
 }
 
-/* 大会ID送信の下に、プロフ確認・管理画面・ログアウトを縦に並べる */
+/* 大会ID送信の下に、プロフ確認・管理画面を縦に並べる。
+   ログアウトはヘッダー側（main / admin と共通。common.css） */
 .menu {
   display: flex;
   flex-direction: column;

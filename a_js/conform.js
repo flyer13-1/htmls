@@ -10,33 +10,52 @@ const adminBtn = document.getElementById("adminBtn");
 // プロフィール（GET /user/me）。取得済みなら再取得しない。失敗時は null。
 let profile = null;
 
+// 取得を試みる回数。通信の瞬断やサーバーの一時的な失敗で画面が使えなくなるのを防ぐ
+// （doc/IF/userMenu2.md）。401・403 などは再試行しても変わらないので数に入れない。
+const PROFILE_RETRY_MAX = 3;
+
 async function loadProfile() {
   if (profile) return profile;
 
   const auth = requireAuth();
   if (!auth) return null;
 
-  try {
-    const response = await fetch(`${API}/user/me`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${auth.token}`,
-      },
-    });
+  for (let attempt = 1; attempt <= PROFILE_RETRY_MAX; attempt++) {
+    try {
+      const response = await fetch(`${API}/user/me`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+      });
 
-    const data = await response.json();
-    if (handleApiError(response, data)) return null;
+      // 500番台は一時的な失敗として再試行する。それ以外（401・403・400）は
+      // 繰り返しても結果が変わらないため handleApiError に任せて打ち切る。
+      if (response.status >= 500) throw new Error(`server ${response.status}`);
 
-    profile = data;
-    adminBtn.style.display = data.isAdmin ? "" : "none";
-    sessionStorage.setItem("circuit", data.circuit);
+      const data = await response.json();
+      if (handleApiError(response, data)) return null;
 
-    return profile;
-  } catch (error) {
-    console.error("プロフィール取得エラー:", error);
-    alert("プロフィールの取得に失敗しました。管理者に一度報告してください。");
-    return null;
+      profile = data;
+      adminBtn.style.display = data.isAdmin ? "" : "none";
+      sessionStorage.setItem("circuit", data.circuit);
+
+      return profile;
+    } catch (error) {
+      console.error(
+        `プロフィール取得エラー(${attempt}/${PROFILE_RETRY_MAX}):`,
+        error,
+      );
+      if (attempt === PROFILE_RETRY_MAX) {
+        alert("サーバーエラー：プロフィールを取得できません");
+        return null;
+      }
+      // 続けて叩いても直らないことが多いため、少し待ってから試す
+      await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
+    }
   }
+
+  return null;
 }
 
 // ページロード時: プロフィールを取得して管理者フラグでadminBtnを表示制御
@@ -83,6 +102,17 @@ async function send(event) {
     // 以降の一般向けAPIには、この値をそのまま X-Race-Id ヘッダーで送る
     // （doc/IF/raceIdToken.md §3・§4、01章 R10）。
     sessionStorage.setItem("raceToken", data.raceToken);
+
+    // 終了日が設定されていないレース（データの欠損・改ざん）。
+    // トークンは2時間しか有効でないため、作業中に失効する。その場で管理者への
+    // 連絡を促す（doc/IF/userMenu1.md「終了日が無いレースについて」）。
+    if (data.warning === "finish_date_missing") {
+      alert(
+        "このレースには終了日が設定されていません。\n" +
+          "利用できるのは2時間だけです。至急、管理者に連絡してください。",
+      );
+    }
+
     finishTo("./main.html"); // 成功表示の後にメイン画面へ（common.js）
   } catch (error) {
     console.error("送信エラー:", error);
@@ -95,11 +125,13 @@ async function send(event) {
 
 // プロフィール確認画面を表示
 async function prof() {
-  const data = profile;
+  // 読み込み時に取得できていなければ、ここで取り直す。
+  // 押しても何も起きない状態を避けるため（doc/IF/userMenu2.md）。
+  const data = await loadProfile();
   if (!data) return;
 
   document.getElementById("textUser").textContent =
-    "利用者ID: " + data.username;
+    "担当者名: " + data.username;
   document.getElementById("textCir").textContent =
     "所属サーキット: " + CIRCUIT_NAMES[data.circuit];
 

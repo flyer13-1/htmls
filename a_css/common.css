@@ -6,11 +6,17 @@ header {
   position: relative;
 }
 
-#logoutBtn {
+/* 位置はヘッダー内に限定する。ボタンを他の場所に移したときに
+   絶対配置が付いてきて画面に浮くのを防ぐため（doc/IF/common.md §4）。 */
+header #logoutBtn {
   position: absolute;
   top: 50%;
   right: 16px;
   transform: translateY(-50%);
+}
+
+/* 見た目はどこに置いても同じ */
+#logoutBtn {
   display: block;
   width: auto;
   min-width: 0;
@@ -32,9 +38,11 @@ header {
   opacity: 0.9;
 }
 
-/* 狭い画面ではタイトルと重なるので、タイトルの下の右端に置く */
+/* 狭い画面ではタイトルと重なるので、タイトルの下の右端に置く。
+   セレクタは上の header #logoutBtn と同じ形にする。#logoutBtn だけだと
+   詳細度が低く、絶対配置を打ち消せない（IDセレクタ1つ対 ID+要素）。 */
 @media screen and (max-width: 450px) {
-  #logoutBtn {
+  header #logoutBtn {
     position: static;
     transform: none;
     margin: 8px 0 0 auto;
