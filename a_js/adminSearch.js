@@ -5,7 +5,9 @@
 // 対象の表（adminEdit.js の EDIT_TABLES のキー）。カードIDは `${name}Card`、tbody は `${name}Body`
 const SEARCH_TABLES = ["entry", "startDriver", "pitAssignment"];
 
-// 比較用の正規化。全角・半角、大文字小文字、ひらがな・カタカナの差を無くす
+// 比較用の正規化。全角・半角、大文字小文字、ひらがな・カタカナの差を無くす。
+// レース一覧の検索（adminRace.js の filteredSortedRaces）でも使う。
+// adminRace.js より後に読み込まれるが、呼ばれるのは DOMContentLoaded 後なので問題ない。
 function normalizeText(text) {
   return String(text)
     .normalize("NFKC")
@@ -37,6 +39,9 @@ function isTableChecked(name) {
 
 // 表示の唯一の決め方。チェック・検索語・一致件数から、各カードと各行の表示を決める。
 // 一致ゼロなら対象の表を全部隠し「該当なし」を出す。一部の表だけゼロならその表のカードを隠す。
+//
+// 編集中の行（.editing）と、その編集フォームを載せた行（.editor-holder）は隠さない。
+// 検索語を入れた瞬間に編集中のフォームが消えると、入力中の内容を失うため（§1.3）。
 function applyView() {
   const terms = splitTerms(document.getElementById("editSearch").value);
   const searching = terms.length > 0;
@@ -45,11 +50,17 @@ function applyView() {
   let total = 0;
   for (const name of SEARCH_TABLES) {
     let count = 0;
-    document.querySelectorAll(`#${name}Body tr`).forEach((tr) => {
-      const ok = !searching || rowMatches(tr, terms);
-      tr.hidden = !ok;
-      if (ok) count++;
-    });
+    // 編集フォームの行（.editor-holder）は検索の対象にしない。
+    // 中身はラベルとボタンの文字だけで、入力値は textContent に出ないため、
+    // 対象にすると「行は残るのにフォームだけ消える」状態になる。
+    document
+      .querySelectorAll(`#${name}Body > tr:not(.editor-holder)`)
+      .forEach((tr) => {
+        const ok =
+          tr.classList.contains("editing") || !searching || rowMatches(tr, terms);
+        tr.hidden = !ok;
+        if (ok) count++;
+      });
     counts[name] = count;
     if (isTableChecked(name)) total += count;
   }

@@ -14,9 +14,13 @@ document.addEventListener("DOMContentLoaded", () => {
   authToken = auth.token;
   myCircuit = Number(auth.circuit);
 
-  // 登録フォームのサーキット名を表示（02章§2.2）
-  document.getElementById("raceCreateCircuit").textContent =
-    CIRCUIT_NAMES[Number(auth.circuit)] || "";
+  // サーキット名はヘッダーと登録フォームに出す（02章§2.1・§4.2）
+  const circuitName = CIRCUIT_NAMES[Number(auth.circuit)] || "";
+  document.getElementById("raceCreateCircuit").textContent = circuitName;
+  document.getElementById("headerCircuit").textContent = circuitName;
+
+  // 終了日は今日（JST）より前を選べないようにする（02章§2.1。判定はサーバー）
+  document.getElementById("createFinishDate").min = todayJstStr();
 
   //登録時
   document
@@ -35,7 +39,13 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "./conform.html";
     });
 
-  initSearch(); // adminSearch.js（表示切替と検索）
+  initSearch(); // adminSearch.js（変更画面の表示切替と検索）
+
+  // レース一覧の絞り込みと検索。入力のたびに描き直す（02章§3）
+  document
+    .getElementById("raceStatusFilter")
+    .addEventListener("change", renderRaces);
+  document.getElementById("raceSearch").addEventListener("input", renderRaces);
 
   //大会作成後の閉じるボタン
   document.getElementById("closeCreatedBtn").addEventListener("click", () => {
@@ -48,6 +58,12 @@ document.addEventListener("DOMContentLoaded", () => {
   initPreview(); // adminPreview.js
   initEdit(); // adminEdit.js
 });
+
+// 今日（JST）を "YYYY-MM-DD" で返す。日付入力欄の min に使う。
+// サーバーの raceStatus.js の todayJST と同じ計算（UTC+9 固定）。
+function todayJstStr() {
+  return new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
 
 // Authorization（＋必要なら X-Race-Id）ヘッダ生成（01章 R10: raceId は常にヘッダー）
 function authHeaders(json = true, raceId = null) {
@@ -76,13 +92,57 @@ const STATUS_LABEL = {
   finished: "終了済み",
 };
 
+// 一覧の並び順（02章§3「表示」）。大会当日に使う画面なので、今まさに動いている
+// レースを一番上に置く。グループの中はAPIが返した順（終了日の新しい順）のまま。
+const STATUS_GROUP = {
+  active: 0,
+  lastDay: 0,
+  upcoming: 1,
+  finished: 2,
+};
+
+// 状態の絞り込み（プルダウンの value → 対象の status）。
+// 並び順のグループと同じ区切りにする（開催中と最終日はまとめて扱う）。
+const STATUS_FILTERS = {
+  running: ["active", "lastDay"],
+  upcoming: ["upcoming"],
+  finished: ["finished"],
+};
+
+// 検索の対象: タイトルと終了日。終了日は "2026-10" のような部分でも当たる。
+// 正規化と複数語の扱いは adminSearch.js と共通（02章§3）。
+function raceSearchText(r) {
+  return `${r.title} ${r.finishDate}`;
+}
+
+function filteredSortedRaces() {
+  const filterValue = document.getElementById("raceStatusFilter").value;
+  const allowed = STATUS_FILTERS[filterValue] || null;
+  const terms = splitTerms(document.getElementById("raceSearch").value); // adminSearch.js
+
+  const rows = races.filter((r) => {
+    if (allowed && !allowed.includes(r.status)) return false;
+    if (terms.length === 0) return true;
+    const text = normalizeText(raceSearchText(r)); // adminSearch.js
+    return terms.every((term) => text.includes(term));
+  });
+
+  // Array.prototype.sort は安定なので、同じグループ内はAPIの順（終了日の降順）が保たれる
+  return rows.sort((a, b) => STATUS_GROUP[a.status] - STATUS_GROUP[b.status]);
+}
+
 function renderRaces() {
   const tbody = document.getElementById("raceTbody");
   const empty = document.getElementById("raceEmpty");
+  const noHit = document.getElementById("raceNoHit");
   tbody.innerHTML = "";
-  empty.hidden = races.length > 0;
 
-  for (const r of races) {
+  const rows = filteredSortedRaces();
+  // 「1件も登録が無い」と「絞り込みの結果が0件」を区別して伝える
+  empty.hidden = races.length > 0;
+  noHit.hidden = races.length === 0 || rows.length > 0;
+
+  for (const r of rows) {
     const finished = r.status === "finished";
     const tr = document.createElement("tr");
     tr.className = [

@@ -168,18 +168,102 @@ function renderUsernameList(listId, groupName, fieldsId) {
   wrap.appendChild(table);
 }
 
+// CSVを行×セルに分解する。引用符の中のカンマ・改行・"" に対応する。
+// 出力側（04章§5.1）が `"` で囲んで `""` にエスケープするため、
+// 自分が出したCSVをそのまま読み込めるようにしている。
+function parseCsvCells(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inQuotes = false;
+
+  // 先頭のBOMを取り除く（出力側はBOM付きで書き出す。04章§5.1）
+  const src = text.replace(/^﻿/, "");
+
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+
+    if (inQuotes) {
+      if (c === '"') {
+        if (src[i + 1] === '"') {
+          cell += '"'; // "" は1つの " として扱う
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        cell += c;
+      }
+      continue;
+    }
+
+    if (c === '"') {
+      inQuotes = true;
+    } else if (c === ",") {
+      row.push(cell);
+      cell = "";
+    } else if (c === "\r") {
+      // \r\n の \r は読み飛ばす（単独の \r も改行として扱う）
+      if (src[i + 1] !== "\n") {
+        row.push(cell);
+        rows.push(row);
+        row = [];
+        cell = "";
+      }
+    } else if (c === "\n") {
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += c;
+    }
+  }
+  row.push(cell);
+  rows.push(row);
+
+  // 空行（全セルが空）は捨てる
+  return rows.filter((r) => r.some((v) => v.trim() !== ""));
+}
+
+/**
+ * CSVを現在のテーブルの行に変換する。
+ * 1行目は見出しとして読み、**列名で対応付ける**（2026-10-08変更）。
+ * 以前は1行目を読み飛ばして列順の決め打ちで読んでいたため、
+ * 順序が違うファイルが黙って別の列に入っていた。
+ *
+ * @returns {{ rows: object[] } | { error: string }}
+ */
 function parseCSV(text) {
   const schema = getSchema();
-  const lines = text.split(/\r?\n/).filter((l) => l.trim());
-  return lines.slice(1).map((line) => {
-    const values = line.split(",");
+  const cells = parseCsvCells(text);
+  if (cells.length < 2) {
+    return { error: "見出し行とデータ行が必要です（1行目は見出し）" };
+  }
+
+  const header = cells[0].map((h) => h.trim());
+  const indexes = schema.fields.map((f) => header.indexOf(f.label));
+  const missing = schema.fields.filter((_, i) => indexes[i] === -1);
+
+  if (missing.length > 0) {
+    return {
+      error:
+        `1行目の見出しが合いません。\n\n` +
+        `見つからない列: ${missing.map((f) => f.label).join("、")}\n\n` +
+        `1行目をこの通りにしてください:\n${schema.fields.map((f) => f.label).join(",")}`,
+    };
+  }
+
+  const rows = cells.slice(1).map((values) => {
     const row = {};
     schema.fields.forEach((f, i) => {
-      const val = (values[i] || "").trim();
+      const val = (values[indexes[i]] ?? "").trim();
       row[f.key] = f.type === "number" ? (val === "" ? null : Number(val)) : val || null;
     });
     return row;
   });
+
+  return { rows };
 }
 
 // 登録先テーブル・入力方法・手入力・CSV の操作を初期化する（adminRace.js の DOMContentLoaded から呼ぶ）
@@ -252,12 +336,16 @@ function initDataReg() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const rows = parseCSV(ev.target.result);
-      if (rows.length === 0) {
+      const result = parseCSV(ev.target.result);
+      if (result.error) {
+        alert(result.error);
+        return;
+      }
+      if (result.rows.length === 0) {
         alert("データが見つかりません");
         return;
       }
-      stagingByTable[currentTableName()] = rows;
+      stagingByTable[currentTableName()] = result.rows;
       buildStagingTable();
       showPreview(); // adminPreview.js
     };

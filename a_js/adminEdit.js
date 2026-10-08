@@ -6,6 +6,7 @@ let editRace = null; // 変更対象のレース（{ raceId, title, finishDate, 
 let editData = null; // GET /admin/race/data の結果
 const editingRows = {}; // テーブル名 → 変更中の行
 const editingHolders = {}; // テーブル名 → 編集フォームを載せている行（tr）
+const editingTrs = {}; // テーブル名 → 編集中の対象行（検索で隠さないための印を付ける先）
 const editorHomes = {}; // テーブル名 → 編集フォームの元の置き場所
 
 const DRIVER_KEYS = ["driverA", "driverB", "driverC", "driverD", "driverE", "driverF"];
@@ -81,7 +82,7 @@ const EDIT_TABLES = {
   },
 };
 
-// 成功なら true。失敗時は handleApiError がメッセージを出す
+// 成功ならレスポンスのデータ、失敗なら null（handleApiError がメッセージを出す）
 async function editRequest({ method, url, body }) {
   const res = await fetch(url, {
     method,
@@ -89,7 +90,7 @@ async function editRequest({ method, url, body }) {
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const data = await res.json();
-  return !handleApiError(res, data);
+  return handleApiError(res, data) ? null : data;
 }
 
 function makeCell(tag, text) {
@@ -103,7 +104,10 @@ async function openEdit(r) {
   editRace = r;
   document.getElementById("editRaceTitle").textContent = r.title;
   document.getElementById("editTitle").value = r.title;
-  document.getElementById("editFinishDate").value = r.finishDate;
+  const finishDateInput = document.getElementById("editFinishDate");
+  // 今日（JST）より前には変更できない（02章§4.3。判定はサーバー）
+  finishDateInput.min = todayJstStr(); // adminRace.js
+  finishDateInput.value = r.finishDate;
 
   document.getElementById("main").hidden = true;
   document.getElementById("preview").hidden = true;
@@ -193,12 +197,17 @@ function openRowEditor(name, row, tr) {
 
   const editor = document.getElementById(`${name}Editor`);
   const holder = document.createElement("tr");
+  // 検索（adminSearch.js の applyView）の対象から外すための印。
+  holder.className = "editor-holder";
   const cell = document.createElement("td");
   cell.colSpan = def.columns.length + 1;
   cell.appendChild(editor);
   holder.appendChild(cell);
   tr.after(holder);
   editingHolders[name] = holder;
+  // 編集中の行は検索で隠さない（入力中の内容を失わないため）。
+  tr.classList.add("editing");
+  editingTrs[name] = tr;
   editor.hidden = false;
 }
 
@@ -209,6 +218,8 @@ function closeRowEditor(name) {
   editorHomes[name].appendChild(editor);
   editingHolders[name]?.remove();
   editingHolders[name] = null;
+  editingTrs[name]?.classList.remove("editing");
+  editingTrs[name] = null;
 }
 
 async function saveRow(name, form) {
@@ -233,7 +244,20 @@ async function saveRow(name, form) {
     return;
   }
 
-  if (!(await editRequest(def.update(row, values)))) return;
+  const data = await editRequest(def.update(row, values));
+  if (!data) return;
+
+  // エントリー変更でドライバー枠を空にした場合、その枠を使っていた
+  // スタートドライバーはサーバー側で一緒に削除される（03章§2.4）。
+  // 黙って消えると気付けないので、その場で知らせる。
+  if (data.removedStartDriver) {
+    const { carNum, driver } = data.removedStartDriver;
+    alert(
+      `ドライバー枠 ${driver} を空にしたため、\n` +
+        `スタートドライバー（車番 ${carNum}: ${driver}）も削除しました。`,
+    );
+  }
+
   await loadEditData();
 }
 
@@ -268,7 +292,7 @@ async function onSaveRaceEdit(event) {
     url: `${API}/admin/race`,
     body: { title, finishDate },
   });
-  if (!ok) return;
+  if (!ok) return; // editRequest は失敗時 null を返す
 
   editRace = { ...editRace, title, finishDate };
   document.getElementById("editRaceTitle").textContent = title;

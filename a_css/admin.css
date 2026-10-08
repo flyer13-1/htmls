@@ -49,6 +49,20 @@ header h2 {
   opacity: 0.85;
 }
 
+/* 自分のサーキット名。レース変更画面には出さず、ここだけで示す（02章§4.2） */
+.header-circuit {
+  margin-left: 10px;
+  padding: 2px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 10px;
+  font-size: 0.85em;
+}
+
+/* 中身が入るまで枠だけが見えないように */
+.header-circuit:empty {
+  display: none;
+}
+
 main {
   max-width: 900px;
   margin: 24px auto;
@@ -320,6 +334,25 @@ button.secondary {
 #raceTbody tr.selected td {
   background: #eaf0ff;
   box-shadow: inset 3px 0 0 #2563eb;
+}
+
+/* レース一覧の絞り込みと検索（02章§3）。狭い幅では縦に積む */
+.race-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-bottom: 14px;
+}
+
+.race-filter .reg-field {
+  flex: 1 1 220px;
+  min-width: 0;
+  margin: 0;
+}
+
+.race-filter select,
+.race-filter input[type="search"] {
+  width: 100%;
 }
 
 #raceTbody tr.finished {

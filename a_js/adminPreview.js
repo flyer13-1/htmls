@@ -99,6 +99,7 @@ async function submitAllStaged() {
   submitRegBtn.disabled = true;
 
   const done = [];
+  const skippedLines = [];
   try {
     for (const name of SUBMIT_ORDER) {
       const rows = stagingByTable[name];
@@ -117,11 +118,28 @@ async function submitAllStaged() {
         return;
       }
 
-      done.push(`${schema.label} ${rows.length}件`);
+      // 重複した行はサーバー側で除外され、残りだけが登録される（03章§3.2・§4.3）。
+      // 何件入って何件除外されたかを、行の内容つきで知らせる。
+      const count = data.count ?? rows.length;
+      const skipped = data.skipped || [];
+      done.push(
+        skipped.length > 0
+          ? `${schema.label} ${count}件（重複で除外 ${skipped.length}件）`
+          : `${schema.label} ${count}件`,
+      );
+      if (skipped.length > 0) {
+        skippedLines.push(`【${schema.label}】`);
+        skipped.forEach((s) => skippedLines.push(`  ・${describeSkipped(name, s)}`));
+      }
       stagingByTable[name] = [];
     }
 
-    alert(`登録しました:\n${done.join("\n")}`);
+    const message = [`登録しました:`, ...done];
+    if (skippedLines.length > 0) {
+      message.push("", "重複のため登録しなかった行:", ...skippedLines);
+    }
+    alert(message.join("\n"));
+
     resetStaging();
     buildManualForm();
     buildStagingTable();
@@ -130,6 +148,21 @@ async function submitAllStaged() {
     isSubmitting = false;
     submitRegBtn.disabled = false;
   }
+}
+
+// 除外された行を1行の文字列にする。reason はサーバーが返す区分（03章§3.2・§4.3）
+const SKIP_REASON_LABEL = {
+  duplicate_in_request: "入力内に重複",
+  already_registered: "既に登録済み",
+};
+
+function describeSkipped(name, s) {
+  const reason = SKIP_REASON_LABEL[s.reason] || s.reason || "重複";
+  const what =
+    name === "pitAssignment"
+      ? `${s.username}（${s.maintenanceArea}）`
+      : `車番 ${s.carNum}`;
+  return `${what} — ${reason}`;
 }
 
 // プレビューの操作（戻る・登録する）を初期化する（adminRace.js の DOMContentLoaded から呼ぶ）

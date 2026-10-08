@@ -16,7 +16,8 @@
   <body>
     <header>
       <h1>OfficialSupportSystem</h1>
-      <h2>管理者画面 — レース管理</h2>
+      <!-- サーキット名はここだけに出す。レース変更画面には出さない（02章§4.2） -->
+      <h2>管理者画面 — レース管理<span id="headerCircuit" class="header-circuit"></span></h2>
       <button type="button" id="backToConformBtn" class="secondary">
         確認画面に戻る
       </button>
@@ -72,6 +73,28 @@
         <!-- レース一覧（02章§3。クリックで選択） -->
         <section class="card">
           <h3>登録済みレース</h3>
+
+          <!-- 状態での絞り込みと検索（02章§3「絞り込みと検索」） -->
+          <div class="race-filter">
+            <div class="reg-field">
+              <label class="reg-label" for="raceStatusFilter">状態</label>
+              <select id="raceStatusFilter">
+                <option value="">すべて</option>
+                <option value="running">開催中・最終日</option>
+                <option value="upcoming">開催前</option>
+                <option value="finished">終了済み</option>
+              </select>
+            </div>
+            <div class="reg-field">
+              <label class="reg-label" for="raceSearch">検索</label>
+              <input
+                type="search"
+                id="raceSearch"
+                placeholder="タイトル・終了日で検索（空白で複数語）"
+              />
+            </div>
+          </div>
+
           <div class="table-scroll">
             <table id="raceTable">
               <thead>
@@ -87,6 +110,7 @@
             </table>
           </div>
           <p id="raceEmpty" hidden>登録されているレースがありません</p>
+          <p id="raceNoHit" class="reg-note" hidden>該当するレースがありません</p>
         </section>
 
         <!-- データ登録（03章§1.1。entry → start_driver → pit_assignment の順を推奨） -->
@@ -179,7 +203,9 @@
               <button type="button" id="csvSelectBtn">CSVファイルを選択</button>
               <input type="file" id="csvFile" accept=".csv" hidden />
               <p class="reg-note">
-                1行目はヘッダー行として読み飛ばします。列順はスキーマ順に合わせてください。
+                1行目は見出し行として読み、<strong>列名で対応付けます</strong>（列の順序は問いません）。
+                見出しが合わない場合は、期待する見出しを表示して中断します。
+                値にカンマや改行を含む場合は <code>"</code> で囲んでください。
               </p>
             </div>
           </div>
