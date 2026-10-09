@@ -119,3 +119,73 @@
 #showCarData .grid-table td:nth-child(9)  { width:  90px; }
 #showCarData .grid-table th:nth-child(10),
 #showCarData .grid-table td:nth-child(10) { width: 120px; }
+
+/* ===== リタイア欄（見出し＋内容の2行） ===== */
+#retireArea {
+  margin: 8px 4px;
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-align: left;
+}
+
+#retireArea h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: var(--text-dim);
+}
+
+/* 内容は1行に収める（「リタイアなし」／理由＋ボタン） */
+#retireRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#retireNone {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 15px;
+}
+
+#retireEdit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+#retireEdit[hidden] {
+  display: none;
+}
+
+#retireReason {
+  flex: 1;
+  min-width: 12em;
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 15px;
+}
+
+#retireEdit button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+#retireEdit button.danger {
+  border-color: #b91c1c;
+  color: #b91c1c;
+}

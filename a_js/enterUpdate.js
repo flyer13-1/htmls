@@ -43,6 +43,8 @@ async function fetchCarData(carNumVal) {
   const auth = requireAuth(true);
   if (!auth) return;
 
+  // 調べ直すたびに前の車の内容を消してから取得する
+  clearRetireArea();
   tbody.innerHTML = "<tr><td colspan='10'>取得中...</td></tr>";
   showCarDiv.style.display = "block";
 
@@ -50,7 +52,7 @@ async function fetchCarData(carNumVal) {
     `${API}/entries/update?carNum=${encodeURIComponent(carNumVal)}`,
     { headers: { "X-Race-Id": auth.raceToken, Authorization: `Bearer ${auth.token}` } },
   ); // common.js
-  if (!data) { showCarDiv.style.display = "none"; return; }
+  if (!data) { showCarDiv.style.display = "none"; clearRetireArea(); return; }
 
   // レスポンスは logs（配列）＋ isRetired / reason。画面は pitNum で引くので対応表にする
   pitRecords    = {};
@@ -115,14 +117,24 @@ function buildDriverRadios(currentDriver) {
 
 // ── リタイア欄（ピット記録とは独立。記録が無い車でも取り消せる） ──
 
+// 調べた車の状態をそのまま出す。2行（見出し＋内容）で、
+//   リタイアしていない → 「リタイアなし」
+//   リタイア中         → 理由の入力欄 ＋ 変更/取り消しのボタン
 function renderRetireArea() {
-  const area = document.getElementById("retireArea");
-  area.hidden = !isRetired;
-  if (!isRetired) return;
+  document.getElementById("retireArea").hidden = false;
+  document.getElementById("retireNone").hidden = isRetired;
+  document.getElementById("retireEdit").hidden = !isRetired;
+  document.getElementById("retireReason").value = isRetired ? retireReason : "";
+}
 
-  document.getElementById("retireState").textContent =
-    `この車両はリタイア登録されています（車番 ${currentCarNum}）。`;
-  document.getElementById("retireReason").value = retireReason;
+// 車番を消した・取得に失敗したときは欄ごと隠し、前の車の内容を残さない。
+// 以前はここが無く、別の車を調べて失敗すると前の車のリタイアが出たままだった
+function clearRetireArea() {
+  isRetired = false;
+  retireReason = "";
+  currentCarNum = null;
+  document.getElementById("retireArea").hidden = true;
+  document.getElementById("retireReason").value = "";
 }
 
 // 理由の変更（selection=2）
@@ -230,6 +242,7 @@ document.getElementById("carNum").addEventListener("change", () => {
     showCarDiv.style.display = "none";
     pitRecords = {};
     tbody.innerHTML = "";
+    clearRetireArea();
   }
 });
 
