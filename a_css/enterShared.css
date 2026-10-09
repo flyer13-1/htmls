@@ -122,6 +122,15 @@ main {
   text-align: left;
 }
 
+#log {
+  /* ログ1行ごとの下線。既に使っている色と役割がぶつからないものを選ぶ。
+       --border (#d0d5dd 灰)        … カードの枠線
+       --border-strong (#6b7682 灰) … ボタン・入力の枠
+       --accent (#b4530f 橙)        … 選択中・押下中
+     どれとも違う「青系」にして、ログの行区切りだと一目で分かるようにする。 */
+  --log-line: #a3c4de;
+}
+
 #logContent {
   /* 背景が白なので、薄い灰（--text-dim）ではなく濃い文字色にする */
   color: var(--text);
@@ -148,8 +157,15 @@ main {
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
-  padding: 1px 0;
+  /* 1行ずつ区切る。上下に余白を取って線と文字をくっつけない */
+  padding: 5px 2px;
+  border-bottom: 1px solid var(--log-line);
   word-break: break-all;
+}
+
+/* 最後の行の下は引かない（カードの枠と二重線に見えるため） */
+#logContent > div:last-child {
+  border-bottom: none;
 }
 
 /* フォームの表示内容（見出しなど）は中央寄せ（ログは左のまま） */
