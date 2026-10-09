@@ -106,13 +106,13 @@ async function submitAllStaged() {
       if (rows.length === 0) continue;
       const schema = TABLE_SCHEMAS[name];
 
-      const res = await fetch(schema.api, {
+      const data = await adminFetch(schema.api, {
+        // adminRace.js
         method: "POST",
         headers: authHeaders(true, selectedRace.raceId),
         body: JSON.stringify({ [schema.bodyKey]: rows }),
       });
-      const data = await res.json();
-      if (handleApiError(res, data)) {
+      if (!data) {
         if (done.length > 0) alert(`登録済み:\n${done.join("\n")}`);
         showPreview();
         return;

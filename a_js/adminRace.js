@@ -73,12 +73,49 @@ function authHeaders(json = true, raceId = null) {
   return h;
 }
 
+// 管理者画面のAPI呼び出し口（01章§7「画面の挙動」）。成功ならレスポンスのデータ、
+// 失敗なら null を返す（呼び出し側は `if (!data) return;` で離脱する）。
+//
+// ・fetch が例外 → 認証情報を消してログイン画面へ。不正なトークンは API Gateway が
+//   Authorizer の拒否として返し、そのレスポンスには CORS ヘッダーが付かないため
+//   ブラウザでは例外になる。通信断も同じ扱いにする（レスポンスの形に依存しない）。
+// ・403 で reason が not_admin / user_not_found → msg を出して conform.html へ。
+// ・403 で reason が race_finished → msg を出すだけ（handleApiError に任せる）。
+//
+// reason の分岐を common.js の handleApiError に入れないのは、GET /user/me も
+// user_not_found で403を返し、それを呼ぶのは conform.html 自身のため
+// （共通処理に入れると conform が自分自身へ戻り続ける）。
+async function adminFetch(url, options = {}) {
+  let res;
+  let data;
+  try {
+    res = await fetch(url, options);
+    data = await res.json();
+  } catch (err) {
+    console.error("admin fetch error:", err);
+    clearAuth(); // common.js
+    alert("通信に失敗しました。再度ログインしてください。");
+    window.location.replace("./index.html");
+    return null;
+  }
+
+  if (
+    res.status === 403 &&
+    (data.reason === "not_admin" || data.reason === "user_not_found")
+  ) {
+    alert(data.msg);
+    window.location.replace("./conform.html");
+    return null;
+  }
+
+  return handleApiError(res, data) ? null : data; // common.js
+}
+
 // ── レース一覧（02章§3） ──
 //レース情報を取得
 async function loadRaces() {
-  const res = await fetch(`${API}/admin/race`, { headers: authHeaders(false) });
-  const data = await res.json();
-  if (handleApiError(res, data)) return;
+  const data = await adminFetch(`${API}/admin/race`, { headers: authHeaders(false) });
+  if (!data) return;
   races = data.races || [];
   regUsers = data.users || [];
   renderUsernameList("usernameList", "userCircuit", "manualForm"); // adminOther.js
@@ -266,13 +303,12 @@ async function onCreateRace(event) {
   const title = document.getElementById("createTitle").value.trim();
   const finishDate = document.getElementById("createFinishDate").value;
 
-  const res = await fetch(`${API}/admin/race`, {
+  const data = await adminFetch(`${API}/admin/race`, {
     method: "POST",
     headers: authHeaders(),
     body: JSON.stringify({ title, finishDate }),
   });
-  const data = await res.json();
-  if (handleApiError(res, data)) return;
+  if (!data) return;
 
   event.target.reset();
   document.getElementById("createdTodayId").textContent = data.todayId;
@@ -290,12 +326,14 @@ function onCopyTodayId() {
 async function onDeleteRace(r) {
   if (!confirm(`レース「${r.title}」を削除しますか？`)) return;
 
-  const res = await fetch(`${API}/admin/race`, {
-    method: "DELETE",
-    headers: authHeaders(false, r.raceId),
-  });
-  const data = await res.json();
-  if (handleApiError(res, data)) return;
+  if (
+    !(await adminFetch(`${API}/admin/race`, {
+      method: "DELETE",
+      headers: authHeaders(false, r.raceId),
+    }))
+  ) {
+    return;
+  }
 
   if (selectedRace?.raceId === r.raceId) {
     selectedRace = null;

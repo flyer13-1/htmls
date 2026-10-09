@@ -82,15 +82,14 @@ const EDIT_TABLES = {
   },
 };
 
-// 成功ならレスポンスのデータ、失敗なら null（handleApiError がメッセージを出す）
+// 成功ならレスポンスのデータ、失敗なら null（adminFetch がメッセージ・遷移を受け持つ）
 async function editRequest({ method, url, body }) {
-  const res = await fetch(url, {
+  return adminFetch(url, {
+    // adminRace.js
     method,
     headers: authHeaders(body !== undefined, editRace.raceId),
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  const data = await res.json();
-  return handleApiError(res, data) ? null : data;
 }
 
 function makeCell(tag, text) {
@@ -125,11 +124,10 @@ function closeEdit() {
 }
 
 async function loadEditData() {
-  const res = await fetch(`${API}/admin/race/data`, {
+  const data = await adminFetch(`${API}/admin/race/data`, {
     headers: authHeaders(false, editRace.raceId),
   });
-  const data = await res.json();
-  if (handleApiError(res, data)) return;
+  if (!data) return;
 
   editData = data;
   renderUsernameList("userList", "editUserCircuit", "pitAssignmentFields");

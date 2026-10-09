@@ -215,6 +215,9 @@ function handleApiError(response, data) {
   if (response.status === 400) {
     alert(data.msg || "error: 400 Bad Request");
   } else if (response.status === 401) {
+    // 認証情報を消してから戻す（01章§7）。残したままだと、ログイン画面に
+    // 戻った後も期限切れのトークンが sessionStorage に残る。
+    clearAuth();
     alert(data.msg || "セッションが切れました。再度ログインしてください。");
     window.location.replace("./index.html");
   } else if (response.status === 500) {
