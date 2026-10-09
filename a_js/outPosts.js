@@ -1,13 +1,25 @@
-// DOM宣言
-const csvButton = document.getElementById("csv");
-const pdfButton = document.getElementById("pdf");
+// ピット情報の出力画面（プレビュー → CSV / PDF）。表示は showAllGimic.js の共通部品を使う。
+// 設計: doc/IF/output.md、doc/aws-sam/admin/v2/04_pitlog.md §4・§5
+//
+// この画面には絞り込みのUIが無いため、出力は「時刻順に並べた全件」になる。
+// 出力する列は画面に出している列と同じ（PIT_LOG_COLUMNS。§5.2）。
 
-// グローバル変数（showAllGimic.js の renderTable / filterAndSortEntries が参照する）
-let entries = [];
+let pitLogs = []; // GET /entries/show の logs
 let raceTitle = "";
 
-// ── API取得 ──
-async function loadEntries() {
+let thead;
+let tbody;
+
+// 画面に出ているものと、出力するものを必ず同じにするため、両方ここを通す（§5.2）
+function visibleRows() {
+  return filterAndSortPitLogs(pitLogs); // showAllGimic.js（絞り込み条件なし）
+}
+
+function render() {
+  renderPitLogTable(tbody, visibleRows()); // showAllGimic.js
+}
+
+async function loadPitLogs() {
   const auth = requireAuth(true);
   if (!auth) return;
 
@@ -24,17 +36,17 @@ async function loadEntries() {
 
     if (handleApiError(response, data)) return;
 
-    entries = data.logs || [];
+    pitLogs = data.logs || [];
     raceTitle = data.raceTitle || "";
-
-    renderTable(); // showAllGimic.js が提供
+    render();
   } catch (err) {
     console.error(err);
     alert("データの取得に失敗しました。サーバーまたはネットワークを確認してください。");
   }
 }
 
-// ── CSV 出力（設計 04章§5）。画面で絞り込み・並べ替えた状態をそのまま出す ──
+// ── CSV 出力（§5.1） ──
+// 値に , " 改行 が入る場合は " で囲み、中の " は "" にする（備考欄で実際に起こり得る）
 function csvEscape(value) {
   const text = String(value ?? "");
   return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
@@ -45,7 +57,7 @@ function safeFileName(text) {
 }
 
 function exportCsv() {
-  const rows = filterAndSortEntries(); // showAllGimic.js が提供
+  const rows = visibleRows();
   if (rows.length === 0) {
     alert("出力するデータがありません。");
     return;
@@ -71,15 +83,21 @@ function exportCsv() {
 
 // ── PDF 出力（ブラウザ印刷）──
 function exportPdf() {
-  if (entries.length === 0) {
+  if (pitLogs.length === 0) {
     alert("出力するデータがありません。");
     return;
   }
   window.print();
 }
 
-// ── イベント ──
-csvButton.addEventListener("click", exportCsv);
-pdfButton.addEventListener("click", exportPdf);
+document.addEventListener("DOMContentLoaded", () => {
+  thead = document.getElementById("thead");
+  tbody = document.getElementById("tbody");
 
-loadEntries();
+  renderPitLogHead(thead); // 見出しは列定義から作る（§4.3）
+
+  document.getElementById("csv").addEventListener("click", exportCsv);
+  document.getElementById("pdf").addEventListener("click", exportPdf);
+
+  loadPitLogs();
+});

@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="a_css/showAll.css" />
     <script defer src="a_js/common.js"></script>
-    <script defer src="a_js/showAll.js"></script>
+    <!-- 表示部品は、呼ぶ側（showAll.js）より先に読み込む -->
     <script defer src="a_js/showAllGimic.js"></script>
+    <script defer src="a_js/showAll.js"></script>
     <title>showAll</title>
   </head>
   <body>
@@ -38,24 +39,9 @@
 
     <main class="table-wrap">
       <table class="grid-table" aria-label="ピット情報">
-        <thead>
-          <tr>
-            <th>作業エリア</th>
-            <th>ゼッケン番号</th>
-            <th>担当者</th>
-            <th>リタイア</th>
-            <th>インドライバー</th>
-            <th>アウトドライバー</th>
-            <th>ピットイン</th>
-            <th>ピットアウト</th>
-            <th>ピットGAP</th>
-            <th>給油</th>
-            <th>タイヤ交換</th>
-            <th>クラス名</th>
-            <th>チーム名</th>
-            <th>備考</th>
-          </tr>
-        </thead>
+        <!-- 見出しは showAllGimic.js の PIT_LOG_COLUMNS から作る（04章§4.3）。
+             直書きすると、列を足したときに本文とずれる -->
+        <thead id="thead"></thead>
         <tbody id="tbody"></tbody>
       </table>
     </main>

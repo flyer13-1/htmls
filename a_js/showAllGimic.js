@@ -1,24 +1,23 @@
-// DOM宣言
-const allButton = document.getElementById("all");         // 全表示
-const searchInput = document.getElementById("search");    // 統合検索入力（数字→ゼッケン / 文字→担当者）
-const filterList = document.getElementById("filter");     // フィルター欄
-const tableBody = document.querySelector("tbody");        // テーブル本体
+// ピット情報の表示部品。showAll / outPosts / 管理者ポップアップから共通で使う。
+// 設計: doc/aws-sam/admin/v2/04_pitlog.md §4.2・§4.3
+//
+// ここでは DOM を探さず、グローバル変数も読まない（§4.1 の #1〜#3）。
+// 描画先の要素と対象データは、呼ぶ側が引数で渡す。検索欄・クラスボタン・
+// 全表示ボタンの紐付けも各画面の側で行う（showAll.js / outPosts.js / 管理者画面）。
+// そのため、どの画面から呼ばれても同じように動く。
 
-// 変数
-let currentClassFilter = "";
-let currentSearchFilter = "";
+// ── 表示用の整形 ──
 
-// 関数
-// 並べ替えの時刻: その記録の時刻（inTime 無ければ outTime）。両方無ければ末尾（設計 04章§2.4）
+// 並べ替えの時刻: その記録の時刻（inTime 無ければ outTime）。両方無ければ末尾（§2.4）
 function sortTimeOf(row) {
   const time = row.inTime ?? row.outTime;
   return time ? Date.parse(time) : Infinity;
 }
 
-// 枠（A〜F）と氏名を "A:あそう太郎" の形にする（設計 04章§4.3）
+// 枠（A〜F）と氏名を "A:あそう太郎" の形にする（§4.3）
 function formatDriver(slot, name) {
-  if (!slot) return "-";
-  if (!name) return slot;
+  if (!slot) return "-"; // start_driver 未登録など、枠そのものが無い
+  if (!name) return slot; // 枠はあるが entry に氏名が無い（データ不整合）
   return `${slot}:${name}`;
 }
 
@@ -36,79 +35,16 @@ function formatDatetime(value) {
 // 秒 → DD:HH:MM:SS 表示（1日未満なら HH:MM:SS）
 function formatGap(value) {
   if (value === null || value === undefined) return "-";
-  const p  = (n) => String(n).padStart(2, "0");
-  const d  = Math.floor(value / 86400);
-  const h  = Math.floor((value % 86400) / 3600);
-  const m  = Math.floor((value % 3600) / 60);
-  const s  = value % 60;
+  const p = (n) => String(n).padStart(2, "0");
+  const d = Math.floor(value / 86400);
+  const h = Math.floor((value % 86400) / 3600);
+  const m = Math.floor((value % 3600) / 60);
+  const s = value % 60;
   return d > 0 ? `${p(d)}:${p(h)}:${p(m)}:${p(s)}` : `${p(h)}:${p(m)}:${p(s)}`;
 }
 
-function createClassButtons(classNames) {
-  const existingButtons = Array.from(
-    filterList.querySelectorAll("button[data-class]"),
-  );
-  existingButtons.forEach((button) => button.remove());
-
-  classNames.forEach((className) => {
-    const li = document.createElement("li");
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = className;
-    button.dataset.class = className;
-
-    button.addEventListener("click", () => {
-      if (currentClassFilter === className) {
-        currentClassFilter = "";
-        button.classList.remove("active");
-      } else {
-        currentClassFilter = className;
-        filterList
-          .querySelectorAll("button[data-class]")
-          .forEach((btn) => btn.classList.remove("active"));
-        button.classList.add("active");
-      }
-      renderTable();
-    });
-
-    li.appendChild(button);
-    filterList.appendChild(li);
-  });
-}
-
-function filterAndSortEntries() {
-  let filtered = Array.from(entries);
-
-  if (currentSearchFilter) {
-    const asNum = Number(currentSearchFilter);
-    if (!Number.isNaN(asNum) && /^\d+$/.test(currentSearchFilter)) {
-      // 数字のみ → ゼッケン番号で絞り込み
-      filtered = filtered.filter((entry) => entry.carNum === asNum);
-    } else {
-      // 文字列 → 担当者名で部分一致
-      filtered = filtered.filter((entry) =>
-        (entry.manager || "").includes(currentSearchFilter),
-      );
-    }
-  }
-
-  if (currentClassFilter) {
-    filtered = filtered.filter(
-      (entry) => entry.className === currentClassFilter,
-    );
-  }
-
-  filtered.sort((a, b) => {
-    const ta = sortTimeOf(a);
-    const tb = sortTimeOf(b);
-    if (ta !== tb) return ta < tb ? -1 : 1;
-    return a.carNum - b.carNum;
-  });
-
-  return filtered;
-}
-
-// 表示とCSV出力で共通の列定義（設計 04章§4.3）。順序を変えるとどちらにも反映される
+// 表示とCSV出力で共通の列定義（§4.3）。ここに1行足すと、画面の見出し・画面の行・
+// CSVの見出し・CSVの行のすべてに反映される（「画面に無いのにファイルには入っている」を作らない）
 const PIT_LOG_COLUMNS = [
   { label: "作業エリア",       value: (r) => r.maintenanceArea ?? "" },
   { label: "ゼッケン番号",     value: (r) => r.carNum },
@@ -126,44 +62,110 @@ const PIT_LOG_COLUMNS = [
   { label: "備考",             value: (r) => r.note || "" },
 ];
 
-function renderTable() {
-  const rows = filterAndSortEntries();
-  tableBody.innerHTML = "";
+// ── 絞り込みと並べ替え（§4.2） ──
 
-  if (rows.length === 0) {
+/**
+ * 絞り込みと並べ替えをして、新しい配列を返す（元の配列は変えない）。
+ * @param {object[]} logs 対象データ（GET /entries/show の logs）
+ * @param {{ className?: string, search?: string }} conditions
+ *   className: クラス名の完全一致。空なら絞り込まない
+ *   search:    数字だけならゼッケン番号の完全一致、それ以外は担当者名の部分一致
+ */
+function filterAndSortPitLogs(logs, { className = "", search = "" } = {}) {
+  let filtered = Array.from(logs);
+
+  if (search) {
+    if (/^\d+$/.test(search)) {
+      // 数字のみ → ゼッケン番号で絞り込み
+      const carNum = Number(search);
+      filtered = filtered.filter((row) => row.carNum === carNum);
+    } else {
+      // 文字列 → 担当者名で部分一致
+      filtered = filtered.filter((row) => (row.manager || "").includes(search));
+    }
+  }
+
+  if (className) {
+    filtered = filtered.filter((row) => row.className === className);
+  }
+
+  // 時刻順 → 同時刻はゼッケン番号順（§2.4）。pitNum では並べ替えない
+  filtered.sort((a, b) => {
+    const ta = sortTimeOf(a);
+    const tb = sortTimeOf(b);
+    if (ta !== tb) return ta < tb ? -1 : 1;
+    return a.carNum - b.carNum;
+  });
+
+  return filtered;
+}
+
+// ── 描画（§4.2・§4.3） ──
+
+/** 見出し行を列定義から作る。HTMLに直書きしないので、列を足しても崩れない（§4.3） */
+function renderPitLogHead(thead) {
+  thead.innerHTML = "";
+  const tr = document.createElement("tr");
+  for (const col of PIT_LOG_COLUMNS) {
+    const th = document.createElement("th");
+    th.textContent = col.label;
+    tr.appendChild(th);
+  }
+  thead.appendChild(tr);
+}
+
+/** 渡された tbody に行を描く。列数は列定義から取る（colSpan の決め打ちを無くす） */
+function renderPitLogTable(tbody, logs) {
+  tbody.innerHTML = "";
+
+  if (logs.length === 0) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
     td.colSpan = PIT_LOG_COLUMNS.length;
     td.textContent = "該当するデータがありません。";
     td.style.textAlign = "center";
     tr.appendChild(td);
-    tableBody.appendChild(tr);
+    tbody.appendChild(tr);
     return;
   }
 
-  rows.forEach((entry) => {
+  for (const row of logs) {
     const tr = document.createElement("tr");
     for (const col of PIT_LOG_COLUMNS) {
       const td = document.createElement("td");
-      td.textContent = col.value(entry);
+      td.textContent = col.value(row);
       tr.appendChild(td);
     }
-    tableBody.appendChild(tr);
-  });
+    tbody.appendChild(tr);
+  }
 }
 
-// 実行コード
-allButton.addEventListener("click", () => {
-  currentClassFilter = "";
-  currentSearchFilter = "";
-  searchInput.value = "";
+/**
+ * クラス絞り込みのボタンを作る。選択状態は持たず、押されたら onSelect に渡す
+ * （同じものをもう一度押したら "" ＝ 絞り込み解除）。
+ * @param {HTMLElement} filterList ボタンを入れる要素（showAll では <ul id="filter">）
+ * @param {string[]} classNames 表示するクラス名
+ * @param {string} selected 今選ばれているクラス名（"" なら無選択）
+ * @param {(className: string) => void} onSelect 押されたときに呼ぶ
+ */
+function renderClassButtons(filterList, classNames, selected, onSelect) {
+  // 作り直すたびに増えないよう、前回のボタンを <li> ごと消す
   filterList
-    .querySelectorAll("button[data-class]")
-    .forEach((btn) => btn.classList.remove("active"));
-  renderTable();
-});
+    .querySelectorAll("li[data-class-item]")
+    .forEach((li) => li.remove());
 
-searchInput.addEventListener("input", (event) => {
-  currentSearchFilter = event.target.value.trim();
-  renderTable();
-});
+  for (const className of classNames) {
+    const li = document.createElement("li");
+    li.dataset.classItem = "";
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = className;
+    button.dataset.class = className;
+    if (className === selected) button.classList.add("active");
+    button.addEventListener("click", () => {
+      onSelect(className === selected ? "" : className);
+    });
+    li.appendChild(button);
+    filterList.appendChild(li);
+  }
+}
