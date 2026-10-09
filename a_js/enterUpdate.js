@@ -117,18 +117,18 @@ function buildDriverRadios(currentDriver) {
 
 // ── リタイア欄（ピット記録とは独立。記録が無い車でも取り消せる） ──
 
+// 調べた車の状態をそのまま出す。2行（見出し＋内容）で、
+//   リタイアしていない → 「リタイアなし」
+//   リタイア中         → 理由の入力欄 ＋ 変更/取り消しのボタン
 function renderRetireArea() {
-  const area = document.getElementById("retireArea");
-  area.hidden = !isRetired;
-  if (!isRetired) return;
-
-  document.getElementById("retireState").textContent =
-    `この車両はリタイア登録されています（車番 ${currentCarNum}）。`;
-  document.getElementById("retireReason").value = retireReason;
+  document.getElementById("retireArea").hidden = false;
+  document.getElementById("retireNone").hidden = isRetired;
+  document.getElementById("retireEdit").hidden = !isRetired;
+  document.getElementById("retireReason").value = isRetired ? retireReason : "";
 }
 
 // 車番を消した・取得に失敗したときは欄ごと隠し、前の車の内容を残さない。
-// これが無いと、別の車を調べて失敗したときに前の車のリタイアが出たままになる
+// 以前はここが無く、別の車を調べて失敗すると前の車のリタイアが出たままだった
 function clearRetireArea() {
   isRetired = false;
   retireReason = "";
