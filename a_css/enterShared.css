@@ -123,16 +123,31 @@ main {
 }
 
 #logContent {
-  color: var(--text-dim);
+  /* 背景が白なので、薄い灰（--text-dim）ではなく濃い文字色にする */
+  color: var(--text);
   /* 当日に見返す記録なので、少し大きめにする（13px → 16px） */
   font-size: 16px;
   line-height: 1.6;
 }
 
-/* ログ1行。時刻や項目が縦に揃うよう等幅で出す */
+/* ログ1行。時刻や項目が縦に揃うよう等幅で出す。
+   端末にある等幅フォントを順に試す（Webフォントは読み込まない。
+   サーキットで電波が悪くても確実に出すため）。
+   Cascadia Mono は Windows、SF Mono / Menlo は Mac、Roboto Mono は Android。 */
 #logContent > div {
-  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-family:
+    "Cascadia Mono",
+    "JetBrains Mono",
+    "Roboto Mono",
+    ui-monospace,
+    "SF Mono",
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
   padding: 1px 0;
   word-break: break-all;
 }
