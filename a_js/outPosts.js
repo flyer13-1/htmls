@@ -45,40 +45,16 @@ async function loadPitLogs() {
   }
 }
 
-// ── CSV 出力（§5.1） ──
-// 値に , " 改行 が入る場合は " で囲み、中の " は "" にする（備考欄で実際に起こり得る）
-function csvEscape(value) {
-  const text = String(value ?? "");
-  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-}
-
-function safeFileName(text) {
-  return text.replace(/[\\/:*?"<>|]/g, "_");
-}
-
+// ── CSV 出力（04章§5）──
+// 組み立てと保存は showAllGimic.js の共通部品（buildPitLogCsv / downloadPitLogCsv）。
+// 管理者ポップアップと同じ実装を使うため、ここには持たない。
 function exportCsv() {
   const rows = visibleRows();
   if (rows.length === 0) {
     alert("出力するデータがありません。");
     return;
   }
-
-  const lines = [PIT_LOG_COLUMNS.map((col) => csvEscape(col.label)).join(",")];
-  for (const row of rows) {
-    lines.push(PIT_LOG_COLUMNS.map((col) => csvEscape(col.value(row))).join(","));
-  }
-  const csv = "﻿" + lines.join("\r\n"); // BOM: Excel で日本語が文字化けしないように
-
-  const now = new Date();
-  const pad = (n) => String(n).padStart(2, "0");
-  const ymd = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `pit-log-${safeFileName(raceTitle)}-${ymd}.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  downloadPitLogCsv(rows, raceTitle); // showAllGimic.js
 }
 
 // ── PDF 出力（ブラウザ印刷）──

@@ -169,3 +169,41 @@ function renderClassButtons(filterList, classNames, selected, onSelect) {
     filterList.appendChild(li);
   }
 }
+
+// ── ダウンロード（04章§5） ──
+// 出力画面（outPosts）と管理者ポップアップで同じものを使う。列は PIT_LOG_COLUMNS
+// なので「画面に出ている列＝ファイルの列」が常に一致する（§5.2）。
+
+// 値に , " 改行 が入る場合は " で囲み、中の " は "" にする（備考欄で実際に起こり得る）
+function csvEscape(value) {
+  const text = String(value ?? "");
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+// ファイル名に使えない文字を置き換える
+function safeFileName(text) {
+  return String(text ?? "").replace(/[\/:*?"<>|]/g, "_");
+}
+
+/** 表示中の行から CSV の中身を作る。先頭にBOMを付ける（Excel での文字化け対策。§5.1） */
+function buildPitLogCsv(rows) {
+  const lines = [PIT_LOG_COLUMNS.map((col) => csvEscape(col.label)).join(",")];
+  for (const row of rows) {
+    lines.push(PIT_LOG_COLUMNS.map((col) => csvEscape(col.value(row))).join(","));
+  }
+  return "﻿" + lines.join("\r\n"); // 改行は CRLF（Excel の標準）
+}
+
+/** `pit-log-<レースタイトル>-<YYYYMMDD>.csv` として保存させる */
+function downloadPitLogCsv(rows, raceTitle) {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const ymd = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+
+  const blob = new Blob([buildPitLogCsv(rows)], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `pit-log-${safeFileName(raceTitle)}-${ymd}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}

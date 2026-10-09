@@ -473,3 +473,113 @@ button.secondary {
   padding: 10px 14px;
   font-size: 0.85rem;
 }
+
+/* ===== ピット記録のポップアップ（04章§3.3・§5） ===== */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 12px;
+  overflow-y: auto;
+  background: rgba(31, 45, 61, 0.55);
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  padding: 16px;
+  width: 100%;
+  max-width: 1400px;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.modal-head h3 {
+  margin: 0;
+}
+
+/* 検索・クラス絞り込み・出力ボタンを1行に並べる */
+.pitlog-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 16px;
+  margin-bottom: 8px;
+}
+
+.pitlog-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* クラスの選択中（showAllGimic.js が .active を付ける） */
+.pitlog-filter button.active {
+  background: #1f2d3d;
+  color: #fff;
+}
+
+.pitlog-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* 14列あるので詰める */
+.pitlog-table {
+  min-width: 1100px;
+  font-size: 13px;
+}
+
+.pitlog-table th,
+.pitlog-table td {
+  white-space: nowrap;
+}
+
+/* PDF出力は window.print() なので、印刷時はポップアップだけを残す（04章§5） */
+@media print {
+  body::before,
+  body::after,
+  header,
+  main > article,
+  .modal-head button,
+  .pitlog-tools {
+    display: none !important;
+  }
+
+  .modal {
+    position: static;
+    display: block;
+    padding: 0;
+    overflow: visible;
+    background: none;
+  }
+
+  .modal-card {
+    max-width: none;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .table-scroll {
+    overflow: visible;
+  }
+
+  .pitlog-table {
+    min-width: 0;
+    font-size: 10px;
+  }
+}

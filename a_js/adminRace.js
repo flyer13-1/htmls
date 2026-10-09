@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initDataReg(); // adminOther.js
   initPreview(); // adminPreview.js
   initEdit(); // adminEdit.js
+  initPitlog(); // adminPitlog.js
 });
 
 // 今日（JST）を "YYYY-MM-DD" で返す。日付入力欄の min に使う。
@@ -270,7 +271,16 @@ function opsCell(r, finished) {
     onDeleteRace(r);
   });
 
-  td.append(editBtn, delBtn);
+  // ピット記録は終了済みでも参照・出力できるので無効にしない（01章 R7・02章§5）
+  const logBtn = document.createElement("button");
+  logBtn.textContent = "ピット記録";
+  logBtn.className = "ghost-btn";
+  logBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openPitlog(r); // adminPitlog.js
+  });
+
+  td.append(editBtn, delBtn, logBtn);
   return td;
 }
 
