@@ -86,14 +86,19 @@ function timeToIso(timeVal) {
 }
 
 // ── 送信処理 ──
-const handForm = document.querySelector("form[name='handEnter']");
+// フォームは enterHand.html の <form id="myForm">。以前は name 属性で探していたが、
+// HTML に name が無いため null になり、下の addEventListener で例外が出て
+// **送信処理が一切動いていなかった**（2026-10-09修正）。
+const handForm = document.getElementById("myForm");
 let goToMain   = false;
 let isSubmitting = false;
 
-// どちらのボタンが押されたか記録（submit イベントより先に click が来る）
+// どちらのボタンが押されたか記録（submit イベントより先に click が来る）。
+// 判別はボタンのid（#submitBack がモード選択へ戻る方）。以前は formaction の
+// 有無で見ていたが、HTML から formaction が無くなっていて常に false だった。
 handForm.addEventListener("click", (e) => {
   const btn = e.target.closest("button[type='submit']");
-  if (btn) goToMain = !!btn.getAttribute("formaction");
+  if (btn) goToMain = btn.id === "submitBack";
 });
 
 handForm.addEventListener("submit", async (e) => {
