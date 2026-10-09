@@ -32,12 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("copyTodayIdBtn")
     .addEventListener("click", onCopyTodayId);
 
-  //確認画面へ戻る（ヘッダー）
-  document
-    .getElementById("backToConformBtn")
-    .addEventListener("click", () => {
-      window.location.href = "./conform.html";
-    });
+  // 「確認画面に戻る」（ヘッダー）の紐付けは common.js。main.html と共通
 
   initSearch(); // adminSearch.js（変更画面の表示切替と検索）
 

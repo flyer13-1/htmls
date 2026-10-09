@@ -60,6 +60,13 @@ function logout() {
 // グローバルの const にすると各ページ JS の宣言と衝突するため、変数は作らない。
 document.getElementById("logoutBtn")?.addEventListener("click", logout);
 
+// ヘッダーの #backToConformBtn（admin / main）。大会IDを入れ直したいとき・
+// 別のレースに入り直したいときに使う。認証は消さない（ログアウトとは別物）。
+// replace ではなく href なので、ブラウザの「戻る」で元の画面に帰れる。
+document.getElementById("backToConformBtn")?.addEventListener("click", () => {
+  window.location.href = "./conform.html";
+});
+
 // 戻る／進むでキャッシュ(bfcache)から復元された時、token が無ければログイン画面へ
 window.addEventListener("pageshow", (e) => {
   const page = location.pathname.split("/").pop() || "index.html";
