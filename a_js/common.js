@@ -208,6 +208,38 @@ document.querySelectorAll("[data-required]").forEach((input) => {
   if (visible) showStep(visible);
 })();
 
+// 入力画面のドライバー欄（#Driver の A〜F）を、GET /entries/init の driver で埋める。
+// enterAuto / enterHand が共通で使う（設計: doc/IF/enterAuto1.md）。
+//
+// items は "A<br>氏名" の形で、**登録のある枠だけ**が入っている（未登録は詰められて
+// いる）。そのため**ラジオの value（A〜F）で引き当てる**。並び順で割り当てると、
+// B が未登録の車で「B のラベルに C の氏名」が出て、違う枠で送信されてしまう。
+//
+// 登録の無い枠は隠し、選択も外す。
+function renderDriverOptions(items) {
+  const nameOf = new Map();
+  for (const item of items || []) {
+    const letter = String(item).split("<br>")[0].trim();
+    nameOf.set(letter, item);
+  }
+
+  document.querySelectorAll("#Driver label").forEach((label) => {
+    const radio = document.getElementById(label.htmlFor);
+    const item = nameOf.get(radio?.value);
+    if (item) {
+      label.innerHTML = item;
+      label.style.display = ""; // CSS（flex）に戻す
+      if (radio) radio.disabled = false;
+    } else {
+      label.style.display = "none";
+      if (radio) {
+        radio.checked = false;
+        radio.disabled = true;
+      }
+    }
+  });
+}
+
 // 一般画面のAPI呼び出し口（設計: doc/IF/common.md §5）。
 // 成功ならレスポンスのデータ、失敗なら null を返す（呼び出し側は `if (!data) return;`）。
 //

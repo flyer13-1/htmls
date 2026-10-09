@@ -78,24 +78,11 @@ function timeReset(num) {
 // 選択した車のドライバー名ラベルと選択状態を復元する。
 // 登録のあるドライバーだけ表示し、未登録分はボタンごと隠す（押せても情報が無いため）。
 function driverReset(num) {
-  const drivers = driverData[num] || [];
-  const labels = document.querySelectorAll("#Driver label");
-
-  labels.forEach((label, index) => {
-    const name = drivers[index];
-    const radio = document.getElementById(label.htmlFor);
-    if (name) {
-      label.innerHTML = name;
-      label.style.display = ""; // CSS（flex）に戻す
-      if (radio) radio.disabled = false;
-    } else {
-      label.style.display = "none"; // 未登録は非表示
-      if (radio) {
-        radio.checked = false;
-        radio.disabled = true;
-      }
-    }
-  });
+  // ラベルの埋め方は common.js と共通（enterHand と同じ）。
+  // 以前はここで配列の並び順どおりに割り当てていたが、driver は登録のある枠だけが
+  // 詰まった配列なので、B が未登録の車では「B のラベルに C の氏名」が出て、
+  // 違う枠で送信されてしまっていた（2026-10-09修正）。
+  renderDriverOptions(driverData[num]); // common.js
 
   if (carData[num].driver) {
     const driverRadio = document.querySelector(

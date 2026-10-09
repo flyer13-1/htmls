@@ -1,6 +1,9 @@
 //車両の処理
 const carNumSection = document.getElementById("carNum");
 
+// 車番 → ドライバーの表示用リスト（"A<br>氏名"）。車を選んだときに #Driver を埋める
+let driverData = {};
+
 async function getCarNumber(cnt = 3) {
   const auth = requireAuth(true); // token + raceToken 必須
   if (!auth) return null;
@@ -20,6 +23,7 @@ async function getCarNumber(cnt = 3) {
     // トークン不正）のときに何も表示されず null を返していた。
     // 例外（通信断）は下の catch が受けて再試行する。
     if (handleApiError(response, data)) return null;
+    driverData = data.driver || {};
     return data.carNum || [];
   } catch (err) {
     if (cnt > 0) {
@@ -32,9 +36,18 @@ async function getCarNumber(cnt = 3) {
   }
 }
 
+// 選んだ車のドライバーだけを出す（enterAuto と同じ。登録の無い枠は隠す）
+function driverReset(num) {
+  document.querySelectorAll("#Driver input").forEach((r) => (r.checked = false));
+  renderDriverOptions(driverData[num]); // common.js
+}
+
 async function initCarNumbers() {
   const carNumbers = await getCarNumber();
   if (!carNumbers) return; // 認証切れ/取得失敗時（requireAuth が遷移済み）
+
+  // 車を選ぶまではドライバー欄を出さない（HTMLの「ドライバー名」のままにしない）
+  renderDriverOptions([]); // common.js
 
   carNumbers.forEach((num) => {
   //ラベルを作成
@@ -48,18 +61,16 @@ async function initCarNumbers() {
   input.id = "car" + num;
   input.value = num;
 
+  // 車を選んだら、その車のドライバー名に入れ替える
+  input.addEventListener("change", () => driverReset(num));
+
   // ボタンをセクションに追加
   carNumSection.appendChild(input);
   carNumSection.appendChild(label);
-
-  console.log("車両オブジェクト初期化完了:");
   });
 }
 
 initCarNumbers();
-
-const car = document.getElementById("carNum");
-car.addEventListener("click", () => {});
 
 // ── 時刻 "HH:MM" / "HH:MM:SS" → ISO 8601 変換（今日の日付＋端末タイムゾーン） ──
 function timeToIso(timeVal) {
