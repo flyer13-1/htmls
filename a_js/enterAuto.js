@@ -5,7 +5,6 @@ let driverData = {}; // ドライバーデータ（getInitDataで設定／driver
 
 const inTimeBtn = document.getElementById("inTime"); // イン
 const outTimeBtn = document.getElementById("outTime"); // アウト
-const offsetTime = document.getElementById("offset"); // 補正値
 
 const shInTime = document.getElementById("inTimeMsg"); // イン表示／手入力
 const shOutTime = document.getElementById("outTimeMsg"); // アウト表示／手入力
@@ -241,9 +240,11 @@ function clearFormDisplay() {
 
 // 補正値（秒）を反映した現在時刻を ISO 8601（端末のタイムゾーンオフセット付き）で返す。
 // 例: "2026-05-06T10:00:00+09:00"（IF: enterAuto2.md）。サーバ送信用の値。
-function getCorrectedTime() {
-  const offsetSec = parseFloat(offsetTime.value) || 0;
-  const t = new Date(Date.now() + offsetSec * 1000);
+// 記録に使う「今の時刻」。**この端末の時計をそのまま使う**（2026-10-09）。
+// 以前は「時計のずれ（秒）」の欄で補正していたが、その仕組みは廃止した。
+// 画面上部の時計も同じ関数から作るので、見えている時刻がそのまま記録される。
+function nowIso() {
+  const t = new Date();
   const p = (n) => String(n).padStart(2, "0");
 
   // 端末のローカル時刻の各要素 ＋ 端末のタイムゾーンオフセット（日本運用なら +09:00）
@@ -257,6 +258,18 @@ function getCorrectedTime() {
     `T${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}${tz}`
   );
 }
+
+// ── 画面上部の時計 ──
+// **ここに出ている時刻が、イン／アウトで記録される時刻そのもの。**
+// 表示も記録も同じ nowIso()（この端末の時計）から作るので、
+// 「見えている時刻」と「登録される時刻」が食い違わない。
+function tickClock() {
+  const el = document.getElementById("nowClock");
+  if (el) el.textContent = formatTimeDisplay(nowIso());
+}
+
+tickClock();
+setInterval(tickClock, 1000);
 
 // ISO 8601 の時刻を画面表示用に HH:MM:SS へ整形する（送信値はISOのまま保持）
 function formatTimeDisplay(iso) {
@@ -278,7 +291,7 @@ function mergeTime(baseIso, text) {
   if (+hh > 23 || +mm > 59 || +ss > 59) return null;
 
   // 日付・tz の土台は既存ISO（無ければ補正後の現在時刻）から流用する
-  const base = baseIso || getCorrectedTime();
+  const base = baseIso || nowIso();
   const dm = String(base).match(/^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}:\d{2}(.*)$/);
   if (!dm) return null;
   return `${dm[1]}T${hh}:${mm}:${ss}${dm[2]}`;
@@ -358,7 +371,7 @@ renderLog(); // 起動時に保持済みの送信ログを復元（init の成�
 
       // 同じボタンのキャッシュがあれば同じ時刻を復元、無ければ現在時刻
       const cached = cashTime[car] && cashTime[car][field];
-      const time = cached || getCorrectedTime();
+      const time = cached || nowIso();
       if (cached) cashTime[car][field] = null;
 
       d[field] = time;

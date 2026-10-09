@@ -146,3 +146,16 @@ section {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   pointer-events: none;
 }
+
+/* ===== 画面上部の時計 ===== */
+/* ここに出ている時刻が、そのまま記録される時刻（ずれの補正を含む）。
+   押した瞬間の値を確かめられるよう、大きく等幅で出す */
+#nowClock {
+  margin: 4px 0;
+  font-size: 32px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  color: var(--text);
+  letter-spacing: 1px;
+}

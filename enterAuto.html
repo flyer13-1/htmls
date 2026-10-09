@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="a_css/enterShared.css" />
+    <link rel="stylesheet" href="a_css/common.css" />
     <script defer src="a_js/common.js"></script>
     <script defer src="a_js/enterAuto.js"></script>
     <title>autoEnter</title>
@@ -11,13 +12,15 @@
   <body>
     <header>
       <h1>自動入力モード</h1>
+      <!-- ここに出ている時刻が、イン／アウトで記録される時刻そのもの
+           （この端末の時計。a_js/enterAuto.js の nowIso） -->
+      <p id="nowClock">--:--:--</p>
       <p>
+        この時刻で記録します。
         <a href="https://time.is/ja/Tokyo" target="_blank"
-          >標準時の時刻とずれがないか確認してください。</a
-        >もしずれがある場合は下記の欄に入力してください。
+          >標準時とずれていないか確認してください。</a
+        >
       </p>
-      <label for="offset">時計のずれ（秒）:</label>
-      <input type="number" id="offset" value="0" required />
     </header>
 
     <main>
