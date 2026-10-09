@@ -124,7 +124,17 @@ main {
 
 #logContent {
   color: var(--text-dim);
-  font-size: 13px;
+  /* 当日に見返す記録なので、少し大きめにする（13px → 16px） */
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* ログ1行。時刻や項目が縦に揃うよう等幅で出す */
+#logContent > div {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  padding: 1px 0;
+  word-break: break-all;
 }
 
 /* フォームの表示内容（見出しなど）は中央寄せ（ログは左のまま） */
