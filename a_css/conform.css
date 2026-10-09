@@ -32,25 +32,7 @@ body::after {
   z-index: -1;
 }
 
-/* ヘッダー */
-header {
-  text-align: center;
-  background: #1f2d3d;
-  color: #fff;
-  padding: 16px 24px;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-header h2 {
-  margin: 4px 0 0;
-  font-size: 0.95rem;
-  font-weight: normal;
-  opacity: 0.85;
-}
+/* ヘッダーの体裁は common.css（全ページ共通） */
 
 /* メイン：中央にカードを縦積み */
 main {

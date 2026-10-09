@@ -3,34 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="a_css/enterShared.css" />
+    <link rel="stylesheet" href="a_css/startDriver.css" />
+    <link rel="stylesheet" href="a_css/common.css" />
     <script defer src="a_js/common.js"></script>
     <script defer src="a_js/startDriver.js"></script>
     <title>スタートドライバー設定</title>
   </head>
   <body>
     <header>
-      <h1>OfficialSupportSystem</h1>
       <h2>スタートドライバー設定</h2>
+      <!-- 戻るは左端、ログアウトは右端（common.css） -->
+      <a id="backToMainBtn" href="./main.html">戻る</a>
       <button type="button" id="logoutBtn">ログアウト</button>
     </header>
 
     <main>
       <article>
-        <p>担当エリアの車両について、スタートドライバーを登録・変更できます。</p>
-        <table>
-          <thead>
-            <tr>
-              <th>車番</th>
-              <th>現在</th>
-              <th>枠</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="startDriverBody"></tbody>
-        </table>
+        <p>
+          担当エリアの車両について、スタートドライバーを登録・変更できます。
+        </p>
+        <!-- showAll と同じ黒基調のテーブルUI（狭い画面では表だけ横スクロール） -->
+        <div class="table-wrap">
+          <table class="grid-table">
+            <thead>
+              <tr>
+                <th>車番</th>
+                <th>現在</th>
+                <th>枠</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="startDriverBody"></tbody>
+          </table>
+        </div>
         <p id="startDriverEmpty" hidden>担当エリアに車両がありません</p>
-        <a class="btn" href="./main.html">戻る</a>
       </article>
     </main>
   </body>

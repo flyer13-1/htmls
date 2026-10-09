@@ -46,16 +46,9 @@ small {
   margin: 0px;
   padding: 0px;
 }
-/* ヘッダー */
+/* ヘッダー（体裁は common.css と同じ。ここは帯の高さ＝画面の20%だけ） */
 header {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 16px 24px;
   flex: 0 0 20%;
-  width: 100%;
-  font-size: 20px;
-  background: #1f2d3d;
-  color: #fff;
 }
 
 /* メイン */
@@ -117,13 +110,5 @@ a:visited {
     font-size: 14px;
   }
 
-  /* タイトルが画面幅を超えて背景帯が途切れるのを防ぐ（PCは 20px のまま） */
-  header {
-    padding: 16px;
-    font-size: 12px;
-  }
-
-  header h1 {
-    overflow-wrap: anywhere;
-  }
+  /* 狭い画面のヘッダー（余白・文字サイズ・折り返し）は common.css */
 }

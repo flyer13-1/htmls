@@ -21,17 +21,12 @@ li {
   margin: 0px;
   padding: 0px;
 }
-/* ヘッダー */
-header {
-  margin: 0;
-  padding-bottom: 10px;
-  font-size: 14px;
-  background: rgb(94, 94, 94);
-}
+/* ヘッダー（体裁は common.css。ここはナビの並びだけ） */
 
 /* ナビ */
 nav {
   overflow: hidden;
+  margin-top: 10px;
 
   display: flex;
   flex-direction: column;

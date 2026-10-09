@@ -1,12 +1,42 @@
 @charset "utf-8";
-/* 複数ページ共通の部品。各ページのCSSと一緒に読み込む（id指定なので順序は問わない） */
+/* 複数ページ共通の部品。各ページのCSSの「後」に読み込む
+   （ヘッダーはページ側と同じ詳細度なので、後に読み込んだ方が勝つ） */
+
+/* ===== ヘッダー（全ページ共通） =====
+   index / regist / forgetPass（formPage.css）の体裁を全ページに広げたもの。
+   紺地＋白文字、文字サイズ 20px で、h1 / h2 はブラウザ標準の比率のまま
+   （h1 = 2em = 40px、h2 = 1.5em = 30px）。サイズをここで上書きしないこと。
+   ページ側のCSSには header の背景・余白・文字サイズを書かない。
+   ここだけを直せば全ページのヘッダーが変わる。
+   HTMLの link は「ページのCSS → common.css」の順にする（同じ詳細度なので後勝ち）。 */
+header {
+  position: relative; /* 左右のボタン（下の #logoutBtn / #backToConformBtn）の基準 */
+  box-sizing: border-box;
+  margin: 0;
+  padding: 16px 24px;
+  width: 100%;
+  text-align: center;
+  background: #1f2d3d;
+  color: #fff;
+  font-size: 20px;
+}
+
+/* 見出しの既定の上下余白だけ消す（サイズは触らない）。
+   formPage.css は「初期化」で消しているが、admin / conform は持っていない */
+header h1,
+header h2 {
+  margin: 0;
+}
+
+/* ヘッダー内のリンク（enterAuto の時刻確認）。紺地で読める色にする */
+header a,
+header a:visited {
+  color: #9ecbff;
+}
 
 /* ヘッダーのボタン（処理はどちらも common.js）
      右端: ログアウト（admin / main / conform 共通）
      左端: 確認画面に戻る（admin / main。conform 自身には置かない） */
-header {
-  position: relative;
-}
 
 /* 位置はヘッダー内に限定する。ボタンを他の場所に移したときに
    絶対配置が付いてきて画面に浮くのを防ぐため（doc/IF/common.md §4）。 */
@@ -59,6 +89,16 @@ header #backToConformBtn {
    セレクタは上の header #logoutBtn と同じ形にする。#logoutBtn だけだと
    詳細度が低く、絶対配置を打ち消せない（IDセレクタ1つ対 ID+要素）。 */
 @media screen and (max-width: 450px) {
+  /* タイトルが画面幅を超えて背景帯が途切れるのを防ぐ（PCは 20px のまま） */
+  header {
+    padding: 16px;
+    font-size: 12px;
+  }
+
+  header h1 {
+    overflow-wrap: anywhere;
+  }
+
   header #logoutBtn {
     position: static;
     transform: none;

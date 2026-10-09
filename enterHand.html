@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="a_css/enterShared.css" />
+    <link rel="stylesheet" href="a_css/common.css" />
     <script defer src="a_js/common.js"></script>
     <script defer src="a_js/enterHand.js"></script>
     <title>handEnter</title>
@@ -31,7 +32,9 @@
           <h2>交代したドライバー</h2>
           <section id="Driver">
             <!-- 車を選ぶまでの案内。common.js の renderDriverOptions が出し入れする -->
-            <p id="driverHint">車番を選ぶと、その車のドライバーが表示されます</p>
+            <p id="driverHint">
+              車番を選ぶと、その車のドライバーが表示されます
+            </p>
             <input type="radio" name="driver" id="driverA" value="A" />
             <label for="driverA"
               >A <br />
@@ -92,10 +95,6 @@
             </button>
           </section>
         </form>
-      </article>
-      <article id="log">
-        <h2>送信ログ</h2>
-        <div id="logContent">ここに送信した内容を表示します。</div>
       </article>
     </main>
   </body>

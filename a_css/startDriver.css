@@ -1,0 +1,261 @@
+@charset "utf-8";
+/* スタートドライバー設定。showAll と同じ黒基調のテーブルUIに揃える
+   （変数名・色は showAll.css と同じものを使う。ログアウトは common.css） */
+
+/* ===== 変数（showAll.css と同値） ===== */
+:root {
+  --border: #3a3a3a;
+  --head-bg: #111111;
+  --row-base: #222222;
+  --row-alt: #2a2a2a;
+  --text: #ffffff;
+  --text-dim: #dddddd;
+  --accent: #2b6cb0;
+  --cell-padding: 10px 12px;
+}
+
+/* ===== ページ全体 ===== */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  text-align: center;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Hiragino Kaku Gothic ProN",
+    "Noto Sans JP",
+    "メイリオ",
+    sans-serif;
+  background: #1f1f1f;
+  color: var(--text);
+}
+
+/* 初期化 */
+h1,
+h2,
+p {
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== ヘッダー =====
+   体裁（紺地＋白文字）は common.css（全ページ共通）。ここは戻るボタンだけ */
+
+/* タイトルが左右のボタンに潜らないよう、見出しの幅を空けておく */
+header h1,
+header h2 {
+  padding: 0 72px;
+}
+
+/* 戻るは左端、ログアウトは右端（common.css）。左右に分けて押し間違いを避ける。
+   位置はヘッダー内に限定する（common.css の #backToConformBtn と同じ考え方）。 */
+header #backToMainBtn {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  padding: 6px 14px;
+  background: #6b7280; /* 移動するだけなのでログアウト（赤）と色を分ける */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+header #backToMainBtn:visited {
+  color: #fff;
+}
+
+header #backToMainBtn:hover {
+  opacity: 0.9;
+}
+
+/* ===== メイン ===== */
+main {
+  margin: 0;
+  padding: 10px;
+  font-size: 18px;
+}
+
+/* 画面上部の説明文 */
+main > article > p:first-child {
+  margin-bottom: 8px;
+  color: var(--text-dim);
+  font-size: 14px;
+  text-align: left;
+}
+
+/* ===== テーブル外枠（狭い画面では表だけ横スクロール） ===== */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--row-base);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+/* ===== テーブル本体 ===== */
+.grid-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 420px;
+  color: var(--text);
+  table-layout: fixed;
+}
+
+/* ===== ヘッダー行 ===== */
+.grid-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--head-bg);
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: var(--cell-padding);
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-dim);
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.grid-table thead th:last-child {
+  border-right: none;
+}
+
+/* ===== 本文セル ===== */
+.grid-table tbody td {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: var(--cell-padding);
+  font-size: 14px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.grid-table tbody td:last-child {
+  border-right: none;
+}
+
+/* ===== 行カラー ===== */
+.grid-table tbody tr {
+  background: var(--row-base);
+}
+
+.grid-table tbody tr:nth-child(even) {
+  background: var(--row-alt);
+}
+
+.grid-table tbody tr:hover {
+  background: rgba(43, 108, 176, 0.15);
+}
+
+/* ===== 列幅（車番 / 現在 / 枠 / ボタン）。枠に残りを使わせる ===== */
+.grid-table th:nth-child(1),
+.grid-table td:nth-child(1) {
+  width: 70px; /* 車番 */
+  text-align: center;
+  font-weight: bold;
+}
+
+.grid-table th:nth-child(2),
+.grid-table td:nth-child(2) {
+  width: 90px; /* 現在 */
+}
+
+.grid-table th:nth-child(4),
+.grid-table td:nth-child(4) {
+  width: 100px; /* 登録／変更ボタン */
+  text-align: center;
+}
+
+/* ===== 表の中の部品（枠の選択・登録／変更ボタン） ===== */
+.grid-table td select {
+  width: 100%;
+  height: 40px;
+  padding: 0 8px;
+  background: #1a1a1a;
+  color: var(--text);
+  border: 1px solid #555;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.grid-table td button {
+  width: 100%;
+  height: 40px;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid #3f7fc4;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.grid-table td button:hover {
+  background: #3279c4;
+}
+
+/* 選べるドライバーがいない行（JS が disabled にする） */
+.grid-table td button:disabled {
+  background: #333;
+  border-color: #555;
+  color: #888;
+  cursor: not-allowed;
+}
+
+/* ===== 車両が無いとき ===== */
+#startDriverEmpty {
+  margin: 12px 0 0;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+/* ===== 狭い画面 ===== */
+/* 見出しの左右の余白を解除し、戻るは見出しの下の左端へ。しきい値は
+   common.css のログアウト（450px）と揃える。セレクタは上と同じ形
+   （ID+要素）にして絶対配置を打ち消す */
+@media screen and (max-width: 450px) {
+  header h1,
+  header h2 {
+    padding: 0;
+  }
+
+  header #backToMainBtn {
+    position: static;
+    display: block;
+    width: fit-content; /* a は block だと横幅いっぱいになるため */
+    transform: none;
+    margin: 8px auto 0 0;
+  }
+}
+
+/* ===== モバイル対応（セルを詰める） ===== */
+@media (max-width: 480px) {
+  :root {
+    --cell-padding: 10px 8px;
+  }
+
+  main {
+    padding: 8px;
+  }
+
+  .grid-table th:nth-child(1),
+  .grid-table td:nth-child(1) {
+    width: 54px;
+  }
+
+  .grid-table th:nth-child(4),
+  .grid-table td:nth-child(4) {
+    width: 84px;
+  }
+}
