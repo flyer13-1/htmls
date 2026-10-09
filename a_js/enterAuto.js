@@ -48,22 +48,12 @@ async function getInitData(cnt = 3) {
     );
     const data = await response.json();
 
-    if (response.ok) {
-      if (data.msg === "") {
-        return { carNumbers: data.carNum, driverData: data.driver };
-      } else {
-        alert(data.msg);
-        return null;
-      }
-    } else if (response.status === 400) {
-      alert(data.msg || "error: 400 Bad Request");
-    } else if (response.status === 401) {
-      alert(data.msg || "セッションが切れました。再度ログインしてください。");
-      window.location.href = "./index.html";
-    } else if (response.status === 500) {
-      alert(data.msg || "error: 500 Internal Server Error");
-    }
-    return null;
+    // 状態ごとの分岐は common.js の handleApiError に任せる（2026-10-09変更）。
+    // 以前はここで 400 / 401 / 500 だけを見ていたため、403（終了したレース・
+    // トークン不正）のときに何も表示されず null を返していた。
+    // 例外（通信断）は下の catch が受けて再試行する。
+    if (handleApiError(response, data)) return null;
+    return { carNumbers: data.carNum, driverData: data.driver };
   } catch (err) {
     if (cnt > 0) {
       console.error("データ取得失敗", err);
