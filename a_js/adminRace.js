@@ -80,7 +80,8 @@ function authHeaders(json = true, raceId = null) {
 //   Authorizer の拒否として返し、そのレスポンスには CORS ヘッダーが付かないため
 //   ブラウザでは例外になる。通信断も同じ扱いにする（レスポンスの形に依存しない）。
 // ・403 で reason が not_admin / user_not_found → msg を出して conform.html へ。
-// ・403 で reason が race_finished → msg を出すだけ（handleApiError に任せる）。
+// ・403 で reason が race_finished → msg を出すだけ（画面は移動しない。01章§7）。
+//   一般画面は conform へ戻すようになったため、ここで止めて handleApiError に渡さない。
 //
 // reason の分岐を common.js の handleApiError に入れないのは、GET /user/me も
 // user_not_found で403を返し、それを呼ぶのは conform.html 自身のため
@@ -99,13 +100,19 @@ async function adminFetch(url, options = {}) {
     return null;
   }
 
-  if (
-    res.status === 403 &&
-    (data.reason === "not_admin" || data.reason === "user_not_found")
-  ) {
-    alert(data.msg);
-    window.location.replace("./conform.html");
-    return null;
+  if (res.status === 403) {
+    if (data.reason === "not_admin" || data.reason === "user_not_found") {
+      alert(data.msg);
+      window.location.replace("./conform.html");
+      return null;
+    }
+    // race_finished は msg を出すだけで画面は移動しない（01章§7）。
+    // 一般画面は conform へ戻す（common.js の handleApiError）が、管理者は
+    // 終了済みのレースも一覧で扱うため、ここで止めて handleApiError に渡さない。
+    if (data.reason === "race_finished") {
+      alert(data.msg);
+      return null;
+    }
   }
 
   return handleApiError(res, data) ? null : data; // common.js

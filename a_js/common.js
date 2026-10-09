@@ -247,6 +247,16 @@ function handleApiError(response, data) {
     clearAuth();
     alert(data.msg || "セッションが切れました。再度ログインしてください。");
     window.location.replace("./index.html");
+  } else if (response.status === 403 && data.reason === "race_finished") {
+    // 終了したレース、または raceToken の期限切れ（01章§5.4）。
+    // そのまま入力を続けても全て失敗するので、大会IDを入れ直せる conform へ戻す。
+    // conform 自身がこれを受けることもある（終了したレースの大会IDを入れた場合）ので、
+    // そのときは移動しない（同じ画面へ戻して入力内容とメッセージを消さないため）。
+    alert(data.msg || "終了したレースです");
+    const page = location.pathname.split("/").pop() || "index.html";
+    if (page !== "conform.html") {
+      window.location.replace("./conform.html");
+    }
   } else if (response.status === 500) {
     alert(data.msg || "error: 500 Internal Server Error");
   } else {
