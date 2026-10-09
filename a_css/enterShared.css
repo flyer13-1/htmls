@@ -90,21 +90,9 @@ p {
   padding: 0;
 }
 
-/* ===== ヘッダー ===== */
-header {
-  padding: 6px;
-  font-size: 12px;
-  background: var(--surface-2);
-  border-bottom: 1px solid var(--border);
-}
-
-header h1 {
-  font-size: 16px;
-}
-
-header p {
-  color: var(--text-dim);
-}
+/* ===== ヘッダー =====
+   体裁（紺地＋白文字・文字サイズ）は common.css（全ページ共通）。
+   ここには時計ずれ補正の入力だけを置く */
 
 /* 時計ずれ補正（auto） */
 #offset {
@@ -313,9 +301,6 @@ section {
 
 /* ===== 画面が広い時だけ少し大きく ===== */
 @media screen and (min-width: 768px) {
-  header {
-    font-size: 16px;
-  }
   #carNum button,
   #carNum input + label,
   #Driver input + label,
@@ -333,4 +318,35 @@ section {
   color: var(--text-dim);
   font-size: 14px;
   text-align: center;
+}
+
+/* ===== 画面上部の時計 ===== */
+/* ここに出ている時刻が、そのまま記録される時刻。
+   見出しと時刻を1行に並べ、枠で囲って目立たせる */
+#clockBox {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 6px auto;
+  padding: 6px 16px;
+  border: 2px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+#clockBox span {
+  font-size: 14px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+#nowClock {
+  margin: 0;
+  font-size: 32px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  color: var(--text);
+  letter-spacing: 1px;
+  white-space: nowrap;
 }
