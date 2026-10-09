@@ -90,7 +90,40 @@ function requireAuth(needRaceToken = false) {
     window.location.replace("./index.html");
     return null;
   }
+  // 期限切れのまま叩いても必ず失敗するので、送る前に止める
+  if (isTokenExpired(token)) {
+    logoutExpired();
+    return null;
+  }
   return { token, raceToken };
+}
+
+// ── ログインの有効期限 ──
+// Cognito の ID トークンは既定で1時間で切れる。切れた状態で API を叩くと、
+// API Gateway の Authorizer が拒否し、そのレスポンスには CORS ヘッダーが
+// 付かないため、ブラウザからは「CORSエラー」＝ fetch の例外にしか見えない。
+// 通信断と区別が付かないので、**トークンの中身（exp）を直接見る**。
+//
+// ID トークンは "ヘッダー.中身.署名" の形。中身は Base64URL の JSON で、
+// exp に失効時刻（UNIX秒）が入っている。ここでは**表示の出し分けにしか
+// 使わない**（安全の根拠はサーバー側の署名検証。01章§3）。
+function isTokenExpired(token) {
+  try {
+    const payload = JSON.parse(
+      atob(String(token).split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+    );
+    if (typeof payload.exp !== "number") return false; // 読めないときは止めない
+    return Date.now() >= payload.exp * 1000;
+  } catch {
+    return false; // 形が違うときはサーバーの判断に任せる
+  }
+}
+
+// 期限切れ。認証情報を消してログイン画面へ戻す（01章§7）
+function logoutExpired() {
+  clearAuth();
+  alert("ログインの有効期限が切れました。もう一度ログインしてください。");
+  window.location.replace("./index.html");
 }
 
 // 管理者画面用の認証ガード：token と circuit の両方が無ければ conform.html へ戻す
@@ -268,6 +301,12 @@ async function apiFetch(url, options = {}) {
     data = await res.json();
   } catch (err) {
     console.error("api fetch error:", err);
+    // 例外の中身からは原因が分からない（期限切れも通信断も同じ TypeError）。
+    // トークンが切れているならログイン画面へ、そうでなければ通信の問題として扱う
+    if (isTokenExpired(sessionStorage.getItem("token"))) {
+      logoutExpired();
+      return null;
+    }
     alert("通信に失敗しました。電波の状況を確認して、もう一度お試しください。");
     return null;
   }

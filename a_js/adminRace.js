@@ -90,6 +90,11 @@ async function adminFetch(url, options = {}) {
     data = await res.json();
   } catch (err) {
     console.error("admin fetch error:", err);
+    // 期限切れなら専用の文言で（通信断と区別する）
+    if (isTokenExpired(sessionStorage.getItem("token"))) {
+      logoutExpired(); // common.js
+      return null;
+    }
     clearAuth(); // common.js
     alert("通信に失敗しました。再度ログインしてください。");
     window.location.replace("./index.html");

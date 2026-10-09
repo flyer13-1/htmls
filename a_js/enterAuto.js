@@ -54,11 +54,19 @@ async function getInitData(cnt = 3) {
     if (handleApiError(response, data)) return null;
     return { carNumbers: data.carNum, driverData: data.driver };
   } catch (err) {
+    // ログインが切れている場合は何度試しても通らない。再試行せずログイン画面へ
+    if (isTokenExpired(sessionStorage.getItem("token"))) {
+      logoutExpired(); // common.js
+      return null;
+    }
     if (cnt > 0) {
       console.error("データ取得失敗", err);
       return await getInitData(cnt - 1);
     } else {
-      alert("初期データの取得に失敗しました。管理者に一度報告してください。");
+      alert(
+        "初期データを取得できませんでした。\n" +
+          "電波の状況を確認して、画面を再読み込みしてください。",
+      );
       return null;
     }
   }
