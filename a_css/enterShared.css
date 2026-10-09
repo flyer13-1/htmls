@@ -325,3 +325,12 @@ section {
     font-size: 20px;
   }
 }
+
+/* 車を選ぶまでの案内（#Driver 内）。common.js の renderDriverOptions が出し入れする */
+#driverHint {
+  flex: 1 1 100%;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 14px;
+  text-align: center;
+}

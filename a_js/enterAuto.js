@@ -335,6 +335,9 @@ renderLog(); // 起動時に保持済みの送信ログを復元（init の成�
     carNumSection.appendChild(btn);
   });
 
+  // 車を選ぶまではドライバー欄を出さない（HTMLの「ドライバー名」のままにしない）
+  renderDriverOptions([]); // common.js
+
   // イン/アウト共通の時刻ボタンハンドラを生成する。
   //   btn: ボタン要素 / shInput: 表示input / field: carDataのキー(inTime/outTime)
   function makeTimeHandler(btn, shInput, field) {

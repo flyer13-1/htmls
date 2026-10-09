@@ -223,6 +223,7 @@ function renderDriverOptions(items) {
     nameOf.set(letter, item);
   }
 
+  let shown = 0;
   document.querySelectorAll("#Driver label").forEach((label) => {
     const radio = document.getElementById(label.htmlFor);
     const item = nameOf.get(radio?.value);
@@ -230,6 +231,7 @@ function renderDriverOptions(items) {
       label.innerHTML = item;
       label.style.display = ""; // CSS（flex）に戻す
       if (radio) radio.disabled = false;
+      shown++;
     } else {
       label.style.display = "none";
       if (radio) {
@@ -238,6 +240,11 @@ function renderDriverOptions(items) {
       }
     }
   });
+
+  // 1つも出ないときは、欄が空のままで壊れて見えるので案内を出す
+  // （車を選ぶ前、またはドライバーが1人も登録されていない車）
+  const hint = document.getElementById("driverHint");
+  if (hint) hint.hidden = shown > 0;
 }
 
 // 一般画面のAPI呼び出し口（設計: doc/IF/common.md §5）。
