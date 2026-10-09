@@ -106,15 +106,35 @@ function appendLog(valid) {
   const date = now.toLocaleDateString("ja-JP");
   const time = now.toLocaleTimeString("ja-JP");
 
+  // 送った内容をそのまま残す（表示に使う項目はすべて持つ）
   const success = Object.entries(valid).map(([car, p]) => ({
     car,
-    inTime: p.inTime,
+    inTime:  p.inTime,
     outTime: p.outTime,
+    driver:  p.outDriver,
+    tire:    p.tire,
+    oil:     p.oil,
+    note:    p.note,
   }));
 
   log.unshift({ date, time, success });
   localStorage.setItem(LOG_KEY, JSON.stringify(log));
   renderLog();
+}
+
+// ログ1行の形:
+//   [ゼッケン番号] イン/アウト  DR:枠  Tire:あり/なし  oil:あり/なし  text:備考
+// 項目を持たない古いログ（この形式より前に保存したもの）は「-」で出す。
+function formatLogLine(s) {
+  const t = (v) => (v ? formatTimeDisplay(v) : "-");
+  const yn = (v) => (v === undefined ? "-" : v ? "あり" : "なし");
+  return (
+    `[${s.car}] ${t(s.inTime)}/${t(s.outTime)}` +
+    `  DR:${s.driver || "-"}` +
+    `  Tire:${yn(s.tire)}` +
+    `  oil:${yn(s.oil)}` +
+    `  text:${s.note || ""}`
+  );
 }
 
 // 前日以前のログを localStorage から削除する。
@@ -142,12 +162,8 @@ function renderLog() {
   logContent.innerHTML = "";
   log.forEach((entry) => {
     entry.success.forEach((s) => {
-      const times = [s.inTime, s.outTime]
-        .filter(Boolean)
-        .map(formatTimeDisplay)
-        .join(" / ");
       const line = document.createElement("div");
-      line.textContent = `✅ [${entry.time}] 送信 車番 ${s.car}：${times}`;
+      line.textContent = formatLogLine(s);
       logContent.appendChild(line);
     });
   });
