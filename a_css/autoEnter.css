@@ -148,14 +148,32 @@ section {
 }
 
 /* ===== 画面上部の時計 ===== */
-/* ここに出ている時刻が、そのまま記録される時刻（ずれの補正を含む）。
-   押した瞬間の値を確かめられるよう、大きく等幅で出す */
+/* ここに出ている時刻が、そのまま記録される時刻。
+   見出しと時刻を1行に並べ、枠で囲って目立たせる */
+#clockBox {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 6px auto;
+  padding: 6px 16px;
+  border: 2px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+#clockBox span {
+  font-size: 14px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
 #nowClock {
-  margin: 4px 0;
+  margin: 0;
   font-size: 32px;
   font-weight: bold;
   font-variant-numeric: tabular-nums;
   font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
   color: var(--text);
   letter-spacing: 1px;
+  white-space: nowrap;
 }

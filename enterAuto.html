@@ -14,13 +14,14 @@
       <h1>自動入力モード</h1>
       <!-- ここに出ている時刻が、イン／アウトで記録される時刻そのもの
            （この端末の時計。a_js/enterAuto.js の nowIso） -->
-      <p id="nowClock">--:--:--</p>
-      <p>
-        この時刻で記録します。
-        <a href="https://time.is/ja/Tokyo" target="_blank"
-          >標準時とずれていないか確認してください。</a
-        >
-      </p>
+
+      <!-- <p> の中に <h2> は置けない（ブラウザが <p> を閉じてしまい2行になる）。
+           1行に並べるため div で囲む -->
+      <div id="clockBox">
+        <span>この端末の時計:</span>
+        <h2 id="nowClock">--:--:--</h2>
+      </div>
+
     </header>
 
     <main>
@@ -42,7 +43,9 @@
           <h2>交代したドライバー</h2>
           <section id="Driver">
             <!-- 車を選ぶまでの案内。common.js の renderDriverOptions が出し入れする -->
-            <p id="driverHint">車番を選ぶと、その車のドライバーが表示されます</p>
+            <p id="driverHint">
+              車番を選ぶと、その車のドライバーが表示されます
+            </p>
             <input type="radio" name="driver" id="driverA" value="A" />
             <label for="driverA"
               >A <br />
