@@ -119,3 +119,86 @@
 #showCarData .grid-table td:nth-child(9)  { width:  90px; }
 #showCarData .grid-table th:nth-child(10),
 #showCarData .grid-table td:nth-child(10) { width: 120px; }
+
+/* ===== リタイア欄 ===== */
+/* enterShared.css の section は flex で、見出しと中身が左右に分かれて
+   中身が右端に詰まる。ここでは縦に積んで横幅いっぱいに使う */
+#retireArea {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+}
+
+#retireArea h2 {
+  margin: 0 0 6px;
+  text-align: left;
+}
+
+#retireRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+#retireNone {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 16px;
+}
+
+#retireEdit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+#retireEdit[hidden] {
+  display: none;
+}
+
+/* 理由は残り幅を全部使う（画面の端まで伸ばす） */
+#retireReason {
+  flex: 1 1 320px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0 12px;
+  font-size: 18px;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--border-strong);
+  border-radius: 8px;
+}
+
+#retireEdit button {
+  min-height: 48px;
+  padding: 0 20px;
+  font-size: 16px;
+  font-weight: bold;
+  white-space: nowrap;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--border-strong);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#retireEdit button.danger {
+  color: #b91c1c;
+  border-color: #b91c1c;
+}
+
+/* 狭い画面では、理由を1行占有させてボタンを下に回す */
+@media screen and (max-width: 600px) {
+  #retireReason {
+    flex: 1 1 100%;
+  }
+
+  #retireEdit button {
+    flex: 1 1 calc(50% - 4px);
+    padding: 0 8px;
+  }
+}
