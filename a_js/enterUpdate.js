@@ -9,6 +9,8 @@ showCarDiv.style.display = "none";
 // 取得したピット記録。キー = pitNum
 let pitRecords    = {};
 let changedRecords = {};
+// リタイア理由（車両ごとに1つ。GET /entries/update が別項目で返す）
+let retireReason  = "";
 
 // ── ユーティリティ ──
 
@@ -48,11 +50,13 @@ async function fetchCarData(carNumVal) {
   ); // common.js
   if (!data) { showCarDiv.style.display = "none"; return; }
 
+  // レスポンスは logs（配列）＋ reason。画面は pitNum で引くので対応表にする
   pitRecords    = {};
   changedRecords = {};
-  Object.entries(data).forEach(([key, val]) => {
-    if (key !== "msg") pitRecords[val.pitNum] = val;
-  });
+  retireReason  = data.reason || "";
+  for (const row of data.logs || []) {
+    pitRecords[row.pitNum] = row;
+  }
 
   renderTable();
 }
@@ -108,7 +112,7 @@ function buildDriverRadios(currentDriver) {
 
 function openEditForm(rec) {
   const safeNote   = (rec.note   || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-  const safeReason = (rec.reason || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  const safeReason = retireReason.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
   // リタイア欄：retire=true のときのみ表示（取り消し or 理由変更）
   const retireSection = rec.retire ? `
@@ -203,7 +207,7 @@ form.addEventListener("submit", async (e) => {
     // リタイア取り消し（差分不要）
     body = { selection: "3", carNum: carNumVal };
 
-  } else if (reasonEl?.value.trim() && reasonEl.value.trim() !== (orig?.reason || "")) {
+  } else if (reasonEl?.value.trim() && reasonEl.value.trim() !== retireReason) {
     // リタイア理由が実際に変わっている場合のみ
     body = { selection: "2", carNum: carNumVal, reason: reasonEl.value.trim() };
 
