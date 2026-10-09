@@ -475,6 +475,13 @@ button.secondary {
 }
 
 /* ===== ピット記録のポップアップ（04章§3.3・§5） ===== */
+/* hidden で閉じる。CSS で display を指定すると、ブラウザ既定の
+   [hidden] { display: none } を上書きしてしまうため、打ち消しを必ず書く
+   （formPage.css にも同じ注意書きがある） */
+.modal[hidden] {
+  display: none;
+}
+
 .modal {
   position: fixed;
   inset: 0;
