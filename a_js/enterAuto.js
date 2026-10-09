@@ -123,13 +123,14 @@ function appendLog(valid) {
 }
 
 // ログ1行の形:
-//   [ゼッケン番号] イン/アウト  DR:枠  Tire:あり/なし  oil:あり/なし  text:備考
+//   ✅ [ゼッケン番号] イン/アウト  DR:枠  Tire:あり/なし  oil:あり/なし  text:備考
+// 先頭の ✅ は「送信できた」印（ログに残るのは成功したぶんだけ）
 // 項目を持たない古いログ（この形式より前に保存したもの）は「-」で出す。
 function formatLogLine(s) {
   const t = (v) => (v ? formatTimeDisplay(v) : "-");
   const yn = (v) => (v === undefined ? "-" : v ? "あり" : "なし");
   return (
-    `[${s.car}] ${t(s.inTime)}/${t(s.outTime)}` +
+    `✅ [${s.car}] ${t(s.inTime)}/${t(s.outTime)}` +
     `  DR:${s.driver || "-"}` +
     `  Tire:${yn(s.tire)}` +
     `  oil:${yn(s.oil)}` +
