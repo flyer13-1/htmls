@@ -45,6 +45,25 @@
         </section>
       </form>
 
+      <!-- 今リタイアしている車両（GET /entries/retire の isRetired: true だけ）。
+           二重登録（理由の上書き）に気づけるよう、登録済みを見えるようにする -->
+      <section id="retiredArea">
+        <h2>リタイア済みの車両（<span id="retiredCount">0</span>台）</h2>
+        <p id="retiredEmpty" hidden>リタイアしている車両はいません。</p>
+        <div id="retiredWrap" hidden>
+          <table id="retiredTable">
+            <thead>
+              <tr>
+                <th>車番</th>
+                <th>作業エリア</th>
+                <th>リタイア理由</th>
+              </tr>
+            </thead>
+            <tbody id="retiredBody"></tbody>
+          </table>
+        </div>
+      </section>
+
       <div id="toast"></div>
     </main>
   </body>

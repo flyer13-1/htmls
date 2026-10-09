@@ -24,3 +24,61 @@
   padding: 0 8px;
 }
 
+/* ===== リタイア済みの車両の一覧 ===== */
+/* enterShared.css の section は flex なので、縦に積むため block に戻す */
+#retiredArea {
+  display: block;
+  margin: 10px 5px;
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-align: left;
+}
+
+#retiredArea h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: var(--text-dim);
+}
+
+#retiredEmpty {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+#retiredWrap {
+  overflow-x: auto;
+}
+
+#retiredTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  color: var(--text);
+}
+
+#retiredTable th,
+#retiredTable td {
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  text-align: left;
+}
+
+#retiredTable th {
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* 車番と作業エリアは幅を詰め、理由に残りを使わせる */
+#retiredTable th:nth-child(1),
+#retiredTable td:nth-child(1),
+#retiredTable th:nth-child(2),
+#retiredTable td:nth-child(2) {
+  width: 5em;
+  white-space: nowrap;
+}
