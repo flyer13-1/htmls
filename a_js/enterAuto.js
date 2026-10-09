@@ -157,6 +157,18 @@ function renderLog() {
 // carData を送信対象に仕分ける。バリデーション（2個必須）は廃止。
 // inTime / outTime のどちらかがあれば送る。押された時刻だけが入る。
 //   valid: { 車番: { inTime, outTime, outDriver, tire, oil, note } }
+// 出時刻が入時刻より前の車番を返す（サーバーと同じ規則。autoCreate.mjs）。
+// 送る前にここで弾く。サーバーに400で弾かれてから端末に残すと、その行が
+// 以降の送信に毎回混ざって全部失敗するため（2026-10-09追加）。
+function carsWithBadTimeOrder(rows) {
+  return Object.entries(rows || {})
+    .filter(
+      ([, d]) =>
+        d && d.inTime && d.outTime && new Date(d.outTime) < new Date(d.inTime),
+    )
+    .map(([car]) => car);
+}
+
 function collectCarData() {
   const valid = {};
   for (const car in carData) {
@@ -175,10 +187,17 @@ function collectCarData() {
   return { valid };
 }
 
-// 送信（POST /entries/auto）。成功時はレスポンス、失敗時は null を返す。
+// 送信（POST /entries/auto）。
+// 戻り値: { ok: true, data } / { ok: false, retryable: boolean }
+//
+// **retryable が肝心**（2026-10-09追加）。
+//   true : 届かなかった（通信断・401・403・500）。端末に残して、後でもう一度送る
+//   false: 届いたが内容を拒否された（400）。**端末に残してはいけない。**
+//          残すと次回以降も同じデータを一緒に送り続け、毎回400で弾かれて、
+//          直した内容すら一生送れなくなる（実際に起きた）
 async function sendData(current, unsent) {
   const auth = requireAuth(true);
-  if (!auth) return null;
+  if (!auth) return { ok: false, retryable: true };
 
   try {
     const response = await fetch(
@@ -194,11 +213,14 @@ async function sendData(current, unsent) {
       },
     );
     const data = await response.json();
-    if (handleApiError(response, data)) return null; // common.js（エラー時 alert）
-    return data;
+    if (handleApiError(response, data)) {
+      // common.js が文言を出す。400 は内容の問題なので残さない
+      return { ok: false, retryable: response.status !== 400 };
+    }
+    return { ok: true, data };
   } catch (err) {
     console.error("送信エラー:", err);
-    return null;
+    return { ok: false, retryable: true }; // 届いていないので残す
   }
 }
 
@@ -429,9 +451,39 @@ renderLog(); // 起動時に保持済みの送信ログを復元（init の成�
         return;
       }
 
+      // ── 送る前に時刻の前後を確認する ──
+      // 入力中のぶん。直せばよいので、端末には残さずその場で止める
+      const badNow = carsWithBadTimeOrder(valid);
+      if (badNow.length > 0) {
+        alert(
+          `車番 ${badNow.join(" / ")}: 出時刻は入時刻以降にしてください。\n` +
+            `時刻を直してから、もう一度送信してください。`,
+        );
+        return;
+      }
+
+      // 未送信データのぶん。このままでは何を送っても失敗し続けるので、
+      // 破棄するかを尋ねる（逃げ道が無いと詰まる）
+      const badUnsent = carsWithBadTimeOrder(unsent);
+      if (badUnsent.length > 0) {
+        const discard = confirm(
+          `未送信データに、出時刻が入時刻より前の行があります（車番 ${badUnsent.join(" / ")}）。\n` +
+            `このままでは送信できません。\n\n` +
+            `OK: この行を破棄して送信する\n` +
+            `キャンセル: 送信しない`,
+        );
+        if (!discard) return;
+        for (const car of badUnsent) delete unsent[car];
+        localStorage.setItem("unsentData", JSON.stringify(unsent));
+        if (Object.keys(valid).length === 0 && Object.keys(unsent).length === 0) {
+          alert("未送信データを破棄しました。送信するデータがありません");
+          return;
+        }
+      }
+
       const result = await sendData(valid, unsent);
 
-      if (result) {
+      if (result.ok) {
         // 送信できた車だけクリア
         for (const car in valid) carData[car] = emptyCar();
         localStorage.removeItem("unsentData");
@@ -439,12 +491,20 @@ renderLog(); // 起動時に保持済みの送信ログを復元（init の成�
         clearFormDisplay();
         appendLog(valid); // 成功をログ＆localStorage保持
         alert("送信成功");
-      } else {
-        // 失敗：未送信データを保存（既存 unsent にマージ）
+      } else if (result.retryable) {
+        // 届かなかった：未送信データとして端末に残す（既存 unsent にマージ）
         const merged = { ...unsent, ...valid };
         localStorage.setItem("unsentData", JSON.stringify(merged));
         alert(
-          "[重要]送信に失敗しました。データを保存しました。一度開発者に連絡してください。",
+          "送信に失敗しました。入力内容は端末に保存したので、\n" +
+            "通信の状態を確認して、もう一度送信してください。",
+        );
+      } else {
+        // 内容を拒否された（400）：残すと次回以降も必ず失敗するので保存しない。
+        // 入力は画面に残っているので、直してから送り直せる
+        alert(
+          "入力内容に誤りがあるため送信できませんでした。\n" +
+            "上のメッセージのとおり直してから、もう一度送信してください。",
         );
       }
     } finally {
