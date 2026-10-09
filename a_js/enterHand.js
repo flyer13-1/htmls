@@ -125,7 +125,7 @@ handForm.addEventListener("submit", async (e) => {
   btns.forEach((b) => (b.disabled = true));
 
   try {
-    const res = await fetch(
+    const data = await apiFetch(
       `${API}/entries/hand`,
       {
         method: "POST",
@@ -138,9 +138,8 @@ handForm.addEventListener("submit", async (e) => {
           [carNum]: { inTime, outTime, outDriver, tire, oil, note },
         }),
       },
-    );
-    const data = await res.json();
-    if (handleApiError(res, data)) return;
+    ); // common.js
+    if (!data) return;
 
     if (goToMain) {
       window.location.href = "./main.html";

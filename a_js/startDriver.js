@@ -22,12 +22,11 @@ async function loadStartDrivers() {
   const auth = requireAuth(true);
   if (!auth) return;
 
-  const res = await fetch(`${API}/entries/init`, {
+  const data = await apiFetch(`${API}/entries/init`, {
     method: "GET",
     headers: { "X-Race-Id": auth.raceToken, Authorization: `Bearer ${auth.token}` },
-  });
-  const data = await res.json();
-  if (handleApiError(res, data)) return;
+  }); // common.js
+  if (!data) return;
 
   renderStartDrivers(data, auth);
 }
@@ -70,7 +69,7 @@ function renderStartDrivers(data, auth) {
 }
 
 async function saveStartDriver(auth, carNum, driver, current) {
-  const res = await fetch(`${API}/entries/start-driver`, {
+  const data = await apiFetch(`${API}/entries/start-driver`, {
     method: current ? "PUT" : "POST",
     headers: {
       "Content-Type": "application/json",
@@ -78,9 +77,8 @@ async function saveStartDriver(auth, carNum, driver, current) {
       Authorization: `Bearer ${auth.token}`,
     },
     body: JSON.stringify({ carNum, driver }),
-  });
-  const data = await res.json();
-  if (handleApiError(res, data)) return;
+  }); // common.js
+  if (!data) return;
 
   await loadStartDrivers();
 }

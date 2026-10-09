@@ -42,12 +42,11 @@ async function fetchCarData(carNumVal) {
   tbody.innerHTML = "<tr><td colspan='10'>取得中...</td></tr>";
   showCarDiv.style.display = "block";
 
-  const res  = await fetch(
+  const data = await apiFetch(
     `${API}/entries/update?carNum=${encodeURIComponent(carNumVal)}`,
     { headers: { "X-Race-Id": auth.raceToken, Authorization: `Bearer ${auth.token}` } },
-  );
-  const data = await res.json();
-  if (handleApiError(res, data)) { showCarDiv.style.display = "none"; return; }
+  ); // common.js
+  if (!data) { showCarDiv.style.display = "none"; return; }
 
   pitRecords    = {};
   changedRecords = {};
@@ -239,16 +238,15 @@ form.addEventListener("submit", async (e) => {
   if (submitBtn) submitBtn.disabled = true;
 
   try {
-    const res  = await fetch(
+    const data = await apiFetch(
       `${API}/entries/update`,
       {
         method:  "PUT",
         headers: { "Content-Type": "application/json", "X-Race-Id": auth.raceToken, Authorization: `Bearer ${auth.token}` },
         body:    JSON.stringify(body),
       },
-    );
-    const data = await res.json();
-    if (handleApiError(res, data)) return;
+    ); // common.js
+    if (!data) return;
 
     alert("送信成功");
     await fetchCarData(carNumVal);

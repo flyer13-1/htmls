@@ -201,6 +201,33 @@ document.querySelectorAll("[data-required]").forEach((input) => {
   if (visible) showStep(visible);
 })();
 
+// 一般画面のAPI呼び出し口（設計: doc/IF/common.md §5）。
+// 成功ならレスポンスのデータ、失敗なら null を返す（呼び出し側は `if (!data) return;`）。
+//
+// fetch が例外になる場合（Authorizer の拒否で CORS ヘッダーが付かない・通信が切れた）を
+// 1箇所で扱う。これが無いと、画面によっては例外が誰にも拾われず「押しても何も起きない」
+// 状態になっていた。
+//
+// **管理者画面の adminFetch とは例外時の扱いが違う。** admin は認証を消してログイン画面へ
+// 戻すが（01章§7）、一般画面は**その画面に留まる**。サーキットは電波が悪いことがあり、
+// 入力画面は未送信データを端末に持って再送する作りのため、通信が切れただけで
+// ログイン画面へ飛ばすと入力中のものを失う。
+//
+// 403 の reason は見ない（管理者画面だけが adminFetch で分岐する）。
+async function apiFetch(url, options = {}) {
+  let res;
+  let data;
+  try {
+    res = await fetch(url, options);
+    data = await res.json();
+  } catch (err) {
+    console.error("api fetch error:", err);
+    alert("通信に失敗しました。電波の状況を確認して、もう一度お試しください。");
+    return null;
+  }
+  return handleApiError(res, data) ? null : data;
+}
+
 // レスポンス共通処理。
 // エラー（非200 / msg が空文字でない）の場合は alert を出して true を返す。
 // → 呼び出し側は `if (handleApiError(response, data)) return;` で早期離脱できる。

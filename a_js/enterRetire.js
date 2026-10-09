@@ -48,7 +48,7 @@ document.getElementById("retireForm").addEventListener("submit", async (e) => {
   submitBtn.disabled = true;
 
   try {
-    const res = await fetch(`${API}/entries/retire`, {
+    const data = await apiFetch(`${API}/entries/retire`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -56,9 +56,8 @@ document.getElementById("retireForm").addEventListener("submit", async (e) => {
         Authorization: `Bearer ${auth.token}`,
       },
       body: JSON.stringify({ carNum, reason: reasonVal }),
-    });
-    const data = await res.json();
-    if (handleApiError(res, data)) return;
+    }); // common.js
+    if (!data) return;
 
     showToast("送信完了");
     carNumber.value = "";
