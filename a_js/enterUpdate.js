@@ -9,8 +9,10 @@ showCarDiv.style.display = "none";
 // 取得したピット記録。キー = pitNum
 let pitRecords    = {};
 let changedRecords = {};
-// リタイア理由（車両ごとに1つ。GET /entries/update が別項目で返す）
+// リタイアの状態（車両ごとに1つ。GET /entries/update が logs とは別に返す）
 let retireReason  = "";
+let isRetired     = false;
+let currentCarNum = null; // 今表示している車番（リタイア欄の送信に使う）
 
 // ── ユーティリティ ──
 
@@ -50,14 +52,17 @@ async function fetchCarData(carNumVal) {
   ); // common.js
   if (!data) { showCarDiv.style.display = "none"; return; }
 
-  // レスポンスは logs（配列）＋ reason。画面は pitNum で引くので対応表にする
+  // レスポンスは logs（配列）＋ isRetired / reason。画面は pitNum で引くので対応表にする
   pitRecords    = {};
   changedRecords = {};
   retireReason  = data.reason || "";
+  isRetired     = data.isRetired === true;
+  currentCarNum = Number(carNumVal);
   for (const row of data.logs || []) {
     pitRecords[row.pitNum] = row;
   }
 
+  renderRetireArea();
   renderTable();
 }
 
@@ -108,21 +113,70 @@ function buildDriverRadios(currentDriver) {
   }).join("");
 }
 
+// ── リタイア欄（ピット記録とは独立。記録が無い車でも取り消せる） ──
+
+function renderRetireArea() {
+  const area = document.getElementById("retireArea");
+  area.hidden = !isRetired;
+  if (!isRetired) return;
+
+  document.getElementById("retireState").textContent =
+    `この車両はリタイア登録されています（車番 ${currentCarNum}）。`;
+  document.getElementById("retireReason").value = retireReason;
+}
+
+// 理由の変更（selection=2）
+async function onChangeRetireReason() {
+  const reason = document.getElementById("retireReason").value.trim();
+  if (!reason) {
+    alert("理由を入力してください");
+    return;
+  }
+  if (reason === retireReason) {
+    alert("理由が変わっていません");
+    return;
+  }
+  if (!(await sendRetire({ selection: "2", carNum: currentCarNum, reason }))) return;
+  alert("リタイア理由を変更しました");
+  await fetchCarData(currentCarNum);
+}
+
+// 取り消し（selection=3）
+async function onCancelRetire() {
+  if (!confirm(`車番 ${currentCarNum} のリタイアを取り消します。よろしいですか？`)) return;
+  if (!(await sendRetire({ selection: "3", carNum: currentCarNum }))) return;
+  alert("リタイアを取り消しました");
+  await fetchCarData(currentCarNum);
+}
+
+async function sendRetire(body) {
+  const auth = requireAuth(true);
+  if (!auth) return false;
+
+  const data = await apiFetch(`${API}/entries/update`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Race-Id": auth.raceToken,
+      Authorization: `Bearer ${auth.token}`,
+    },
+    body: JSON.stringify(body),
+  }); // common.js
+  return !!data;
+}
+
+document
+  .getElementById("retireReasonBtn")
+  .addEventListener("click", onChangeRetireReason);
+document.getElementById("retireCancelBtn").addEventListener("click", onCancelRetire);
+
 // ── 変更フォームを全項目 JS 側で生成 ──
 
 function openEditForm(rec) {
   const safeNote   = (rec.note   || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-  const safeReason = retireReason.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-
-  // リタイア欄：retire=true のときのみ表示（取り消し or 理由変更）
-  const retireSection = rec.retire ? `
-      <h2>リタイア対応</h2>
-      <section id="retireAction">
-        <input type="checkbox" id="retireCancel" />
-        <label for="retireCancel">リタイア取り消し</label>
-        <label for="reason" style="flex: 1 1 100%; margin-top: 8px">理由変更</label>
-        <input type="text" id="reason" maxlength="200" value="${safeReason}" />
-      </section>` : "";
+  // リタイアの取り消し・理由変更は、この行のフォームではなく画面上部の
+  // 「リタイア」欄で行う（2026-10-09変更）。ピット記録が1件も無い車でも
+  // 取り消せるようにするため、記録ごとのフォームから切り離した。
 
   form.innerHTML = `
     <input type="hidden" id="hiddenCarNum" value="${rec.carNum}" />
@@ -155,7 +209,6 @@ function openEditForm(rec) {
         <input type="text" id="note" maxlength="200" value="${safeNote}" />
       </section>
 
-      ${retireSection}
     </article>
 
     <section id="submits">
@@ -198,20 +251,11 @@ form.addEventListener("submit", async (e) => {
   const orig   = pitRecords[pitNum];
   const refIso = orig?.inTime || orig?.outTime || new Date().toISOString();
 
-  const retireCancelEl = document.getElementById("retireCancel");
-  const reasonEl       = document.getElementById("reason");
-
+  // このフォームはピット記録の変更だけを扱う（selection=1）。
+  // リタイアの取り消し・理由変更は画面上部の「リタイア」欄。
   let body;
 
-  if (retireCancelEl?.checked) {
-    // リタイア取り消し（差分不要）
-    body = { selection: "3", carNum: carNumVal };
-
-  } else if (reasonEl?.value.trim() && reasonEl.value.trim() !== retireReason) {
-    // リタイア理由が実際に変わっている場合のみ
-    body = { selection: "2", carNum: carNumVal, reason: reasonEl.value.trim() };
-
-  } else {
+  {
     // 取得値と現在値の差分だけ body に含める
     const changes = { selection: "1", carNum: carNumVal, when: String(pitNum) };
 

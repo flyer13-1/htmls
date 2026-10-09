@@ -20,6 +20,23 @@
         <p>最初に変更したい車両を指定してください。</p>
         <input type="number" id="carNum" max="999" />
 
+        <!-- リタイアの状態（ピット記録とは独立）。記録が1件も無い車でも
+             取り消せるように、表の外に置く -->
+        <section id="retireArea" hidden>
+          <h2>リタイア</h2>
+          <p id="retireState"></p>
+          <div id="retireReasonField">
+            <label for="retireReason">理由</label>
+            <input type="text" id="retireReason" maxlength="200" />
+          </div>
+          <div id="retireActions">
+            <button type="button" id="retireReasonBtn">理由を変更する</button>
+            <button type="button" id="retireCancelBtn" class="danger">
+              リタイアを取り消す
+            </button>
+          </div>
+        </section>
+
         <div id="showCarData">
           <table class="grid-table" aria-label="ピット情報">
             <thead>

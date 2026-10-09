@@ -15,6 +15,9 @@ const retiredBody = document.getElementById("retiredBody");
 
 const RETIRED_EMPTY_MESSAGE = "リタイアしている車両はいません。";
 
+// 今リタイア登録されている車番。二重登録を送る前に止めるのに使う
+let retiredCarNums = new Set();
+
 function showToast(msg) {
   toast.textContent = msg;
   toast.style.display = "block";
@@ -41,6 +44,17 @@ document.getElementById("retireForm").addEventListener("submit", async (e) => {
   const reasonVal = reason.value.trim();
   if (!reasonVal) {
     alert("リタイア理由を入力してください");
+    return;
+  }
+
+  // 既にリタイア登録されている車両は送らない（サーバーも409で弾く）。
+  // 以前は条件なしで上書きしていたため、先に入れた理由が黙って消えていた
+  if (retiredCarNums.has(carNum)) {
+    alert(
+      `車番 ${carNum} は既にリタイア登録されています。
+` +
+        `理由の変更や取り消しは「更新モード」で行ってください。`,
+    );
     return;
   }
 
@@ -105,7 +119,9 @@ async function loadRetired() {
     const data = await res.json();
     if (handleApiError(res, data)) return;
 
-    renderRetired((data.entries || []).filter((entry) => entry.isRetired));
+    const retired = (data.entries || []).filter((entry) => entry.isRetired);
+    retiredCarNums = new Set(retired.map((entry) => Number(entry.carNum)));
+    renderRetired(retired);
   } catch (err) {
     console.error(err);
     // 一覧は登録の補助なので、取れなくても画面は使えるようにする（登録は別のAPI）
